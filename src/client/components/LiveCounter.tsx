@@ -13,9 +13,7 @@ export function LiveCounter({ count }: { count: number }): JSX.Element {
     <div className="flex items-end justify-between gap-3">
       <div
         className={`text-5xl font-bold tabular-nums tracking-tight transition-colors ${
-          pulse
-            ? "text-emerald-500 dark:text-emerald-400"
-            : "text-slate-900 dark:text-white"
+          pulse ? "text-emerald-500 dark:text-emerald-400" : "text-slate-900 dark:text-white"
         }`}
       >
         {count.toLocaleString()}

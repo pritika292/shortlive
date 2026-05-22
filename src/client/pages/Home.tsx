@@ -46,8 +46,8 @@ export function HomePage(): JSX.Element {
                   Smart webhooks.
                 </h1>
                 <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-xl leading-relaxed">
-                  Watch every click land in under a second. Pin them on a map.
-                  Trigger HMAC-signed webhooks when a click pattern matches your rule.
+                  Watch every click land in under a second. Pin them on a map. Trigger HMAC-signed
+                  webhooks when a click pattern matches your rule.
                 </p>
                 <div className="flex flex-wrap gap-3 text-base">
                   <a href="/demo" className="btn-primary text-base px-7 py-3">
@@ -85,7 +85,10 @@ export function HomePage(): JSX.Element {
 
               {/* Right column — mock dashboard preview */}
               <div className="relative">
-                <div className="absolute inset-0 -m-4 rounded-3xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 blur-2xl" aria-hidden />
+                <div
+                  className="absolute inset-0 -m-4 rounded-3xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 blur-2xl"
+                  aria-hidden
+                />
                 <div className="relative glass-card p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2">
@@ -102,7 +105,9 @@ export function HomePage(): JSX.Element {
                   <div className="text-5xl font-bold tabular-nums text-slate-900 dark:text-white mb-1">
                     1,842
                   </div>
-                  <div className="text-xs uppercase tracking-wider text-slate-500 mb-6">Total clicks</div>
+                  <div className="text-xs uppercase tracking-wider text-slate-500 mb-6">
+                    Total clicks
+                  </div>
                   <SparkChart />
                   <div className="mt-5 space-y-2.5">
                     <FakeClick flag="🇺🇸" country="United States" device="desktop" />
@@ -138,8 +143,8 @@ export function HomePage(): JSX.Element {
               accent="emerald"
               title="Sub-second analytics"
             >
-              Live click feed, world map, and time-series chart, pushed over a
-              WebSocket so dashboards tick instantly.
+              Live click feed, world map, and time-series chart, pushed over a WebSocket so
+              dashboards tick instantly.
             </Feature>
             <Feature
               icon={
@@ -162,8 +167,8 @@ export function HomePage(): JSX.Element {
               accent="cyan"
               title="Four rule types"
             >
-              Threshold, velocity (sliding window), first-of-kind, and
-              per-click filters, each with cooldowns and per-rule destinations.
+              Threshold, velocity (sliding window), first-of-kind, and per-click filters, each with
+              cooldowns and per-rule destinations.
             </Feature>
             <Feature
               icon={
@@ -185,8 +190,8 @@ export function HomePage(): JSX.Element {
               accent="violet"
               title="Signed webhooks"
             >
-              HMAC-SHA256 delivery, 5-attempt exponential backoff,
-              dead-letter queue on failure, idempotent retries.
+              HMAC-SHA256 delivery, 5-attempt exponential backoff, dead-letter queue on failure,
+              idempotent retries.
             </Feature>
           </div>
         </section>
@@ -198,7 +203,10 @@ export function HomePage(): JSX.Element {
           </div>
           <div className="marquee">
             {Array.from({ length: 2 }).map((_, dup) => (
-              <div key={dup} className="flex items-center gap-10 px-5 text-slate-600 dark:text-slate-300 font-semibold text-lg">
+              <div
+                key={dup}
+                className="flex items-center gap-10 px-5 text-slate-600 dark:text-slate-300 font-semibold text-lg"
+              >
                 <span>TypeScript</span>
                 <span className="opacity-40">·</span>
                 <span>React</span>
@@ -240,8 +248,9 @@ export function HomePage(): JSX.Element {
           </div>
           <div className="grid gap-6 md:grid-cols-4">
             <Step n="1" title="Click">
-              Visitor hits <code className="font-mono text-emerald-600 dark:text-emerald-400">/abc123</code> and we 302
-              to their target before logging anything.
+              Visitor hits{" "}
+              <code className="font-mono text-emerald-600 dark:text-emerald-400">/abc123</code> and
+              we 302 to their target before logging anything.
             </Step>
             <Step n="2" title="Log">
               We enqueue the click async (GeoIP, device, referrer) and broadcast over Redis pub/sub.
@@ -250,7 +259,8 @@ export function HomePage(): JSX.Element {
               Each owner-defined rule runs against the click. Sliding windows live in Redis ZSETs.
             </Step>
             <Step n="4" title="Deliver">
-              Matching rules push jobs onto BullMQ. We POST HMAC-signed payloads with retries and a DLQ.
+              Matching rules push jobs onto BullMQ. We POST HMAC-signed payloads with retries and a
+              DLQ.
             </Step>
           </div>
         </section>
@@ -262,8 +272,8 @@ export function HomePage(): JSX.Element {
               See it tick in real time.
             </h2>
             <p className="text-slate-600 dark:text-slate-300 max-w-xl mx-auto mb-8 text-lg">
-              The demo dashboard simulates traffic from 50+ cities. Watch the map
-              light up, the chart fill in, the recent feed scroll.
+              The demo dashboard simulates traffic from 50+ cities. Watch the map light up, the
+              chart fill in, the recent feed scroll.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <a href="/demo" className="btn-primary text-base px-7 py-3">
@@ -284,7 +294,9 @@ export function HomePage(): JSX.Element {
 function Stat({ value, label }: { value: string; label: string }): JSX.Element {
   return (
     <div>
-      <div className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{value}</div>
+      <div className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        {value}
+      </div>
       <div className="text-xs uppercase tracking-wider text-slate-500 mt-0.5">{label}</div>
     </div>
   );
@@ -302,7 +314,9 @@ function FakeClick({
   return (
     <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/60 dark:bg-white/[0.03] border border-slate-200/60 dark:border-white/5">
       <span className="flex items-center gap-2.5 text-sm">
-        <span className="text-base" aria-hidden>{flag}</span>
+        <span className="text-base" aria-hidden>
+          {flag}
+        </span>
         <span className="font-medium text-slate-700 dark:text-slate-200">{country}</span>
         <span className="text-xs text-slate-500">{device}</span>
       </span>

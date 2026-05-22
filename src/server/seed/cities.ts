@@ -558,7 +558,6 @@ export const CITIES: City[] = [
     ua: ua(2),
     ip: "203.0.113.92",
   },
-
 ];
 
 // Continent share of total clicks. Sums to ~1.0.

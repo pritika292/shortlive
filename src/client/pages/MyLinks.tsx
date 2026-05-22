@@ -138,7 +138,10 @@ export function MyLinksPage(): JSX.Element {
               </thead>
               <tbody className="divide-y divide-slate-200/60 dark:divide-white/5 text-slate-700 dark:text-slate-300">
                 {links.map((l) => (
-                  <tr key={l.short} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                  <tr
+                    key={l.short}
+                    className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors"
+                  >
                     <td className="px-5 py-3.5 font-mono">
                       <a
                         className="font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300"

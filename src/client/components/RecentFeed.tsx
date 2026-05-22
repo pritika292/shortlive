@@ -20,9 +20,7 @@ function relativeTime(ts: number, now: number = Date.now()): string {
 export function RecentFeed({ clicks }: { clicks: ClickEvent[] }): JSX.Element {
   if (clicks.length === 0) {
     return (
-      <div className="py-6 text-center text-sm text-slate-500">
-        Waiting for the first click…
-      </div>
+      <div className="py-6 text-center text-sm text-slate-500">Waiting for the first click…</div>
     );
   }
   return (
@@ -45,9 +43,7 @@ export function RecentFeed({ clicks }: { clicks: ClickEvent[] }): JSX.Element {
               </span>
             ) : null}
           </span>
-          <span className="text-xs text-slate-500 tabular-nums shrink-0">
-            {relativeTime(c.ts)}
-          </span>
+          <span className="text-xs text-slate-500 tabular-nums shrink-0">{relativeTime(c.ts)}</span>
         </li>
       ))}
     </ul>

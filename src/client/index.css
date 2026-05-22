@@ -25,7 +25,9 @@
   }
 
   .glow-emerald {
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35), 0 8px 30px -8px rgba(16, 185, 129, 0.45);
+    box-shadow:
+      0 0 0 1px rgba(16, 185, 129, 0.35),
+      0 8px 30px -8px rgba(16, 185, 129, 0.45);
   }
 
   .btn-primary {
