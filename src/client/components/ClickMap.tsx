@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import type { ClickEvent } from "../hooks/useShortliveClicks.js";
+import { useTheme } from "../hooks/useTheme.js";
 
 const PIN_LIFETIME_MS = 60_000;
 const PRUNE_INTERVAL_MS = 5_000;
@@ -8,19 +9,29 @@ const PRUNE_INTERVAL_MS = 5_000;
 interface TrackedPin {
   marker: L.CircleMarker;
   bornAt: number;
+  click: ClickEvent;
 }
 
 interface Props {
   points: ClickEvent[];
   hydrated: boolean;
+  // When non-empty, points whose country is not in this set fade out.
+  filteredCountries?: Set<string>;
 }
 
-export function ClickMap({ points, hydrated }: Props): JSX.Element {
+const TILE_LIGHT = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+const TILE_DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+const TILE_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+export function ClickMap({ points, hydrated, filteredCountries }: Props): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
   const pinsRef = useRef<Map<number, TrackedPin>>(new Map());
   const seenIdsRef = useRef<Set<number>>(new Set());
   const hydratedAppliedRef = useRef(false);
+  const { resolved } = useTheme();
 
   // One-time map setup.
   useEffect(() => {
@@ -30,23 +41,36 @@ export function ClickMap({ points, hydrated }: Props): JSX.Element {
       zoom: 2,
       worldCopyJump: true,
       zoomControl: false,
-      attributionControl: false,
+      attributionControl: true,
     });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    map.attributionControl?.setPrefix("");
+    tileLayerRef.current = L.tileLayer(resolved === "dark" ? TILE_DARK : TILE_LIGHT, {
       maxZoom: 18,
-      // OSM tiles are free; the attribution belongs in a footer rather than the
-      // tile layer to keep the demo clean.
+      attribution: TILE_ATTRIBUTION,
     }).addTo(map);
     mapRef.current = map;
 
     return () => {
       map.remove();
       mapRef.current = null;
+      tileLayerRef.current = null;
       pinsRef.current.clear();
       seenIdsRef.current.clear();
       hydratedAppliedRef.current = false;
     };
+    // Only run on mount/unmount; the tile swap below handles theme changes.
   }, []);
+
+  // Swap tile layer when the resolved theme changes.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (tileLayerRef.current) map.removeLayer(tileLayerRef.current);
+    tileLayerRef.current = L.tileLayer(resolved === "dark" ? TILE_DARK : TILE_LIGHT, {
+      maxZoom: 18,
+      attribution: TILE_ATTRIBUTION,
+    }).addTo(map);
+  }, [resolved]);
 
   // Add hydration pins once.
   useEffect(() => {
@@ -67,6 +91,14 @@ export function ClickMap({ points, hydrated }: Props): JSX.Element {
     addPin(map, pinsRef.current, seenIdsRef.current, latest);
   }, [points]);
 
+  // Apply country filter — pins outside the filter set get dimmed instead of
+  // removed so reactivating a filter brings them right back.
+  useEffect(() => {
+    for (const tracked of pinsRef.current.values()) {
+      applyMarkerStyle(tracked, filteredCountries);
+    }
+  }, [filteredCountries]);
+
   // Prune pins past their lifetime.
   useEffect(() => {
     const id = setInterval(() => {
@@ -78,17 +110,31 @@ export function ClickMap({ points, hydrated }: Props): JSX.Element {
           map.removeLayer(p.marker);
           pinsRef.current.delete(key);
         } else {
-          // Fade as it ages.
-          const age = Date.now() - p.bornAt;
-          const opacity = Math.max(0.05, 1 - age / PIN_LIFETIME_MS);
-          p.marker.setStyle({ fillOpacity: opacity * 0.7, opacity });
+          applyMarkerStyle(p, filteredCountries);
         }
       }
     }, PRUNE_INTERVAL_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [filteredCountries]);
 
-  return <div ref={containerRef} className="h-72 rounded-lg overflow-hidden bg-slate-900" />;
+  return (
+    <div
+      ref={containerRef}
+      className="h-80 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-900"
+    />
+  );
+}
+
+function applyMarkerStyle(tracked: TrackedPin, filter?: Set<string>): void {
+  const age = Date.now() - tracked.bornAt;
+  const ageFactor = Math.max(0.05, 1 - age / PIN_LIFETIME_MS);
+  const inFilter =
+    !filter ||
+    filter.size === 0 ||
+    (tracked.click.country !== null && filter.has(tracked.click.country));
+  const fillOpacity = inFilter ? ageFactor * 0.5 : 0.05;
+  const opacity = inFilter ? ageFactor * 0.7 : 0.15;
+  tracked.marker.setStyle({ fillOpacity, opacity });
 }
 
 function addPin(
@@ -101,12 +147,13 @@ function addPin(
   if (seen.has(click.ts)) return;
   seen.add(click.ts);
   const marker = L.circleMarker([click.lat, click.lon], {
-    radius: 6,
+    radius: 4,
     color: "#38bdf8",
     fillColor: "#38bdf8",
-    fillOpacity: 0.7,
+    fillOpacity: 0.35,
     weight: 1,
+    opacity: 0.55,
   });
   marker.addTo(map);
-  pins.set(click.ts, { marker, bornAt: Date.now() });
+  pins.set(click.ts, { marker, bornAt: Date.now(), click });
 }
