@@ -129,7 +129,7 @@ function DemoInner(): JSX.Element {
           </section>
 
           <section className="grid gap-6 mb-6">
-            <Card title="Clicks per minute (last hour)" accent="cyan">
+            <Card title="Clicks per second (last minute)" accent="cyan">
               <TimeSeriesChart series={series} />
             </Card>
           </section>
@@ -232,15 +232,23 @@ function WindowedCounts({ windows }: { windows: WindowCounts }): JSX.Element {
   );
 }
 
-// Bucket clicks by minute over the last hour for the time-series chart.
+// Bucket clicks by second over the last minute. The simulator fires roughly
+// one click every 0.1-1s during a burst, so per-second buckets give a chart
+// with ~60 data points filling left-to-right.
 function buildSeries(events: ClickEvent[]): SeriesPoint[] {
   const now = Date.now();
-  const windowMs = 60 * 60_000;
+  const windowMs = 60_000;
   const cutoff = now - windowMs;
   const buckets = new Map<number, number>();
+  // Pre-populate the 60 buckets so the chart shows the full window even when
+  // most seconds had zero events. Without this, Recharts only draws bars
+  // where data exists and the cold-load chart looks ragged.
+  for (let t = cutoff; t <= now; t += 1_000) {
+    buckets.set(Math.floor(t / 1_000) * 1_000, 0);
+  }
   for (const e of events) {
     if (e.ts < cutoff) continue;
-    const bucket = Math.floor(e.ts / 60_000) * 60_000;
+    const bucket = Math.floor(e.ts / 1_000) * 1_000;
     buckets.set(bucket, (buckets.get(bucket) ?? 0) + 1);
   }
   return [...buckets.entries()].sort(([a], [b]) => a - b).map(([ts, count]) => ({ ts, count }));

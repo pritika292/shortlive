@@ -17,8 +17,9 @@ describe("<HomePage />", () => {
     expect(screen.getAllByText(/shortlive/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Live analytics\./i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Watch the demo/i })).toHaveAttribute("href", "/demo");
-    // Primary CTA is now Quickstart (a button, not a link).
-    expect(screen.getByRole("button", { name: /Quickstart/i })).toBeInTheDocument();
+    // Quickstart is the primary CTA now. It appears in the TopBar, the
+    // hero, and the final CTA section for guests, so assert at least one.
+    expect(screen.getAllByRole("button", { name: /Quickstart/i }).length).toBeGreaterThan(0);
 
     // First match wins. "Live analytics" also appears in the hero gradient
     // headline, so use getAllByText and assert non-empty rather than getByText.

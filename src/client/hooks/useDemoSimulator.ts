@@ -2,16 +2,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ClickEvent } from "./useShortliveClicks.js";
 import { buildSeedClicks, makeLiveClick } from "../lib/demoSeed.ts";
 
-// One synthetic click every 1-3 seconds for 60s. The user presses the button,
-// the counter resets to 0, and they watch it climb in real time.
+// One synthetic click every 0.1-1 second for 60s. The user presses the
+// button, the counter resets to 0, and they watch it climb in real time.
+// At mean ~0.55s per click we land ~110 events in the 60s window which is
+// enough to fill a per-second chart organically.
 const BURST_DURATION_MS = 60_000;
-const MIN_GAP_MS = 1_000;
-const MAX_GAP_MS = 3_000;
+const MIN_GAP_MS = 100;
+const MAX_GAP_MS = 1_000;
 
-// Page-load seed: ~200 clicks over the last hour so charts/breakdowns/map
-// aren't empty before the demo button is pressed.
-const SEED_COUNT = 200;
-const SEED_WINDOW_MS = 60 * 60_000;
+// Page-load seed: ~80 clicks across the last minute so the per-second chart
+// and breakdowns aren't empty before the demo button is pressed.
+const SEED_COUNT = 80;
+const SEED_WINDOW_MS = 60_000;
 
 export interface DemoSimulatorState {
   // The full list of synthetic clicks (newest first). The dashboard reads

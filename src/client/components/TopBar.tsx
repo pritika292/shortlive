@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "../hooks/useSession.js";
 import { ThemeToggle } from "./ThemeToggle.js";
 import { LogoMark } from "./Logo.js";
+import { QuickstartButton } from "./QuickstartButton.js";
 
 interface Props {
   current?: "home" | "demo" | "create" | "links" | "login" | "analytics" | "rules" | "about";
@@ -37,16 +38,15 @@ export function TopBar({ current }: Props = {}): JSX.Element {
             </span>
             Live demo
           </NavLink>
-          <NavLink
-            href={isAuthed ? "/create" : "/login?next=/create"}
-            active={current === "create"}
-          >
-            Create
-          </NavLink>
           {isAuthed && (
-            <NavLink href="/links" active={current === "links"}>
-              My links
-            </NavLink>
+            <>
+              <NavLink href="/create" active={current === "create"}>
+                Create
+              </NavLink>
+              <NavLink href="/links" active={current === "links"}>
+                My links
+              </NavLink>
+            </>
           )}
           <NavLink href="/about" active={current === "about"}>
             About
@@ -94,9 +94,7 @@ export function TopBar({ current }: Props = {}): JSX.Element {
               </button>
             </div>
           ) : (
-            <a href="/login" className="btn-secondary" data-current={current === "login"}>
-              Sign in
-            </a>
+            <QuickstartButton variant="compact">Quickstart</QuickstartButton>
           )}
         </div>
       </div>

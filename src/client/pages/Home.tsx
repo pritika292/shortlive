@@ -6,7 +6,6 @@ import { useSession } from "../hooks/useSession.js";
 
 export function HomePage(): JSX.Element {
   const session = useSession();
-  const createHref = session.status === "authed" ? "/create" : "/login?next=/create";
 
   return (
     <>
@@ -61,14 +60,7 @@ export function HomePage(): JSX.Element {
                   </a>
                 </div>
                 <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                  Quickstart is a 30-minute session. No email, no password. For a permanent account,{" "}
-                  <a
-                    href={createHref}
-                    className="font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500"
-                  >
-                    sign in
-                  </a>
-                  .
+                  No email, no password. Data wipes after 30 minutes.
                 </div>
 
                 <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
@@ -274,9 +266,13 @@ export function HomePage(): JSX.Element {
               <a href="/demo" className="btn-primary text-base px-7 py-3">
                 Open the live demo
               </a>
-              <a href={createHref} className="btn-secondary text-base px-7 py-3">
-                Create your own link
-              </a>
+              {session.status === "authed" ? (
+                <a href="/create" className="btn-secondary text-base px-7 py-3">
+                  Create your own link
+                </a>
+              ) : (
+                <QuickstartButton variant="primary">Quickstart playground</QuickstartButton>
+              )}
             </div>
           </div>
         </section>
