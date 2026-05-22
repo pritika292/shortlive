@@ -15,39 +15,49 @@ describe("<MyLinksPage />", () => {
     confirmSpy.mockRestore();
   });
 
-  function mockWhoami(authed = true): void {
-    fetchSpy.mockImplementationOnce(async () =>
-      authed
-        ? new Response(JSON.stringify({ username: "alice" }), { status: 200 })
-        : new Response("", { status: 401 }),
-    );
+  // Both MyLinksPage's useSession and TopBar's useSession hit /whoami; respond
+  // authed to any /whoami call. linksResponses[] is a queue of GET /api/me/links
+  // responses; the next non-/whoami GET pops the head.
+  function setup(linksResponses: Response[], onDelete?: Response): void {
+    fetchSpy.mockImplementation(async (url, init) => {
+      if (typeof url === "string" && url === "/whoami") {
+        return new Response(JSON.stringify({ username: "alice" }), { status: 200 });
+      }
+      if (typeof url === "string" && url.startsWith("/api/me/links")) {
+        const method = (init as RequestInit | undefined)?.method;
+        if (method === "DELETE" && onDelete) {
+          return onDelete.clone();
+        }
+        if (linksResponses.length > 0) {
+          return linksResponses.shift()!.clone();
+        }
+      }
+      return new Response(JSON.stringify({}), { status: 200 });
+    });
+  }
+
+  function linksRes(links: unknown[]): Response {
+    return new Response(JSON.stringify({ links }), { status: 200 });
   }
 
   it("renders the empty state when the user has no links", async () => {
-    mockWhoami();
-    fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify({ links: [] }), { status: 200 }));
+    setup([linksRes([])]);
     render(<MyLinksPage />);
     await screen.findByText(/haven't created any links yet/i);
   });
 
   it("renders rows with the analytics, rules, and delete actions", async () => {
-    mockWhoami();
-    fetchSpy.mockResolvedValueOnce(
-      new Response(
-        JSON.stringify({
-          links: [
-            {
-              short: "abc1234",
-              target: "https://example.com",
-              clickCount: 42,
-              createdAt: new Date().toISOString(),
-              expiresAt: null,
-            },
-          ],
-        }),
-        { status: 200 },
-      ),
-    );
+    setup([
+      linksRes([
+        {
+          short: "abc1234",
+          target: "https://example.com",
+          clickCount: 42,
+          createdAt: new Date().toISOString(),
+          expiresAt: null,
+        },
+      ]),
+    ]);
     render(<MyLinksPage />);
     await screen.findByText("/abc1234");
     expect(screen.getByRole("link", { name: /^analytics$/ })).toHaveAttribute("href", "/a/abc1234");
@@ -59,36 +69,33 @@ describe("<MyLinksPage />", () => {
   });
 
   it("calls DELETE and refreshes on delete confirm", async () => {
-    mockWhoami();
-    fetchSpy
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
-            links: [
-              {
-                short: "del4567",
-                target: "https://x",
-                clickCount: 0,
-                createdAt: new Date().toISOString(),
-                expiresAt: null,
-              },
-            ],
-          }),
-          { status: 200 },
-        ),
-      )
-      .mockResolvedValueOnce(new Response(JSON.stringify({ ok: true }), { status: 200 }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ links: [] }), { status: 200 }));
+    setup(
+      [
+        linksRes([
+          {
+            short: "del4567",
+            target: "https://x",
+            clickCount: 0,
+            createdAt: new Date().toISOString(),
+            expiresAt: null,
+          },
+        ]),
+        linksRes([]),
+      ],
+      new Response(JSON.stringify({ ok: true }), { status: 200 }),
+    );
 
     render(<MyLinksPage />);
     await screen.findByText("/del4567");
-    fireEvent.click(screen.getByRole("button", { name: /delete/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^delete$/i }));
 
     await screen.findByText(/haven't created any links yet/i);
     const deleteCall = fetchSpy.mock.calls.find(
-      (c) => typeof c[0] === "string" && c[0].includes("/api/me/links/del4567"),
+      (c) =>
+        typeof c[0] === "string" &&
+        c[0].includes("/api/me/links/del4567") &&
+        (c[1] as RequestInit | undefined)?.method === "DELETE",
     );
     expect(deleteCall).toBeDefined();
-    expect((deleteCall![1] as RequestInit).method).toBe("DELETE");
   });
 });

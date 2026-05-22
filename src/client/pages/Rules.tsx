@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRules, deleteRule, patchRule, reVerifyRule, type Rule } from "../hooks/useRules.js";
 import { RuleForm } from "../components/RuleForm.js";
 import { FiringsLog } from "../components/FiringsLog.js";
+import { TopBar } from "../components/TopBar.js";
 
 interface Props {
   short: string;
@@ -11,42 +12,47 @@ export function RulesPage({ short }: Props): JSX.Element {
   const { rules, loading, error, refresh } = useRules(short);
 
   return (
-    <main className="min-h-screen px-6 py-8 max-w-4xl mx-auto">
-      <header className="mb-8 flex items-baseline justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Rules · <span className="text-slate-400">{short}</span>
-          </h1>
-          <p className="text-sm text-slate-400">
-            Configure webhooks that fire when click patterns match.
-          </p>
-        </div>
-        <a href={`/a/${short}`} className="text-xs text-slate-500 hover:text-slate-300">
-          ← analytics
-        </a>
-      </header>
+    <>
+      <TopBar current="rules" />
+      <main className="min-h-[calc(100vh-56px)] px-6 py-8 max-w-4xl mx-auto">
+        <header className="mb-8 flex items-baseline justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Rules · <span className="text-slate-400">{short}</span>
+            </h1>
+            <p className="text-sm text-slate-400">
+              Configure webhooks that fire when click patterns match.
+            </p>
+          </div>
+          <a href={`/a/${short}`} className="text-xs text-slate-500 hover:text-slate-300">
+            ← analytics
+          </a>
+        </header>
 
-      <section className="mb-8">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-          <div className="text-xs uppercase tracking-wider text-slate-500 mb-3">Create a rule</div>
-          <RuleForm short={short} onCreated={refresh} />
-        </div>
-      </section>
+        <section className="mb-8">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+            <div className="text-xs uppercase tracking-wider text-slate-500 mb-3">
+              Create a rule
+            </div>
+            <RuleForm short={short} onCreated={refresh} />
+          </div>
+        </section>
 
-      <section>
-        <div className="text-xs uppercase tracking-wider text-slate-500 mb-3">Existing rules</div>
-        {error && <div className="text-sm text-rose-400 mb-3">{error}</div>}
-        {loading && <div className="text-sm text-slate-500">Loading…</div>}
-        {!loading && rules.length === 0 && (
-          <div className="text-sm text-slate-500">No rules yet.</div>
-        )}
-        <div className="grid gap-4">
-          {rules.map((r) => (
-            <RuleCard key={r.id} short={short} rule={r} onChange={refresh} />
-          ))}
-        </div>
-      </section>
-    </main>
+        <section>
+          <div className="text-xs uppercase tracking-wider text-slate-500 mb-3">Existing rules</div>
+          {error && <div className="text-sm text-rose-400 mb-3">{error}</div>}
+          {loading && <div className="text-sm text-slate-500">Loading…</div>}
+          {!loading && rules.length === 0 && (
+            <div className="text-sm text-slate-500">No rules yet.</div>
+          )}
+          <div className="grid gap-4">
+            {rules.map((r) => (
+              <RuleCard key={r.id} short={short} rule={r} onChange={refresh} />
+            ))}
+          </div>
+        </section>
+      </main>
+    </>
   );
 }
 

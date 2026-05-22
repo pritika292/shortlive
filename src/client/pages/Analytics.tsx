@@ -10,15 +10,11 @@ export function AnalyticsPage({ short }: Props): JSX.Element {
       short={short}
       title={`shortlive · /${short}`}
       subtitle="Live analytics for your link."
+      topBarCurrent="analytics"
       headerRight={
-        <>
-          <a className="hover:text-slate-300" href={`/a/${short}/rules`}>
-            rules →
-          </a>
-          <a className="hover:text-slate-300" href="/links">
-            ← all links
-          </a>
-        </>
+        <a className="hover:text-slate-300" href={`/a/${short}/rules`}>
+          rules →
+        </a>
       }
     />
   );

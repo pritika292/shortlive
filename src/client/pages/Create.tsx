@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSession } from "../hooks/useSession.js";
+import { TopBar } from "../components/TopBar.js";
 
 interface CreatedLink {
   short: string;
@@ -80,102 +81,108 @@ export function CreatePage(): JSX.Element {
 
   if (created) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6">
-        <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900/50 p-6">
-          <h1 className="text-xl font-semibold tracking-tight mb-1">Short link created</h1>
-          <p className="text-sm text-slate-400 mb-5">Share or open it below.</p>
+      <>
+        <TopBar current="create" />
+        <main className="min-h-[calc(100vh-56px)] flex items-center justify-center px-6">
+          <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900/50 p-6">
+            <h1 className="text-xl font-semibold tracking-tight mb-1">Short link created</h1>
+            <p className="text-sm text-slate-400 mb-5">Share or open it below.</p>
 
-          <div className="rounded border border-slate-800 bg-slate-950 p-3 mb-4 flex items-center justify-between gap-3">
-            <code className="text-sm text-sky-400 break-all">{created.url}</code>
-            <CopyButton text={created.url} />
-          </div>
+            <div className="rounded border border-slate-800 bg-slate-950 p-3 mb-4 flex items-center justify-between gap-3">
+              <code className="text-sm text-sky-400 break-all">{created.url}</code>
+              <CopyButton text={created.url} />
+            </div>
 
-          <div className="flex flex-wrap gap-3 text-xs">
-            <a
-              className="text-sky-400 hover:text-sky-300"
-              href={created.url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              open in new tab ↗
-            </a>
-            <a className="text-sky-400 hover:text-sky-300" href={`/a/${created.short}`}>
-              analytics →
-            </a>
-            <a className="text-sky-400 hover:text-sky-300" href={`/a/${created.short}/rules`}>
-              rules →
-            </a>
-            <button
-              type="button"
-              onClick={reset}
-              className="ml-auto text-slate-300 hover:text-slate-100"
-            >
-              create another
-            </button>
+            <div className="flex flex-wrap gap-3 text-xs">
+              <a
+                className="text-sky-400 hover:text-sky-300"
+                href={created.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                open in new tab ↗
+              </a>
+              <a className="text-sky-400 hover:text-sky-300" href={`/a/${created.short}`}>
+                analytics →
+              </a>
+              <a className="text-sky-400 hover:text-sky-300" href={`/a/${created.short}/rules`}>
+                rules →
+              </a>
+              <button
+                type="button"
+                onClick={reset}
+                className="ml-auto text-slate-300 hover:text-slate-100"
+              >
+                create another
+              </button>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </>
     );
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 py-8">
-      <form
-        onSubmit={submit}
-        className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900/50 p-6"
-      >
-        <h1 className="text-xl font-semibold tracking-tight mb-1">Create a short link</h1>
-        <p className="text-sm text-slate-400 mb-6">
-          Signed in as <span className="text-slate-300">{session.user?.username}</span>.
-        </p>
+    <>
+      <TopBar current="create" />
+      <main className="min-h-[calc(100vh-56px)] flex items-center justify-center px-6 py-8">
+        <form
+          onSubmit={submit}
+          className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900/50 p-6"
+        >
+          <h1 className="text-xl font-semibold tracking-tight mb-1">Create a short link</h1>
+          <p className="text-sm text-slate-400 mb-6">
+            Signed in as <span className="text-slate-300">{session.user?.username}</span>.
+          </p>
 
-        <div className="grid gap-3 text-sm">
-          <Field
-            id="create-target"
-            label="Destination URL"
-            required
-            type="url"
-            placeholder="https://example.com/long-path"
-            value={target}
-            onChange={setTarget}
-          />
-          <Field
-            id="create-custom"
-            label="Custom code (optional)"
-            type="text"
-            placeholder="3–32 chars [a-z A-Z 0-9 -]"
-            value={customShort}
-            onChange={setCustomShort}
-          />
-          <Field
-            id="create-expires"
-            label="Expires at (optional)"
-            type="datetime-local"
-            placeholder=""
-            value={expiresAt}
-            onChange={setExpiresAt}
-          />
-          <Field
-            id="create-password"
-            label="Password gate (optional)"
-            type="password"
-            placeholder="visitors enter this to follow"
-            value={password}
-            onChange={setPassword}
-          />
+          <div className="grid gap-3 text-sm">
+            <Field
+              id="create-target"
+              label="Destination URL"
+              required
+              type="url"
+              placeholder="https://example.com/long-path"
+              value={target}
+              onChange={setTarget}
+            />
+            <Field
+              id="create-custom"
+              label="Custom code (optional)"
+              type="text"
+              placeholder="3–32 chars [a-z A-Z 0-9 -]"
+              value={customShort}
+              onChange={setCustomShort}
+            />
+            <Field
+              id="create-expires"
+              label="Expires at (optional)"
+              type="datetime-local"
+              placeholder=""
+              value={expiresAt}
+              onChange={setExpiresAt}
+            />
+            <Field
+              id="create-password"
+              label="Password gate (optional)"
+              type="password"
+              placeholder="visitors enter this to follow"
+              value={password}
+              onChange={setPassword}
+            />
 
-          {error && <div className="text-rose-400 text-xs">{error}</div>}
+            {error && <div className="text-rose-400 text-xs">{error}</div>}
 
-          <button
-            type="submit"
-            disabled={submitting || !target}
-            className="mt-2 self-start bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-medium rounded px-4 py-1.5"
-          >
-            {submitting ? "Creating…" : "Create short link"}
-          </button>
-        </div>
-      </form>
-    </main>
+            <button
+              type="submit"
+              disabled={submitting || !target}
+              className="mt-2 self-start bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-medium rounded px-4 py-1.5"
+            >
+              {submitting ? "Creating…" : "Create short link"}
+            </button>
+          </div>
+        </form>
+      </main>
+    </>
   );
 }
 
