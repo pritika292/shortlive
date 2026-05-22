@@ -88,4 +88,39 @@ describeIfDb("agg endpoints", () => {
     const res = await request(app).get("/api/agg/series?short=!!");
     expect(res.status).toBe(400);
   });
+
+  describe("snapshot endpoint", () => {
+    it("returns series + every requested breakdown in one response", async () => {
+      const res = await request(app).get(
+        "/api/agg/snapshot?short=demo&dims=country,device,referrer&window=1h",
+      );
+      expect(res.status).toBe(200);
+      expect(res.body.series.length).toBeGreaterThan(0);
+      expect(
+        res.body.breakdowns.country.rows.map((r: { value: string }) => r.value).sort(),
+      ).toEqual(["DE", "US"]);
+      expect(res.body.breakdowns.device.rows.map((r: { value: string }) => r.value).sort()).toEqual(
+        ["desktop", "mobile"],
+      );
+      expect(res.body.breakdowns.referrer.rows[0].value).toBe("https://hn.example.com/");
+    });
+
+    it("respects country filter across series and breakdowns", async () => {
+      const res = await request(app).get(
+        "/api/agg/snapshot?short=demo&dims=country,device&country=US",
+      );
+      expect(res.status).toBe(200);
+      expect(res.body.breakdowns.country.rows.map((r: { value: string }) => r.value)).toEqual([
+        "US",
+      ]);
+      // Series total reflects only US clicks (half of 50 = 25 since s % 2 alternates).
+      const total = res.body.series.reduce((sum: number, p: { count: number }) => sum + p.count, 0);
+      expect(total).toBe(25);
+    });
+
+    it("rejects unknown dims", async () => {
+      const res = await request(app).get("/api/agg/snapshot?short=demo&dims=country,bogus");
+      expect(res.status).toBe(400);
+    });
+  });
 });

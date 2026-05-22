@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useShortliveClicks } from "../hooks/useShortliveClicks.js";
-import { useSeries, useBreakdown, type BreakdownRow } from "../hooks/useSeries.js";
+import { useBreakdown, type BreakdownRow } from "../hooks/useSeries.js";
+import { useDashboardSnapshot } from "../hooks/useDashboardSnapshot.js";
 import { LiveCounter } from "./LiveCounter.js";
 import { RecentFeed } from "./RecentFeed.js";
 import { WorldMap } from "./WorldMap.js";
@@ -68,10 +69,14 @@ function DashboardInner({
     ? { countries: [...effectiveCountries] }
     : undefined;
 
-  const series = useSeries(short, refreshKey, seriesFilters);
-  const country = useBreakdown(short, "country", refreshKey, seriesFilters, 20);
-  const referrer = useBreakdown(short, "referrer", refreshKey, seriesFilters, 5);
-  const device = useBreakdown(short, "device", refreshKey, seriesFilters, 5);
+  // One batched request for series + all three breakdowns. Hook debounces
+  // rapid filter toggles, aborts stale in-flight fetches, and caches by
+  // filter key, so toggling A->B->A is instant on the third hop.
+  const snapshot = useDashboardSnapshot(short, refreshKey, seriesFilters, 20);
+  const series = snapshot.series;
+  const country = snapshot.breakdowns.country;
+  const referrer = snapshot.breakdowns.referrer.slice(0, 5);
+  const device = snapshot.breakdowns.device.slice(0, 5);
 
   const hasFilter = effectiveCountries.size > 0 || filters.continents.size > 0;
 
