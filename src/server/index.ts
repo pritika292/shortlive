@@ -1,7 +1,9 @@
+import "dotenv/config";
 import express from "express";
+import { config } from "./config.js";
 
+const cfg = config();
 const app = express();
-const port = Number(process.env.PORT) || 3010;
 
 app.use(express.json());
 
@@ -9,6 +11,6 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(port, () => {
-  console.log(`shortlive listening on http://localhost:${port}`);
+app.listen(cfg.PORT, () => {
+  console.log(`shortlive listening on http://localhost:${cfg.PORT}`);
 });
