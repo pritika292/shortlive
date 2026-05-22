@@ -24,6 +24,11 @@ Thumbs.db
 *.swp
 *.swo
 
+# iCloud Drive sometimes duplicates files across devices with a " 2" suffix.
+# Ignore them so they never get committed by accident.
+* 2.*
+* 2
+
 # Logs / temp
 *.log
 tmp/
