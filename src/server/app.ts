@@ -8,6 +8,7 @@ import { sessionMiddleware } from "./middleware/session.js";
 export function createApp(): Express {
   const app = express();
   app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
   app.use(sessionMiddleware);
 
