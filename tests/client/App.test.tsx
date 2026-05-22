@@ -12,14 +12,10 @@ describe("<App />", () => {
     fetchSpy.mockRestore();
   });
 
-  it("renders the home headline and a Watch the demo CTA", () => {
+  it("renders the home headline and a Watch the live demo CTA", () => {
     render(<App />);
-    expect(
-      screen.getByRole("heading", {
-        name: /Short URLs with live click analytics and rule-based webhooks/i,
-      }),
-    ).toBeInTheDocument();
-    const demoCta = screen.getAllByRole("link", { name: /Watch the demo/i });
+    expect(screen.getByText(/Live analytics\./i)).toBeInTheDocument();
+    const demoCta = screen.getAllByRole("link", { name: /Watch the live demo/i });
     expect(demoCta.some((a) => a.getAttribute("href") === "/demo")).toBe(true);
   });
 });

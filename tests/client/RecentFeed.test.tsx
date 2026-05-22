@@ -10,7 +10,7 @@ function makeClick(ts: number, country: string | null = "US"): ClickEvent {
 describe("<RecentFeed />", () => {
   it("renders a waiting state with no clicks", () => {
     render(<RecentFeed clicks={[]} />);
-    expect(screen.getByText(/waiting for clicks/i)).toBeInTheDocument();
+    expect(screen.getByText(/waiting for the first click/i)).toBeInTheDocument();
   });
 
   it("renders 20 clicks newest-first", () => {
@@ -27,6 +27,6 @@ describe("<RecentFeed />", () => {
 
   it("handles a click with a null country gracefully", () => {
     render(<RecentFeed clicks={[makeClick(Date.now(), null)]} />);
-    expect(screen.getByText("??")).toBeInTheDocument();
+    expect(screen.getByText(/unknown/i)).toBeInTheDocument();
   });
 });

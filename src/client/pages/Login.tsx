@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TopBar } from "../components/TopBar.js";
 import { Footer } from "../components/Footer.js";
+import { LogoMark } from "../components/Logo.js";
 
 export function LoginPage(): JSX.Element {
   const [username, setUsername] = useState("");
@@ -38,21 +39,29 @@ export function LoginPage(): JSX.Element {
   return (
     <>
       <TopBar current="login" />
-      <main className="min-h-[calc(100vh-56px)] flex items-center justify-center px-6">
-        <form
-          onSubmit={submit}
-          className="w-full max-w-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6"
-        >
-          <h1 className="text-xl font-semibold tracking-tight mb-1">Sign in</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-            Use the credentials from your invite email.
+      <main className="relative min-h-[calc(100vh-72px)] flex items-center justify-center px-6 py-12 overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute -top-24 left-1/2 -translate-x-1/2 -z-10 h-[400px] w-[700px] rounded-full bg-emerald-400/20 blur-3xl dark:bg-emerald-500/10"
+        />
+        <form onSubmit={submit} className="w-full max-w-md glass-card p-8 sm:p-10">
+          <div className="flex justify-center mb-6">
+            <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/30">
+              <LogoMark size={28} className="text-white" />
+            </span>
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-center text-slate-900 dark:text-white mb-2">
+            Welcome back
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-8">
+            Use the credentials from your invite to sign in.
           </p>
 
-          <div className="grid gap-3 text-sm">
-            <div className="grid gap-1">
+          <div className="grid gap-4 text-sm">
+            <div className="grid gap-1.5">
               <label
                 htmlFor="login-username"
-                className="text-xs uppercase tracking-wider text-slate-500"
+                className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400"
               >
                 Username
               </label>
@@ -64,13 +73,13 @@ export function LoginPage(): JSX.Element {
                 autoFocus
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
+                className="bg-white dark:bg-white/[0.04] border border-slate-300 dark:border-white/10 rounded-xl px-4 py-3 text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
               />
             </div>
-            <div className="grid gap-1">
+            <div className="grid gap-1.5">
               <label
                 htmlFor="login-password"
-                className="text-xs uppercase tracking-wider text-slate-500"
+                className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400"
               >
                 Password
               </label>
@@ -81,21 +90,25 @@ export function LoginPage(): JSX.Element {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
+                className="bg-white dark:bg-white/[0.04] border border-slate-300 dark:border-white/10 rounded-xl px-4 py-3 text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
               />
             </div>
-            {error && <div className="text-rose-400 text-xs">{error}</div>}
+            {error && (
+              <div className="rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 px-4 py-2.5 text-sm">
+                {error}
+              </div>
+            )}
             <button
               type="submit"
               disabled={submitting || !username || !password}
-              className="mt-2 bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-medium rounded px-4 py-1.5"
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed mt-2 py-3 text-base"
             >
               {submitting ? "Signing in…" : "Sign in"}
             </button>
           </div>
 
-          <div className="mt-6 text-xs text-slate-500">
-            Credentials are issued out-of-band — there's no self-serve sign-up.
+          <div className="mt-8 text-xs text-center text-slate-500 dark:text-slate-500">
+            Credentials are issued out of band. There is no self-serve sign-up.
           </div>
         </form>
       </main>

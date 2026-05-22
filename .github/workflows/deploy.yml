@@ -15,6 +15,11 @@ concurrency:
   group: deploy-shortlive
   cancel-in-progress: false
 
+# Opt JavaScript actions onto the runner's Node 24 ahead of the June 2026
+# forced cutover.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   deploy:
     if: >

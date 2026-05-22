@@ -34,47 +34,47 @@
 **Languages**: TypeScript (strict), SQL, Bash
 
 **Application**:
-- Node 20 + Express 5 — minimal HTTP layer, top-level `await`
-- React 18 + Vite + Tailwind 3 — SPA bundled by Vite, served by Express in prod
-- `ws` — bare WebSocket per dashboard tab, fed by Redis pub/sub
-- Leaflet + CartoDB Light/Dark tiles — sleek map, no API key
-- Recharts — time-series chart
+- Node 20 + Express 5: minimal HTTP layer, top-level `await`
+- React 18 + Vite + Tailwind 3: SPA bundled by Vite, served by Express in prod
+- `ws`: bare WebSocket per dashboard tab, fed by Redis pub/sub
+- Leaflet + CartoDB Light/Dark tiles: sleek map, no API key
+- Recharts: time-series chart
 
 **Data**:
-- PostgreSQL 16 — `urls`, `clicks`, `rules`, `firings`, `auth.users`, `sessions`
-- Redis 7 — sorted-set hydration buffer (100 most-recent clicks per link), pub/sub fan-out, sliding-window math for `velocity` rules, BullMQ backing store
-- MaxMind GeoLite2 — local mmdb for country + lat/lon, no per-click HTTP
+- PostgreSQL 16: `urls`, `clicks`, `rules`, `firings`, `auth.users`, `sessions`
+- Redis 7: sorted-set hydration buffer (100 most-recent clicks per link), pub/sub fan-out, sliding-window math for `velocity` rules, BullMQ backing store
+- MaxMind GeoLite2: local mmdb for country + lat/lon, no per-click HTTP
 
 **Async + delivery**:
-- BullMQ — webhook delivery queue. `jobId = firing_id` gives structural idempotency: a retried firing cannot double-deliver.
+- BullMQ: webhook delivery queue. `jobId = firing_id` gives structural idempotency: a retried firing cannot double-deliver.
 - 5 attempts with exponential backoff (1s / 4s / 16s / 64s / 256s); failures land in the DLQ and the owner can manually retry from the UI.
 - `X-Shortlive-Signature: sha256=...` on every POST, keyed by a per-rule signing secret generated at create time.
 
 **Infra**:
-- Azure VM (B2as_v2, northcentralus) — single VM kept always-on; shared `pritika` Docker network on the host for Postgres + Redis.
+- Azure VM (B2as_v2, northcentralus): single VM kept always-on; shared `pritika` Docker network on the host for Postgres + Redis.
 - Docker multi-stage build → ~214 MB runtime image. `docker-compose.yml` joins the shared network and reads creds from `/opt/pritika/_infra/*.env` (bind-mounted, never in any repo).
-- GitHub Actions + Azure OIDC federation — no stored Azure credentials. The deploy workflow exchanges a short-lived workflow token for an Azure token via `azure/login@v2`, then runs `az vm run-command` to deploy.
+- GitHub Actions + Azure OIDC federation: no stored Azure credentials. The deploy workflow exchanges a short-lived workflow token for an Azure token via `azure/login@v2`, then runs `az vm run-command` to deploy.
 - Azure Key Vault + Managed Identity for any secret access. The AI Foundry account has `disableLocalAuth=true`, so API keys structurally cannot work even if leaked.
 
 **DevOps**:
 - pre-commit hooks: gitleaks, end-of-file-fixer, trailing-whitespace, shellcheck, check-yaml, check-json.
 - ESLint flat config + `typescript-eslint` strict, Prettier (inlined in `package.json`).
-- Vitest workspace: server tests in node, React component tests in jsdom — runs them in parallel as two named projects.
+- Vitest workspace: server tests in node, React component tests in jsdom: runs them in parallel as two named projects.
 
 ---
 
 ## Distributed-systems patterns used here
 
-- **Async fail-soft on the hot path** — `GET /:short` returns the 302 first, then queues click logging in a `setImmediate`. Visitors never wait on analytics or rule evaluation.
-- **Bounded buffer hydration** — Redis ZSET `shortlive:recent_clicks:{short}` capped at 100 entries via `ZREMRANGEBYRANK` after each insert. New dashboard tabs get instant history without a Postgres round trip.
-- **Pub/sub fan-out for live UI** — one `PUBLISH` per click, N subscribers per dashboard tab. Sub-second click-to-pin latency. Subscribe before hydrate so the very first live event after connect is never lost in the race.
-- **Sliding-window rate detection** — `velocity` rules use `ZADD + ZREMRANGEBYSCORE + ZCARD + EXPIRE` in a single `MULTI` pipeline. Window math stays consistent under concurrent clicks; the ZSET self-cleans on quiet links via TTL.
-- **Structural idempotency for webhooks** — BullMQ `jobId` IS the `firing_id`. Retries can never double-deliver the same firing to a receiver that processed it once.
-- **Exponential backoff with DLQ** — 5 attempts (1s, 4s, 16s, 64s, 256s); final failures flip `firings.status = 'failed'` and surface in the owner UI for manual retry.
-- **HMAC-signed deliveries** — receivers verify `X-Shortlive-Signature: sha256=...` keyed by `rules.signing_secret`. Per-rule, so leaking one rule's secret doesn't compromise others.
-- **Destination handshake (anti-DDoS-amplifier)** — rules can't fire until the destination URL echoes a one-time nonce within 5s. Without this guard, real visitor traffic could be turned into a victim-URL flood.
-- **Hand-rolled migration ledger** — `migrations/*.sql` applied in order, transaction-wrapped, tracked in a `_migrations` table. Idempotent on container start (the Dockerfile CMD runs migrate before the server).
-- **OIDC-federated deploys, zero stored credentials** — every deploy is a short-lived Azure token exchanged from a workflow JWT. No `AZURE_CREDENTIALS` secret in the repo, no Azure password anywhere in git history.
+- **Async fail-soft on the hot path**: `GET /:short` returns the 302 first, then queues click logging in a `setImmediate`. Visitors never wait on analytics or rule evaluation.
+- **Bounded buffer hydration**: Redis ZSET `shortlive:recent_clicks:{short}` capped at 100 entries via `ZREMRANGEBYRANK` after each insert. New dashboard tabs get instant history without a Postgres round trip.
+- **Pub/sub fan-out for live UI**: one `PUBLISH` per click, N subscribers per dashboard tab. Sub-second click-to-pin latency. Subscribe before hydrate so the very first live event after connect is never lost in the race.
+- **Sliding-window rate detection**: `velocity` rules use `ZADD + ZREMRANGEBYSCORE + ZCARD + EXPIRE` in a single `MULTI` pipeline. Window math stays consistent under concurrent clicks; the ZSET self-cleans on quiet links via TTL.
+- **Structural idempotency for webhooks**: BullMQ `jobId` IS the `firing_id`. Retries can never double-deliver the same firing to a receiver that processed it once.
+- **Exponential backoff with DLQ**: 5 attempts (1s, 4s, 16s, 64s, 256s); final failures flip `firings.status = 'failed'` and surface in the owner UI for manual retry.
+- **HMAC-signed deliveries**: receivers verify `X-Shortlive-Signature: sha256=...` keyed by `rules.signing_secret`. Per-rule, so leaking one rule's secret doesn't compromise others.
+- **Destination handshake (anti-DDoS-amplifier)**: rules can't fire until the destination URL echoes a one-time nonce within 5s. Without this guard, real visitor traffic could be turned into a victim-URL flood.
+- **Hand-rolled migration ledger**: `migrations/*.sql` applied in order, transaction-wrapped, tracked in a `_migrations` table. Idempotent on container start (the Dockerfile CMD runs migrate before the server).
+- **OIDC-federated deploys, zero stored credentials**: every deploy is a short-lived Azure token exchanged from a workflow JWT. No `AZURE_CREDENTIALS` secret in the repo, no Azure password anywhere in git history.
 
 ---
 
@@ -83,18 +83,18 @@
 Two things most URL shorteners don't do:
 
 1. **Sub-second click analytics.** Every click is pushed to the dashboard over a
-   WebSocket — counter, map pin, time-series, breakdowns all update without polling.
+   WebSocket: counter, map pin, time-series, breakdowns all update without polling.
    Most shorteners refresh analytics every 15–60 seconds, which is useless for
    reacting in real time.
 
 2. **Rule-based webhook automation.** Configure per-link rules. shortlive POSTs to
    your endpoint when the rule fires.
-   - `threshold` — fire once when total clicks crosses N
-   - `velocity` — fire when ≥ N clicks arrive within a T-second sliding window,
+   - `threshold`: fire once when total clicks crosses N
+   - `velocity`: fire when ≥ N clicks arrive within a T-second sliding window,
      optionally filtered by country / referrer / device
-   - `first_of` — fire on the first click matching each new dimension value (e.g.,
+   - `first_of`: fire on the first click matching each new dimension value (e.g.,
      each new country to click your link)
-   - `per_click` — fire on every click matching filter criteria
+   - `per_click`: fire on every click matching filter criteria
 
 Both halves on top of a straightforward redirect path that returns `302` first and
 logs the click asynchronously, so the user is never blocked on analytics.
@@ -106,14 +106,14 @@ logs the click asynchronously, so the user is never blocked on analytics.
 | Surface | Public or login-gated? |
 |---|---|
 | `/` homepage and `/demo` (seeded demo dashboard) | Public |
-| `/:short` (the actual redirect — always works) | Public |
+| `/:short` (the actual redirect: always works) | Public |
 | `/login` (form) and `/logout` | Public |
 | `/shorten` (create a link) | Login required |
 | `/a/:short` (analytics for your own link) | Login + must own the link |
 | `/a/:short/rules` (rule management) | Login + must own the link |
 | `/api/firings/:rule_id` (delivery log) | Login + must own the rule |
 
-Credentials are issued out-of-band — there's no self-serve signup. The same
+Credentials are issued out-of-band: there's no self-serve signup. The same
 username + password works across every project using this shared auth (one
 `auth.users` table on the host Postgres instance). **If you've received an
 invite, see the email for your username and password.**
@@ -264,7 +264,7 @@ shortener; everything that mutates state requires authentication.
 When a rule is created (or its destination URL changes), shortlive POSTs a one-time
 nonce to the destination and expects the same nonce echoed back in the response body
 within 5 seconds. Until verified, the rule won't fire. This prevents shortlive being
-abused as a DDoS amplifier — you can't point a rule at a victim's URL and use real
+abused as a DDoS amplifier: you can't point a rule at a victim's URL and use real
 click traffic to flood it.
 
 ---
@@ -373,20 +373,20 @@ a single table with `idx_clicks_url_ts` is fine.
 
 ## Tech stack
 
-- **Node.js 20 + TypeScript (strict mode)** — single language across server and client.
-- **Express 5** — minimal, no surprises. Fastify would shave latency that isn't our
+- **Node.js 20 + TypeScript (strict mode)**: single language across server and client.
+- **Express 5**: minimal, no surprises. Fastify would shave latency that isn't our
   bottleneck.
-- **PostgreSQL 16** — durable storage on the shared Postgres instance.
-- **Redis 7** — sorted sets and pub/sub are the killer features here; sub-millisecond
+- **PostgreSQL 16**: durable storage on the shared Postgres instance.
+- **Redis 7**: sorted sets and pub/sub are the killer features here; sub-millisecond
   reads and bounded memory via `allkeys-lru`.
-- **BullMQ** — Redis-backed job queue for webhook delivery. Built-in exponential
+- **BullMQ**: Redis-backed job queue for webhook delivery. Built-in exponential
   backoff and jobId-based de-duplication.
-- **`ws`** — bare WebSocket library, no framework wrappers.
-- **React 18 + Vite** — fast HMR, no SSR overhead.
-- **Leaflet + OpenStreetMap tiles** — no API key, no per-request cost.
-- **`maxmind-db`** — local GeoLite2-City.mmdb lookup; no external API call per click.
-- **`bcrypt`** — for `users.password_hash` and `urls.password_hash`.
-- **`vitest` + `supertest`** — unit and integration tests; runs against a real
+- **`ws`**: bare WebSocket library, no framework wrappers.
+- **React 18 + Vite**: fast HMR, no SSR overhead.
+- **Leaflet + OpenStreetMap tiles**: no API key, no per-request cost.
+- **`maxmind-db`**: local GeoLite2-City.mmdb lookup; no external API call per click.
+- **`bcrypt`**: for `users.password_hash` and `urls.password_hash`.
+- **`vitest` + `supertest`**: unit and integration tests; runs against a real
   Postgres + Redis from `docker-compose.test.yml`.
 
 ---

@@ -17,29 +17,15 @@ describe("<AboutPage />", () => {
     render(<AboutPage />);
     expect(screen.getByRole("heading", { name: /Hi, I.m/i })).toBeInTheDocument();
     expect(screen.getByText(PROFILE.intro)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Email/i })).toHaveAttribute(
-      "href",
-      `mailto:${PROFILE.email}`,
-    );
-    expect(screen.getByRole("link", { name: /Resume/i })).toHaveAttribute(
-      "href",
-      PROFILE.resumeUrl,
-    );
-    expect(screen.getByRole("link", { name: /LinkedIn/i })).toHaveAttribute(
-      "href",
-      PROFILE.linkedinUrl,
-    );
-    expect(screen.getByRole("link", { name: /GitHub/i })).toHaveAttribute(
-      "href",
-      PROFILE.githubUrl,
-    );
-    expect(screen.getByRole("link", { name: /Portfolio/i })).toHaveAttribute(
-      "href",
-      PROFILE.portfolioUrl,
-    );
-    expect(screen.getByRole("link", { name: /Schedule a chat/i })).toHaveAttribute(
-      "href",
-      PROFILE.calendlyUrl,
-    );
+
+    // Each row exposes its href; the easiest assert is to walk all links and
+    // confirm the six contact URLs are present.
+    const hrefs = screen.getAllByRole("link").map((a) => a.getAttribute("href"));
+    expect(hrefs).toContain(`mailto:${PROFILE.email}`);
+    expect(hrefs).toContain(PROFILE.resumeUrl);
+    expect(hrefs).toContain(PROFILE.linkedinUrl);
+    expect(hrefs).toContain(PROFILE.githubUrl);
+    expect(hrefs).toContain(PROFILE.portfolioUrl);
+    expect(hrefs).toContain(PROFILE.calendlyUrl);
   });
 });

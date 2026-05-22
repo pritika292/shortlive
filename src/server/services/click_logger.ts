@@ -11,6 +11,9 @@ export interface ClickContext {
   ip: string;
   userAgent: string | undefined;
   referrer: string | undefined;
+  // Synthetic sources (simulator, seeder) pass an override so the click row
+  // has a real country even without GeoLite2 installed on the host.
+  geoOverride?: { country: string | null; lat: number | null; lon: number | null };
 }
 
 function deviceFromUa(ua: string | undefined): string | null {
@@ -22,7 +25,7 @@ function deviceFromUa(ua: string | undefined): string | null {
 const pending: Set<Promise<unknown>> = new Set();
 
 export async function logClick(ctx: ClickContext): Promise<void> {
-  const geo = lookup(ctx.ip);
+  const geo = ctx.geoOverride ?? lookup(ctx.ip);
   const ipHash = hashIp(ctx.ip);
   const device = deviceFromUa(ctx.userAgent);
   const ts = Date.now();

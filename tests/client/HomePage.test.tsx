@@ -12,13 +12,14 @@ describe("<HomePage />", () => {
     fetchSpy.mockRestore();
   });
 
-  it("renders the lockup, headline, two CTAs, and three features", () => {
+  it("renders the brand, headline, two CTAs, and three features", () => {
     render(<HomePage />);
     expect(screen.getAllByText(/shortlive/i).length).toBeGreaterThan(0);
-    expect(
-      screen.getByText(/Short URLs with live click analytics and rule-based webhooks\./i),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Watch the demo/i })).toHaveAttribute("href", "/demo");
+    expect(screen.getByText(/Live analytics\./i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Watch the live demo/i })).toHaveAttribute(
+      "href",
+      "/demo",
+    );
     // Guest: Create CTA points at login?next=/create
     const create = screen.getAllByRole("link", { name: /Create your own/i });
     expect(create.some((a) => a.getAttribute("href") === "/login?next=/create")).toBe(true);

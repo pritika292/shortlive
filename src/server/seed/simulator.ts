@@ -41,6 +41,7 @@ export async function fireSyntheticClicks(urlIdValue: number, count: number): Pr
       ip: city.ip,
       userAgent: city.ua,
       referrer: city.referrer ?? undefined,
+      geoOverride: { country: city.country, lat: city.lat, lon: city.lon },
     });
     fired++;
   }

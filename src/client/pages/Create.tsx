@@ -84,47 +84,50 @@ export function CreatePage(): JSX.Element {
     return (
       <>
         <TopBar current="create" />
-        <main className="min-h-[calc(100vh-56px)] flex items-center justify-center px-6">
-          <div className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6">
-            <h1 className="text-xl font-semibold tracking-tight mb-1">Short link created</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">
-              Share or open it below.
+        <main className="relative min-h-[calc(100vh-72px)] flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-xl glass-card p-8 sm:p-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20 mb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-3.5 w-3.5"
+                aria-hidden
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Link created
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
+              Your short link is live.
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">
+              Share it anywhere, and watch clicks land in real time.
             </p>
 
-            <div className="rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3 mb-4 flex items-center justify-between gap-3">
-              <code className="text-sm text-sky-600 dark:text-sky-400 break-all">
+            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] p-4 mb-5 flex items-center justify-between gap-3">
+              <code className="text-base font-semibold text-emerald-600 dark:text-emerald-400 break-all">
                 {created.url}
               </code>
               <CopyButton text={created.url} />
             </div>
 
-            <div className="flex flex-wrap gap-3 text-xs">
-              <a
-                className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
-                href={created.url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                open in new tab ↗
+            <div className="flex flex-wrap gap-3">
+              <a href={created.url} target="_blank" rel="noreferrer" className="btn-secondary">
+                Open in new tab
               </a>
-              <a
-                className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
-                href={`/a/${created.short}`}
-              >
-                analytics →
+              <a href={`/a/${created.short}`} className="btn-secondary">
+                View analytics
               </a>
-              <a
-                className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
-                href={`/a/${created.short}/rules`}
-              >
-                rules →
+              <a href={`/a/${created.short}/rules`} className="btn-secondary">
+                Manage rules
               </a>
-              <button
-                type="button"
-                onClick={reset}
-                className="ml-auto text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100"
-              >
-                create another
+              <button type="button" onClick={reset} className="btn-primary ml-auto">
+                Create another
               </button>
             </div>
           </div>
@@ -137,18 +140,24 @@ export function CreatePage(): JSX.Element {
   return (
     <>
       <TopBar current="create" />
-      <main className="min-h-[calc(100vh-56px)] flex items-center justify-center px-6 py-8">
-        <form
-          onSubmit={submit}
-          className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6"
-        >
-          <h1 className="text-xl font-semibold tracking-tight mb-1">Create a short link</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+      <main className="relative min-h-[calc(100vh-72px)] flex items-center justify-center px-6 py-12">
+        <div
+          aria-hidden
+          className="absolute -top-24 right-1/4 -z-10 h-[300px] w-[500px] rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-500/10"
+        />
+        <form onSubmit={submit} className="w-full max-w-xl glass-card p-8 sm:p-10">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
+            Create a short link
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mb-7">
             Signed in as{" "}
-            <span className="text-slate-700 dark:text-slate-300">{session.user?.username}</span>.
+            <span className="font-semibold text-slate-800 dark:text-slate-200">
+              {session.user?.username}
+            </span>
+            . Pick a target, optionally lock it down, and ship.
           </p>
 
-          <div className="grid gap-3 text-sm">
+          <div className="grid gap-5">
             <Field
               id="create-target"
               label="Destination URL"
@@ -158,37 +167,46 @@ export function CreatePage(): JSX.Element {
               value={target}
               onChange={setTarget}
             />
-            <Field
-              id="create-custom"
-              label="Custom code (optional)"
-              type="text"
-              placeholder="3–32 chars [a-z A-Z 0-9 -]"
-              value={customShort}
-              onChange={setCustomShort}
-            />
-            <Field
-              id="create-expires"
-              label="Expires at (optional)"
-              type="datetime-local"
-              placeholder=""
-              value={expiresAt}
-              onChange={setExpiresAt}
-            />
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field
+                id="create-custom"
+                label="Custom code"
+                hint="optional, 3 to 32 chars"
+                type="text"
+                placeholder="my-launch"
+                value={customShort}
+                onChange={setCustomShort}
+              />
+              <Field
+                id="create-expires"
+                label="Expires at"
+                hint="optional"
+                type="datetime-local"
+                placeholder=""
+                value={expiresAt}
+                onChange={setExpiresAt}
+              />
+            </div>
             <Field
               id="create-password"
-              label="Password gate (optional)"
+              label="Password gate"
+              hint="optional; visitors enter this to follow"
               type="password"
-              placeholder="visitors enter this to follow"
+              placeholder="leave blank for public access"
               value={password}
               onChange={setPassword}
             />
 
-            {error && <div className="text-rose-400 text-xs">{error}</div>}
+            {error && (
+              <div className="rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 px-4 py-2.5 text-sm">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={submitting || !target}
-              className="mt-2 self-start bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-medium rounded px-4 py-1.5"
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed self-start py-3 px-7 text-base"
             >
               {submitting ? "Creating…" : "Create short link"}
             </button>
@@ -203,6 +221,7 @@ export function CreatePage(): JSX.Element {
 function Field({
   id,
   label,
+  hint,
   type,
   placeholder,
   value,
@@ -211,6 +230,7 @@ function Field({
 }: {
   id: string;
   label: string;
+  hint?: string;
   type: string;
   placeholder: string;
   value: string;
@@ -218,9 +238,17 @@ function Field({
   required?: boolean;
 }): JSX.Element {
   return (
-    <div className="grid gap-1">
-      <label htmlFor={id} className="text-xs uppercase tracking-wider text-slate-500">
+    <div className="grid gap-1.5">
+      <label
+        htmlFor={id}
+        className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400"
+      >
         {label}
+        {hint ? (
+          <span className="ml-1.5 normal-case tracking-normal font-normal text-slate-400">
+            ({hint})
+          </span>
+        ) : null}
       </label>
       <input
         id={id}
@@ -229,7 +257,7 @@ function Field({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
+        className="bg-white dark:bg-white/[0.04] border border-slate-300 dark:border-white/10 rounded-xl px-4 py-3 text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
       />
     </div>
   );
@@ -250,9 +278,44 @@ function CopyButton({ text }: { text: string }): JSX.Element {
     <button
       type="button"
       onClick={() => void copy()}
-      className="text-xs bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded px-2 py-1 text-slate-800 dark:text-slate-200 shrink-0"
+      className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 transition-opacity"
     >
-      {copied ? "copied" : "copy"}
+      {copied ? (
+        <>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+            aria-hidden
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Copied
+        </>
+      ) : (
+        <>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+            aria-hidden
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          Copy
+        </>
+      )}
     </button>
   );
 }
