@@ -13,10 +13,10 @@
 | 9 — Webhook delivery | 2 | 2 | 100% |
 | 10 — Admin user + create flow | 5 | 5 | 100% |
 | 11 — UI hardening | 7 | 8 | 88% |
-| 12 — Repo presentation | 0 | 1 | 0% |
-| **Total** | **42** | **44** | **95%** |
+| 12 — Repo presentation | 1 | 1 | 100% |
+| **Total** | **43** | **44** | **98%** |
 
-Last updated: after blocks 11.5 + 11.3 merged.
+Last updated: after block 12.1 merged.
 
 ---
 
@@ -88,4 +88,4 @@ Last updated: after blocks 11.5 + 11.3 merged.
 - [x] 11.8 — "By Pritika" footer + About page
 
 ### Phase 12 — Repo presentation
-- [ ] 12.1 — README badges + tech-stack + repo metadata + LICENSE
+- [x] 12.1 — README badges + tech-stack + repo metadata + LICENSE
