@@ -129,6 +129,43 @@ async function evalPerClick(
     : null;
 }
 
+interface VelocityConfig {
+  count: number;
+  window_seconds: number;
+}
+
+function windowKey(ruleId: string): string {
+  return `shortlive:rule_window:${ruleId}`;
+}
+
+async function evalVelocity(
+  rule: RuleRow,
+  _ctx: EvaluationContext,
+  nowMs: number = Date.now(),
+): Promise<Record<string, unknown> | null> {
+  const cfg = rule.config as Partial<VelocityConfig>;
+  if (typeof cfg.count !== "number" || typeof cfg.window_seconds !== "number") return null;
+  const key = windowKey(rule.id);
+  const cutoff = nowMs - cfg.window_seconds * 1000;
+  const member = `${nowMs}:${Math.random()}`;
+  const r = getRedis();
+  const results = await r
+    .multi()
+    .zadd(key, nowMs, member)
+    .zremrangebyscore(key, 0, cutoff)
+    .zcard(key)
+    .expire(key, cfg.window_seconds * 2)
+    .exec();
+  if (!results) return null;
+  const zcardResult = results[2];
+  if (!zcardResult || zcardResult[0]) return null;
+  const count = Number(zcardResult[1]);
+  if (count >= cfg.count) {
+    return { count, threshold: cfg.count, window_seconds: cfg.window_seconds };
+  }
+  return null;
+}
+
 export async function evaluateRulesForClick(
   ctx: EvaluationContext,
   pool: pg.Pool | pg.PoolClient = getPool(),
@@ -150,7 +187,7 @@ export async function evaluateRulesForClick(
     if (rule.type === "threshold") matched = await evalThreshold(rule, ctx);
     else if (rule.type === "first_of") matched = await evalFirstOf(rule, ctx);
     else if (rule.type === "per_click") matched = await evalPerClick(rule, ctx);
-    // velocity lands in 8.3
+    else if (rule.type === "velocity") matched = await evalVelocity(rule, ctx);
 
     if (matched === null) continue;
 
