@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cookieParser from "cookie-parser";
 import { authRouter } from "./routes/auth.js";
+import { shortenRouter } from "./routes/shorten.js";
 import { sessionMiddleware } from "./middleware/session.js";
 
 export function createApp(): Express {
@@ -14,6 +15,7 @@ export function createApp(): Express {
   });
 
   app.use(authRouter);
+  app.use(shortenRouter);
 
   return app;
 }

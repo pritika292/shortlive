@@ -2,7 +2,8 @@ import pg from "pg";
 import { migrate } from "../../src/server/db/migrate.js";
 
 export async function resetDb(client: pg.ClientBase): Promise<void> {
-  await client.query("DROP TABLE IF EXISTS sessions");
+  await client.query("DROP TABLE IF EXISTS urls CASCADE");
+  await client.query("DROP TABLE IF EXISTS sessions CASCADE");
   await client.query("DROP SCHEMA IF EXISTS auth CASCADE");
   await client.query("DROP TABLE IF EXISTS _migrations");
   await migrate(client as pg.Client);
