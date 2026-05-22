@@ -35,6 +35,7 @@ describeIfDeps("demo seeder", () => {
   it("creates the demo row with 2000 historical clicks spanning ~24h on first run", async () => {
     const result = await seedDemo();
     expect(result.created).toBe(true);
+    expect(result.reseeded).toBe(true);
     expect(result.totalClicks).toBe(2000);
 
     const { rows } = await client.query<{ short: string; target: string; owner_id: string | null }>(
@@ -66,36 +67,50 @@ describeIfDeps("demo seeder", () => {
     expect(Number(rules[0]!.c)).toBe(3);
   });
 
-  it("is a no-op on the second run if recent clicks exist", async () => {
+  it("re-seeds the clicks table on every run, dropping any accumulated junk", async () => {
     await seedDemo();
+    // Simulate accumulated null-country pollution that built up on prod.
     await client.query(
-      `INSERT INTO clicks(url_id, ts) SELECT id, NOW() FROM urls WHERE short = 'demo'`,
+      `INSERT INTO clicks(url_id, ts, country)
+        SELECT id, NOW(), NULL FROM urls WHERE short = 'demo'`,
+    );
+    await client.query(
+      `INSERT INTO clicks(url_id, ts, country)
+        SELECT id, NOW(), NULL FROM urls WHERE short = 'demo'`,
     );
     const result = await seedDemo();
     expect(result.created).toBe(false);
-    expect(result.toppedUp).toBe(false);
+    expect(result.reseeded).toBe(true);
+    expect(result.totalClicks).toBe(2000);
+
+    // The junk rows are gone.
+    const { rows } = await client.query<{ c: string }>(
+      "SELECT COUNT(*)::text AS c FROM clicks WHERE url_id = (SELECT id FROM urls WHERE short = 'demo') AND country IS NULL",
+    );
+    expect(Number(rows[0]!.c)).toBe(0);
   });
 
-  it("tops up if the most recent click is older than 5 minutes", async () => {
+  it("wipes the Redis ZSET on every run", async () => {
     await seedDemo();
-    await client.query(
-      "UPDATE clicks SET ts = ts - INTERVAL '10 minutes' WHERE url_id = (SELECT id FROM urls WHERE short = 'demo')",
+    // Pollute Redis with a stale null-country entry.
+    await adminRedis.zadd(
+      recentClicksKey("demo"),
+      Date.now(),
+      JSON.stringify({
+        ts: Date.now(),
+        country: null,
+        lat: null,
+        lon: null,
+        device: null,
+        referrer: null,
+      }),
     );
-    const before = (
-      await client.query<{ c: string }>(
-        "SELECT COUNT(*)::text AS c FROM clicks WHERE url_id = (SELECT id FROM urls WHERE short = 'demo')",
-      )
-    ).rows[0]!.c;
 
-    const result = await seedDemo();
-    expect(result.created).toBe(false);
-    expect(result.toppedUp).toBe(true);
+    await seedDemo();
 
-    const after = (
-      await client.query<{ c: string }>(
-        "SELECT COUNT(*)::text AS c FROM clicks WHERE url_id = (SELECT id FROM urls WHERE short = 'demo')",
-      )
-    ).rows[0]!.c;
-    expect(Number(after)).toBeGreaterThan(Number(before));
+    const raw = await adminRedis.zrange(recentClicksKey("demo"), 0, -1);
+    const parsed = raw.map((s) => JSON.parse(s) as { country: string | null });
+    // Only synthetic entries with real countries should remain.
+    expect(parsed.every((p) => p.country !== null)).toBe(true);
   });
 });

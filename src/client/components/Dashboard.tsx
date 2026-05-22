@@ -3,12 +3,13 @@ import { useShortliveClicks } from "../hooks/useShortliveClicks.js";
 import { useSeries, useBreakdown, type BreakdownRow } from "../hooks/useSeries.js";
 import { LiveCounter } from "./LiveCounter.js";
 import { RecentFeed } from "./RecentFeed.js";
-import { ClickMap } from "./ClickMap.js";
+import { WorldMap } from "./WorldMap.js";
 import { TimeSeriesChart } from "./TimeSeriesChart.js";
 import { Breakdown } from "./Breakdown.js";
 import { TopBar } from "./TopBar.js";
 import { Footer } from "./Footer.js";
 import { ContinentFilter } from "./ContinentFilter.js";
+import { CountryChipFilter } from "./CountryChipFilter.js";
 import { DashboardFiltersProvider, useDashboardFilters } from "../contexts/DashboardFilters.js";
 import { continentOf } from "../lib/continents.js";
 
@@ -96,17 +97,30 @@ function DashboardInner({
             </div>
           </header>
 
-          <section className="mb-6 flex items-center justify-between gap-3 flex-wrap">
-            <ContinentFilter />
-            {hasFilter && (
-              <button
-                type="button"
-                onClick={() => filters.clearAll()}
-                className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors"
-              >
-                clear filter ×
-              </button>
-            )}
+          <section className="mb-6 space-y-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-3">
+                <span className="text-xs uppercase tracking-[0.18em] font-semibold text-slate-500 dark:text-slate-400 hidden sm:inline">
+                  Continents
+                </span>
+                <ContinentFilter />
+              </div>
+              {hasFilter && (
+                <button
+                  type="button"
+                  onClick={() => filters.clearAll()}
+                  className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors"
+                >
+                  clear filter ×
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-xs uppercase tracking-[0.18em] font-semibold text-slate-500 dark:text-slate-400 hidden sm:inline">
+                Countries
+              </span>
+              <CountryChipFilter />
+            </div>
           </section>
 
           <section className="grid gap-6 md:grid-cols-3 mb-6">
@@ -142,9 +156,8 @@ function DashboardInner({
 
           <section className="mb-6">
             <Card title="Click locations" accent="violet">
-              <ClickMap
+              <WorldMap
                 points={mapPoints}
-                hydrated={hydrated}
                 filteredCountries={effectiveCountries.size > 0 ? effectiveCountries : undefined}
                 filteredContinents={filters.continents.size > 0 ? filters.continents : undefined}
               />

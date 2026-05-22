@@ -4,12 +4,16 @@ import { CITIES, pickCityByContinent, type City } from "./cities.js";
 
 const DEMO_SHORT = "demo";
 // Mean interval between simulator ticks; jittered per cycle.
-const MEAN_INTERVAL_MS = 30_000;
-const MIN_INTERVAL_MS = 10_000;
-const MAX_INTERVAL_MS = 90_000;
-const IDLE_THRESHOLD_MS = 5 * 60_000;
-// 1-in-N ticks are a "burst" — 5-10 clicks at once.
-const BURST_INVERSE_PROBABILITY = 5;
+const MEAN_INTERVAL_MS = 8_000;
+const MIN_INTERVAL_MS = 3_000;
+const MAX_INTERVAL_MS = 18_000;
+// Anything < this elapsed since the last click and we skip the tick. Kept low
+// so synthetic traffic dominates the recent-clicks feed even when real
+// visitors are hitting /demo on a host with no GeoLite2 (their clicks land
+// with country=null and pollute the feed otherwise).
+const IDLE_THRESHOLD_MS = 5_000;
+// 1-in-N ticks are a "burst": 5-10 clicks at once.
+const BURST_INVERSE_PROBABILITY = 4;
 
 export function pickSyntheticCity(): City {
   return pickCityByContinent(Math.random);

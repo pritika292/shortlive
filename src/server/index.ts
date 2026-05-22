@@ -13,11 +13,7 @@ await initGeo();
 
 try {
   const seed = await seedDemo();
-  if (seed.created) {
-    console.log(`Demo link seeded (${seed.totalClicks} historical clicks).`);
-  } else if (seed.toppedUp) {
-    console.log(`Demo link topped up (${seed.totalClicks} clicks total).`);
-  }
+  console.log(`Demo link ${seed.created ? "created" : "refreshed"} (${seed.totalClicks} clicks).`);
 } catch (err) {
   console.error("Demo seeder failed; continuing without seeded demo", err);
 }

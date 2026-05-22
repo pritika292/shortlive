@@ -1,5 +1,5 @@
 import { getPool } from "../db/pool.js";
-import { recordClickEvent } from "../services/redis.js";
+import { getRedis, recentClicksKey, recordClickEvent } from "../services/redis.js";
 import { CITIES, pickCityByContinent, pickHour, type City } from "./cities.js";
 
 const DEMO_SHORT = "demo";
@@ -73,14 +73,16 @@ async function insertHistoricalClicks(
   );
 }
 
-async function topUpRecentRedisClicks(rng: () => number): Promise<void> {
+async function refreshRecentRedisClicks(rng: () => number): Promise<void> {
+  // Always wipe the demo ZSET on startup so any stale null-country entries
+  // (left by real visitors hitting /demo on a host without GeoLite2) can't
+  // leak into the live feed.
+  await getRedis().del(recentClicksKey(DEMO_SHORT));
   const now = Date.now();
-  // Fresh ZSET entries spread across the last hour so a new dashboard tab
-  // has the most-recent 30 immediately.
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 50; i++) {
     const city = pickCityByContinent(rng);
     await recordClickEvent(DEMO_SHORT, {
-      ts: now - i * 60_000,
+      ts: now - i * 20_000,
       country: city.country,
       lat: city.lat,
       lon: city.lon,
@@ -144,15 +146,17 @@ async function seedDemoRules(urlIdValue: number): Promise<void> {
 
 export interface SeedResult {
   created: boolean;
-  toppedUp: boolean;
+  reseeded: boolean;
   totalClicks: number;
 }
+
+const HISTORICAL_COUNT = 2000;
+const HISTORICAL_WINDOW_HOURS = 24;
 
 export async function seedDemo(): Promise<SeedResult> {
   let id = await urlId();
   const rng = mulberry32(42);
   let created = false;
-  let toppedUp = false;
 
   if (id === null) {
     const { rows } = await getPool().query<{ id: string }>(
@@ -162,31 +166,21 @@ export async function seedDemo(): Promise<SeedResult> {
     const inserted = rows[0];
     if (!inserted) throw new Error("demo INSERT returned no row");
     id = Number(inserted.id);
-    // 2000 clicks across the past 24h with peak-hour weighting.
-    await insertHistoricalClicks(id, 2000, 24, rng);
-    await topUpRecentRedisClicks(rng);
-    await seedDemoRules(id);
     created = true;
-  } else {
-    const { rows } = await getPool().query<{ recent: string | null }>(
-      "SELECT EXTRACT(EPOCH FROM (NOW() - MAX(ts)))::text AS recent FROM clicks WHERE url_id = $1",
-      [id],
-    );
-    const secondsSinceLast = rows[0]?.recent ? Number(rows[0].recent) : Infinity;
-    if (!Number.isFinite(secondsSinceLast) || secondsSinceLast > 5 * 60) {
-      // Top-up batch: 50 clicks spread over the last 5 minutes (so the chart
-      // ticks visibly on the current bucket without skewing history).
-      await insertHistoricalClicks(id, 50, 5 / 60, rng);
-      await topUpRecentRedisClicks(rng);
-      toppedUp = true;
-    }
-    // Always (re-)seed the demo rules in case they were deleted manually.
-    await seedDemoRules(id);
   }
+
+  // Always wipe and reseed on startup. The container restarts on every deploy
+  // so this keeps the demo dataset deterministic, well-distributed, and free
+  // of null-country pollution from real visitors hitting /demo on a host
+  // without GeoLite2.
+  await getPool().query("DELETE FROM clicks WHERE url_id = $1", [id]);
+  await insertHistoricalClicks(id, HISTORICAL_COUNT, HISTORICAL_WINDOW_HOURS, rng);
+  await refreshRecentRedisClicks(rng);
+  await seedDemoRules(id);
 
   const { rows: count } = await getPool().query<{ c: string }>(
     "SELECT COUNT(*)::text AS c FROM clicks WHERE url_id = $1",
     [id],
   );
-  return { created, toppedUp, totalClicks: Number(count[0]?.c ?? 0) };
+  return { created, reseeded: true, totalClicks: Number(count[0]?.c ?? 0) };
 }

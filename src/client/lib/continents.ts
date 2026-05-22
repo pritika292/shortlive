@@ -276,8 +276,8 @@ export const CONTINENT_LABEL: Record<ContinentCode, string> = {
   SA: "S. America",
 };
 
-// Geographic bounds for each continent — used to fly the map to a region
-// when a filter is selected. [southWest_lat, southWest_lon, northEast_lat, northEast_lon].
+// Geographic bounds for each continent. Used by the world map to zoom into
+// the active filter region. Format: [minLat, minLon, maxLat, maxLon].
 export const CONTINENT_BOUNDS: Record<ContinentCode, [number, number, number, number]> = {
   NA: [7, -168, 72, -52],
   SA: [-56, -82, 13, -34],
@@ -286,3 +286,41 @@ export const CONTINENT_BOUNDS: Record<ContinentCode, [number, number, number, nu
   AS: [-11, 26, 78, 180],
   OC: [-48, 110, 0, 180],
 };
+
+// Curated MVP country set with hand-tuned bounding boxes. We deliberately ship
+// 10 countries (one or two per inhabited continent) instead of all 250 so the
+// filter UI stays scannable. Format: [minLat, minLon, maxLat, maxLon].
+export const COUNTRY_BOUNDS: Record<string, [number, number, number, number]> = {
+  US: [24.5, -125, 49.4, -66.9], // continental US
+  CA: [42, -141, 70, -52],
+  MX: [14.5, -118.4, 32.7, -86.7],
+  BR: [-33.7, -73.9, 5.2, -34.7],
+  GB: [49.9, -8.7, 60.9, 1.8],
+  DE: [47.3, 5.9, 55.1, 15],
+  IN: [6.7, 68.1, 35.5, 97.4],
+  JP: [30.2, 129, 45.5, 145.8],
+  ZA: [-34.8, 16.4, -22.1, 32.9],
+  AU: [-43.6, 113, -10.7, 153.6],
+};
+
+export interface CuratedCountry {
+  code: string;
+  name: string;
+  flag: string;
+  continent: ContinentCode;
+}
+
+// The order is the chip render order on the dashboard: roughly geographic
+// (west-to-east, north-to-south) so the row reads as a tour of the world.
+export const CURATED_COUNTRIES: CuratedCountry[] = [
+  { code: "US", name: "United States", flag: "🇺🇸", continent: "NA" },
+  { code: "CA", name: "Canada", flag: "🇨🇦", continent: "NA" },
+  { code: "MX", name: "Mexico", flag: "🇲🇽", continent: "NA" },
+  { code: "BR", name: "Brazil", flag: "🇧🇷", continent: "SA" },
+  { code: "GB", name: "United Kingdom", flag: "🇬🇧", continent: "EU" },
+  { code: "DE", name: "Germany", flag: "🇩🇪", continent: "EU" },
+  { code: "ZA", name: "South Africa", flag: "🇿🇦", continent: "AF" },
+  { code: "IN", name: "India", flag: "🇮🇳", continent: "AS" },
+  { code: "JP", name: "Japan", flag: "🇯🇵", continent: "AS" },
+  { code: "AU", name: "Australia", flag: "🇦🇺", continent: "OC" },
+];
