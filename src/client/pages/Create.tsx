@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "../hooks/useSession.js";
 import { TopBar } from "../components/TopBar.js";
+import { Footer } from "../components/Footer.js";
 
 interface CreatedLink {
   short: string;
@@ -128,6 +129,7 @@ export function CreatePage(): JSX.Element {
             </div>
           </div>
         </main>
+        <Footer />
       </>
     );
   }
@@ -193,6 +195,7 @@ export function CreatePage(): JSX.Element {
           </div>
         </form>
       </main>
+      <Footer />
     </>
   );
 }

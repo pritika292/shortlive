@@ -7,6 +7,7 @@ import { ClickMap } from "./ClickMap.js";
 import { TimeSeriesChart } from "./TimeSeriesChart.js";
 import { Breakdown } from "./Breakdown.js";
 import { TopBar } from "./TopBar.js";
+import { Footer } from "./Footer.js";
 
 const REFRESH_INTERVAL_MS = 10_000;
 
@@ -93,6 +94,7 @@ export function Dashboard({
           </Card>
         </section>
       </main>
+      <Footer />
     </>
   );
 }
