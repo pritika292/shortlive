@@ -64,13 +64,22 @@ jobs:
           log "Pruning dangling images"
           docker image prune -f >/dev/null 2>&1 || true
 
-          # Give the container a moment to come up, then probe.
-          sleep 5
-          if curl -fsS -o /dev/null --max-time 5 http://localhost:3010/health; then
-            log "Health check passed: /health returned 2xx"
-          else
-            log "WARN: /health did not return 2xx within 5s — container may still be starting"
-          fi
+          # Give the container time to migrate + listen, then probe.
+          i=0
+          while [ $i -lt 30 ]; do
+            if curl -fsS -o /dev/null --max-time 3 http://localhost:3010/health; then
+              log "Health check passed: /health returned 2xx"
+              exit 0
+            fi
+            i=$((i + 1))
+            sleep 2
+          done
+          log "ERROR: /health did not return 2xx after 60s"
+          log "Container state:"
+          docker compose ps
+          log "Recent logs:"
+          docker compose logs --tail=80 app || true
+          exit 1
           EOF
 
       - name: Deploy via az vm run-command

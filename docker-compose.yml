@@ -1,8 +1,7 @@
 # Production compose — joins the shared `pritika` Docker network on the VM and
-# reads infra credentials (POSTGRES_PASSWORD, REDIS_PASSWORD) from
-# /opt/pritika/_infra/.env plus per-project secrets from
-# /opt/pritika/_infra/shortlive.env. Both files live outside the repo; the
-# deploy pipeline ensures shortlive.env exists before this stack is brought up.
+# reads ALL runtime env (DATABASE_URL, REDIS_URL, SESSION_SECRET, IP_HASH_PEPPER,
+# NODE_ENV) from /opt/pritika/_infra/shortlive.env. The file is written by
+# scripts/bootstrap-vm.sh on first deploy and never touched again.
 #
 # For local development use docker-compose.local.yml.
 
@@ -19,16 +18,11 @@ services:
     ports:
       - "3010:3010"
     env_file:
-      - /opt/pritika/_infra/.env
       - /opt/pritika/_infra/shortlive.env
-    environment:
-      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@pritika-postgres:5432/shortlive
-      REDIS_URL: redis://:${REDIS_PASSWORD}@pritika-redis:6379/1
-      PORT: "3010"
-      NODE_ENV: production
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3010/health >/dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 30s
     mem_limit: 384m

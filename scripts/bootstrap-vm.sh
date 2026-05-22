@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 # Run on the VM (via az vm run-command) before the docker compose deploy.
-# Idempotent — safe to run on every deploy.
-#
-# What it does:
-#   1. Ensures the `shortlive` database exists in the shared pritika-postgres container.
-#   2. Ensures /opt/pritika/_infra/shortlive.env exists with strong random
-#      SESSION_SECRET + IP_HASH_PEPPER values. Never regenerated once set.
+# Idempotent — safe to run on every deploy. Existing secrets are preserved;
+# missing keys are filled in.
 
 set -euo pipefail
 
@@ -19,11 +15,15 @@ if [ ! -f "$INFRA_ENV" ]; then
   exit 1
 fi
 
-# Source POSTGRES_PASSWORD so we can connect to the shared instance.
 set -a
 # shellcheck source=/dev/null
 . "$INFRA_ENV"
 set +a
+
+if [ -z "${POSTGRES_PASSWORD:-}" ] || [ -z "${REDIS_PASSWORD:-}" ]; then
+  echo "ERROR: POSTGRES_PASSWORD or REDIS_PASSWORD missing from $INFRA_ENV" >&2
+  exit 1
+fi
 
 log "Ensuring shortlive database exists"
 if docker exec pritika-postgres psql -U postgres -tAc \
@@ -34,18 +34,36 @@ else
   log "Created database 'shortlive'"
 fi
 
-if [ ! -f "$PROJECT_ENV" ]; then
-  log "Generating per-project secrets in $PROJECT_ENV"
+# Preserve any existing secrets so sessions and IP hashes remain stable across
+# deploys. Generate only what's missing.
+read_existing() {
+  local key="$1"
+  if [ -f "$PROJECT_ENV" ]; then
+    grep "^${key}=" "$PROJECT_ENV" | head -1 | cut -d= -f2- || true
+  fi
+}
+
+SESSION_SECRET="$(read_existing SESSION_SECRET)"
+if [ -z "$SESSION_SECRET" ]; then
   SESSION_SECRET="$(openssl rand -base64 48 | tr -d '\n' | head -c 64)"
-  IP_HASH_PEPPER="$(openssl rand -base64 24 | tr -d '\n' | head -c 32)"
-  umask 077
-  cat > "$PROJECT_ENV" <<EOF
-SESSION_SECRET=$SESSION_SECRET
-IP_HASH_PEPPER=$IP_HASH_PEPPER
-EOF
-  log "Wrote $PROJECT_ENV (mode 600)"
-else
-  log "$PROJECT_ENV already exists — leaving it alone"
+  log "Generated new SESSION_SECRET"
 fi
+
+IP_HASH_PEPPER="$(read_existing IP_HASH_PEPPER)"
+if [ -z "$IP_HASH_PEPPER" ]; then
+  IP_HASH_PEPPER="$(openssl rand -base64 24 | tr -d '\n' | head -c 32)"
+  log "Generated new IP_HASH_PEPPER"
+fi
+
+umask 077
+cat > "$PROJECT_ENV" <<EOF
+NODE_ENV=production
+PORT=3010
+DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD}@pritika-postgres:5432/shortlive
+REDIS_URL=redis://:${REDIS_PASSWORD}@pritika-redis:6379/1
+SESSION_SECRET=${SESSION_SECRET}
+IP_HASH_PEPPER=${IP_HASH_PEPPER}
+EOF
+log "Wrote $PROJECT_ENV (mode 600)"
 
 log "Bootstrap complete"
