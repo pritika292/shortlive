@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { TopBar } from "../components/TopBar.js";
 import { Footer } from "../components/Footer.js";
 import { ContinentFilter } from "../components/ContinentFilter.js";
@@ -37,10 +37,20 @@ function DemoInner(): JSX.Element {
     [sim.events, filters],
   );
 
-  // Counter logic: while the burst is running we show clicks-this-session so
-  // the user watches it tick up from 0. While idle we show the count of
-  // visible (filtered) events.
-  const counterValue = sim.running ? sim.total : visible.length;
+  // Counter always reflects the filter (#121). With the #120 fix clearing
+  // events on Start, this gives us the right behaviour for both states:
+  // running -> count of burst clicks matching the filter; idle -> count of
+  // seed/historical clicks matching the filter.
+  const counterValue = visible.length;
+
+  // Tick once per second so the rolling windows update visibly during a burst.
+  // While idle the array doesn't change so this is a cheap no-op render.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1_000);
+    return () => clearInterval(id);
+  }, []);
+  const windows = useMemo(() => countWindows(visible, now), [visible, now]);
 
   const series = useMemo(() => buildSeries(visible), [visible]);
   const country = useMemo(() => topBreakdown(visible, (e) => e.country, 5), [visible]);
@@ -111,6 +121,7 @@ function DemoInner(): JSX.Element {
               accent="emerald"
             >
               <LiveCounter count={counterValue} />
+              <WindowedCounts windows={windows} />
             </Card>
             <Card title="Recent clicks" className="md:col-span-2">
               <RecentFeed clicks={visible.slice(0, 8)} />
@@ -175,6 +186,48 @@ function Card({
         </div>
       </div>
       <div>{children}</div>
+    </div>
+  );
+}
+
+interface WindowCounts {
+  s15: number;
+  m1: number;
+  m5: number;
+  m30: number;
+}
+
+function countWindows(events: ClickEvent[], now: number): WindowCounts {
+  const cutoffs = { s15: now - 15_000, m1: now - 60_000, m5: now - 300_000, m30: now - 1_800_000 };
+  const out: WindowCounts = { s15: 0, m1: 0, m5: 0, m30: 0 };
+  for (const e of events) {
+    if (e.ts >= cutoffs.s15) out.s15++;
+    if (e.ts >= cutoffs.m1) out.m1++;
+    if (e.ts >= cutoffs.m5) out.m5++;
+    if (e.ts >= cutoffs.m30) out.m30++;
+  }
+  return out;
+}
+
+function WindowedCounts({ windows }: { windows: WindowCounts }): JSX.Element {
+  const items: Array<{ label: string; value: number }> = [
+    { label: "15s", value: windows.s15 },
+    { label: "1m", value: windows.m1 },
+    { label: "5m", value: windows.m5 },
+    { label: "30m", value: windows.m30 },
+  ];
+  return (
+    <div className="mt-4 pt-4 border-t border-slate-200/60 dark:border-white/5 grid grid-cols-4 gap-2 text-center">
+      {items.map((it) => (
+        <div key={it.label}>
+          <div className="text-lg font-semibold tabular-nums text-slate-900 dark:text-white">
+            {it.value}
+          </div>
+          <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
+            {it.label}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

@@ -78,6 +78,12 @@ export function useDemoSimulator(): DemoSimulatorState {
 
   const startBurst = useCallback(() => {
     if (runRef.current) return; // already running
+    // Zero everything out: counter, chart, breakdowns, recent feed, and map
+    // pins all derive from `events`, so emptying it gives the user the
+    // "watch a fresh dashboard fill in front of you" moment the button
+    // promises. The bundled seed was only there to make the cold load look
+    // populated.
+    setEvents([]);
     runRef.current = { startedAt: Date.now(), fired: 0 };
     setRunning(true);
     setRemainingSeconds(Math.ceil(BURST_DURATION_MS / 1000));

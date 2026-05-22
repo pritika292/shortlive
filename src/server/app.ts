@@ -10,6 +10,7 @@ import { summaryRouter } from "./routes/summary.js";
 import { aggRouter } from "./routes/agg.js";
 import { rulesRouter } from "./routes/rules.js";
 import { meRouter } from "./routes/me.js";
+import { quickstartRouter } from "./routes/quickstart.js";
 import { sessionMiddleware } from "./middleware/session.js";
 
 const CLIENT_DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../client");
@@ -31,6 +32,7 @@ export function createApp(): Express {
   });
 
   app.use(authRouter);
+  app.use(quickstartRouter);
   app.use(shortenRouter);
   app.use(summaryRouter);
   app.use(aggRouter);

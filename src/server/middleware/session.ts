@@ -5,7 +5,7 @@ import { SESSION_COOKIE } from "../routes/auth.js";
 
 declare module "express-serve-static-core" {
   interface Request {
-    user?: { id: number; username: string };
+    user?: { id: number; username: string; expiresAt: Date | null };
   }
 }
 
@@ -15,7 +15,11 @@ export const sessionMiddleware: RequestHandler = async (req, _res, next) => {
   try {
     const session = await lookupSession(getPool(), sid);
     if (session) {
-      req.user = { id: session.userId, username: session.username };
+      req.user = {
+        id: session.userId,
+        username: session.username,
+        expiresAt: session.userExpiresAt,
+      };
     }
   } catch (err) {
     console.error("session lookup failed", err);

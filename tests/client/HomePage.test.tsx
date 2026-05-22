@@ -16,13 +16,9 @@ describe("<HomePage />", () => {
     render(<HomePage />);
     expect(screen.getAllByText(/shortlive/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Live analytics\./i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Watch the live demo/i })).toHaveAttribute(
-      "href",
-      "/demo",
-    );
-    // Guest: Create CTA points at login?next=/create
-    const create = screen.getAllByRole("link", { name: /Create your own/i });
-    expect(create.some((a) => a.getAttribute("href") === "/login?next=/create")).toBe(true);
+    expect(screen.getByRole("link", { name: /Watch the demo/i })).toHaveAttribute("href", "/demo");
+    // Primary CTA is now Quickstart (a button, not a link).
+    expect(screen.getByRole("button", { name: /Quickstart/i })).toBeInTheDocument();
 
     // First match wins. "Live analytics" also appears in the hero gradient
     // headline, so use getAllByText and assert non-empty rather than getByText.

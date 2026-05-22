@@ -65,5 +65,14 @@ authRouter.get("/whoami", (req, res) => {
     res.status(401).json({ error: "unauthorized" });
     return;
   }
-  res.json({ username: req.user.username });
+  const body: { username: string; expires_at?: string; temp?: true } = {
+    username: req.user.username,
+  };
+  // Tell the client this is a temp playground session so the TopBar can
+  // render the countdown chip instead of the username pill.
+  if (req.user.expiresAt) {
+    body.expires_at = req.user.expiresAt.toISOString();
+    body.temp = true;
+  }
+  res.json(body);
 });
