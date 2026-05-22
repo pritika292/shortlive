@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { randomBytes } from "node:crypto";
-import { nanoid } from "nanoid";
+import { customAlphabet } from "nanoid";
 import { getPool } from "../db/pool.js";
+
+// Lowercase alphanumeric only: nanoid's default alphabet includes _ and -
+// which look ugly in an auto-generated username. 10 chars * 36 = ~52 bits
+// of entropy, plenty for non-cryptographic uniqueness.
+const tempIdSuffix = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 10);
 import { config } from "../config.js";
 import { hash } from "../services/passwords.js";
 import { createSession } from "../services/sessions.js";
@@ -46,7 +51,7 @@ quickstartRouter.post("/api/quickstart", async (req, res) => {
     return res.status(429).json({ error: "rate_limited" });
   }
 
-  const username = `temp-${nanoid(10).toLowerCase()}`;
+  const username = `temp-${tempIdSuffix()}`;
   // Random throwaway secret. No one will ever try to log in with it; the
   // cookie session is the only path to authenticate as this user.
   const password = randomBytes(32).toString("base64url");
