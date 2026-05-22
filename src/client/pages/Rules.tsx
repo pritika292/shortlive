@@ -3,6 +3,7 @@ import { useRules, deleteRule, patchRule, reVerifyRule, type Rule } from "../hoo
 import { RuleForm } from "../components/RuleForm.js";
 import { FiringsLog } from "../components/FiringsLog.js";
 import { TopBar } from "../components/TopBar.js";
+import { Footer } from "../components/Footer.js";
 
 interface Props {
   short: string;
@@ -55,6 +56,7 @@ export function RulesPage({ short }: Props): JSX.Element {
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

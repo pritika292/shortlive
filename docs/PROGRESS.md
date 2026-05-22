@@ -12,11 +12,11 @@
 | 8 — Rule engine | 3 | 3 | 100% |
 | 9 — Webhook delivery | 2 | 2 | 100% |
 | 10 — Admin user + create flow | 5 | 5 | 100% |
-| 11 — UI hardening | 3 | 8 | 38% |
+| 11 — UI hardening | 4 | 8 | 50% |
 | 12 — Repo presentation | 0 | 1 | 0% |
-| **Total** | **38** | **44** | **86%** |
+| **Total** | **39** | **44** | **89%** |
 
-Last updated: after block 11.6 merged.
+Last updated: after block 11.8 merged.
 
 ---
 
@@ -85,7 +85,7 @@ Last updated: after block 11.6 merged.
 - [ ] 11.5 — Sleek map + continent/country filters
 - [x] 11.6 — Logo + brand mark + homepage hero
 - [ ] 11.7 — Enrich demo data (volume, variety, natural cadence)
-- [ ] 11.8 — "By Pritika" footer + About page
+- [x] 11.8 — "By Pritika" footer + About page
 
 ### Phase 12 — Repo presentation
 - [ ] 12.1 — README badges + tech-stack + repo metadata + LICENSE

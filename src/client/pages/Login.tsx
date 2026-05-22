@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TopBar } from "../components/TopBar.js";
+import { Footer } from "../components/Footer.js";
 
 export function LoginPage(): JSX.Element {
   const [username, setUsername] = useState("");
@@ -98,6 +99,7 @@ export function LoginPage(): JSX.Element {
           </div>
         </form>
       </main>
+      <Footer />
     </>
   );
 }

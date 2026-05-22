@@ -1,4 +1,5 @@
 import { TopBar } from "../components/TopBar.js";
+import { Footer } from "../components/Footer.js";
 import { LogoLockup } from "../components/Logo.js";
 import { useSession } from "../hooks/useSession.js";
 
@@ -62,6 +63,7 @@ export function HomePage(): JSX.Element {
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

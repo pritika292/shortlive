@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSession } from "../hooks/useSession.js";
 import { TopBar } from "../components/TopBar.js";
+import { Footer } from "../components/Footer.js";
 
 interface Link {
   short: string;
@@ -161,6 +162,7 @@ export function MyLinksPage(): JSX.Element {
           </div>
         )}
       </main>
+      <Footer />
     </>
   );
 }
