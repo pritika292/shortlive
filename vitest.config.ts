@@ -1,13 +1,9 @@
 import { defineConfig } from "vitest/config";
 
+// Per-project config lives in vitest.workspace.ts. This file only carries
+// settings shared across both projects.
 export default defineConfig({
   test: {
-    include: ["tests/**/*.test.ts"],
-    environment: "node",
-    pool: "forks",
-    // Integration tests share a single Postgres + Redis instance; running
-    // them in parallel forks would race on schema setup.
-    poolOptions: { forks: { singleFork: true } },
     testTimeout: 10_000,
   },
 });
