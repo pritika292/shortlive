@@ -1,0 +1,33 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Local Claude Code notes — auto-loaded by Claude Code but never committed.
+# Anything project-context-related that isn't safe in the public CLAUDE.md goes here.
+CLAUDE.local.md
+
+# Node
+node_modules/
+dist/
+build/
+.vite/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs / temp
+*.log
+tmp/
+.tmp/
+
+# MaxMind GeoLite2 binary (license: don't redistribute via git; download script handles it)
+*.mmdb
