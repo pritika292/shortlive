@@ -122,8 +122,8 @@ export function HomePage(): JSX.Element {
         </section>
 
         {/* Capabilities strip */}
-        <section className="max-w-7xl mx-auto px-6 lg:px-8 pb-12">
-          <div className="grid gap-6 md:grid-cols-3">
+        <section className="max-w-7xl mx-auto px-6 lg:px-8 pb-20">
+          <div className="grid gap-8 md:grid-cols-3">
             <Feature
               icon={
                 <svg
@@ -368,13 +368,13 @@ function Feature({
         ? "from-cyan-500 to-sky-500"
         : "from-violet-500 to-fuchsia-500";
   return (
-    <div className="glass-card p-7 group hover:translate-y-[-2px] transition-transform">
+    <div className="glass-card p-8 sm:p-10 flex flex-col group hover:translate-y-[-2px] transition-transform">
       <div
-        className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${iconBg} text-white shadow-lg mb-5`}
+        className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${iconBg} text-white shadow-lg mb-7`}
       >
         {icon}
       </div>
-      <div className="text-xl font-semibold text-slate-900 dark:text-white mb-2">{title}</div>
+      <div className="text-xl font-semibold text-slate-900 dark:text-white mb-3">{title}</div>
       <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{children}</p>
     </div>
   );
