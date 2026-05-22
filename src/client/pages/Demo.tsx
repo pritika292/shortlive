@@ -1,4 +1,10 @@
+import { useShortliveClicks } from "../hooks/useShortliveClicks.js";
+import { LiveCounter } from "../components/LiveCounter.js";
+import { RecentFeed } from "../components/RecentFeed.js";
+
 export function DemoPage(): JSX.Element {
+  const { totalClicks, recent, status, hydrated } = useShortliveClicks("demo");
+
   return (
     <main className="min-h-screen px-6 py-8 max-w-6xl mx-auto">
       <header className="mb-8 flex items-baseline justify-between">
@@ -6,20 +12,33 @@ export function DemoPage(): JSX.Element {
           <h1 className="text-2xl font-semibold tracking-tight">shortlive · demo</h1>
           <p className="text-sm text-slate-400">Live click analytics for the public demo link.</p>
         </div>
-        <a className="text-xs text-slate-500 hover:text-slate-300" href="/">
-          ← home
-        </a>
+        <div className="text-xs text-slate-500 flex items-center gap-3">
+          <ConnectionDot status={status} />
+          <a className="hover:text-slate-300" href="/">
+            ← home
+          </a>
+        </div>
       </header>
 
-      <section className="grid gap-6 md:grid-cols-3">
+      <section className="grid gap-6 md:grid-cols-3 mb-8">
         <Card title="Total clicks">
-          <span className="text-slate-500">—</span>
-        </Card>
-        <Card title="Recent clicks">
-          <span className="text-slate-500">feed coming next</span>
+          <LiveCounter count={totalClicks} />
         </Card>
         <Card title="Map">
-          <span className="text-slate-500">pins coming next</span>
+          <span className="text-sm text-slate-500">pins coming next</span>
+        </Card>
+        <Card title="Time series">
+          <span className="text-sm text-slate-500">chart coming next</span>
+        </Card>
+      </section>
+
+      <section>
+        <Card title="Recent clicks">
+          {hydrated || recent.length > 0 ? (
+            <RecentFeed clicks={recent} />
+          ) : (
+            <span className="text-sm text-slate-500">Connecting…</span>
+          )}
         </Card>
       </section>
     </main>
@@ -29,8 +48,19 @@ export function DemoPage(): JSX.Element {
 function Card({ title, children }: { title: string; children: React.ReactNode }): JSX.Element {
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-      <div className="text-xs uppercase tracking-wider text-slate-500 mb-2">{title}</div>
-      <div className="text-2xl font-medium text-slate-200">{children}</div>
+      <div className="text-xs uppercase tracking-wider text-slate-500 mb-3">{title}</div>
+      <div>{children}</div>
     </div>
+  );
+}
+
+function ConnectionDot({ status }: { status: "connecting" | "open" | "closed" }): JSX.Element {
+  const color =
+    status === "open" ? "bg-emerald-400" : status === "connecting" ? "bg-amber-400" : "bg-rose-500";
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className={`inline-block size-2 rounded-full ${color}`} aria-hidden />
+      <span>{status}</span>
+    </span>
   );
 }
