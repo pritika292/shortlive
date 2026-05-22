@@ -1,73 +1,102 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { continentOf, type ContinentCode } from "../lib/continents.js";
 
+// Single-select on purpose: one continent OR one country at a time, never a
+// combination. Toggling the same chip again clears the filter; tapping a
+// different chip replaces it.
+export type ActiveFilter =
+  | { kind: "continent"; code: ContinentCode }
+  | { kind: "country"; code: string }
+  | null;
+
 export interface DashboardFiltersValue {
+  active: ActiveFilter;
+  // Convenience accessors for the existing chip components.
   countries: Set<string>;
   continents: Set<ContinentCode>;
   toggleCountry: (country: string) => void;
   toggleContinent: (continent: ContinentCode) => void;
   clearAll: () => void;
-  // Effective country filter — the explicit list of countries that the
-  // dashboard should narrow to. Derived from the user's continent + country
-  // toggles. Empty Set means "no filter".
+  // Predicate: does this event's country fall within the active filter? Used
+  // by the client-side demo simulator and the analytics dashboard alike.
+  matches: (country: string | null) => boolean;
+  hasFilter: boolean;
+  // For the server-backed analytics path: the explicit list of countries to
+  // pass to /api/agg/snapshot. Empty Set means no filter.
   effectiveCountries: Set<string>;
-  // For URL serialization: returns a query-string fragment (without the
-  // leading ?) representing the active filters, or empty string when none.
+  // For URL serialization: returns a query-string fragment representing the
+  // active filter, or empty string when none.
   toQuery: () => string;
 }
 
 const Ctx = createContext<DashboardFiltersValue | null>(null);
 
-export function DashboardFiltersProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [countries, setCountries] = useState<Set<string>>(new Set());
-  const [continents, setContinents] = useState<Set<ContinentCode>>(new Set());
+interface Props {
+  children: ReactNode;
+  // The dashboard passes the country list it knows about (top breakdown rows)
+  // so the continent → countries expansion uses the right set. Optional; if
+  // not supplied, the continent filter expands by walking the static
+  // CURATED_COUNTRIES list via continentOf.
+  knownCountries?: string[];
+}
+
+export function DashboardFiltersProvider({ children, knownCountries }: Props): JSX.Element {
+  const [active, setActive] = useState<ActiveFilter>(null);
 
   const toggleCountry = useCallback((country: string) => {
-    setCountries((prev) => {
-      const next = new Set(prev);
-      if (next.has(country)) next.delete(country);
-      else next.add(country);
-      return next;
-    });
+    setActive((prev) =>
+      prev?.kind === "country" && prev.code === country ? null : { kind: "country", code: country },
+    );
   }, []);
 
   const toggleContinent = useCallback((continent: ContinentCode) => {
-    setContinents((prev) => {
-      const next = new Set(prev);
-      if (next.has(continent)) next.delete(continent);
-      else next.add(continent);
-      return next;
-    });
+    setActive((prev) =>
+      prev?.kind === "continent" && prev.code === continent
+        ? null
+        : { kind: "continent", code: continent },
+    );
   }, []);
 
-  const clearAll = useCallback(() => {
-    setCountries(new Set());
-    setContinents(new Set());
-  }, []);
+  const clearAll = useCallback(() => setActive(null), []);
 
-  // effectiveCountries: union of explicit countries plus all countries that
-  // belong to selected continents. When both sets are empty, no filter.
   const value = useMemo<DashboardFiltersValue>(() => {
-    const eff = new Set<string>(countries);
-    if (continents.size > 0) {
-      // We don't have the reverse map here; the breakdown rows tell us what's
-      // observed. Expand by walking known countries → continent.
-      // (Cheaper for now: caller passes only countries it knows about via
-      //  available chips. Continents expand client-side via the existing
-      //  breakdown rows; we just include them here as a hint.)
+    const countries = new Set<string>();
+    const continents = new Set<ContinentCode>();
+    if (active?.kind === "country") countries.add(active.code);
+    if (active?.kind === "continent") continents.add(active.code);
+
+    const effective = new Set<string>();
+    if (active?.kind === "country") {
+      effective.add(active.code);
+    } else if (active?.kind === "continent") {
+      for (const c of knownCountries ?? []) {
+        if (continentOf(c) === active.code) effective.add(c);
+      }
     }
+
+    const matches = (country: string | null): boolean => {
+      if (!active) return true;
+      if (!country) return false;
+      if (active.kind === "country") return country === active.code;
+      return continentOf(country) === active.code;
+    };
+
     const params = new URLSearchParams();
-    if (eff.size > 0) params.set("country", [...eff].sort().join(","));
+    if (effective.size > 0) params.set("country", [...effective].sort().join(","));
+
     return {
+      active,
       countries,
       continents,
       toggleCountry,
       toggleContinent,
       clearAll,
-      effectiveCountries: eff,
+      matches,
+      hasFilter: active !== null,
+      effectiveCountries: effective,
       toQuery: () => params.toString(),
     };
-  }, [countries, continents, toggleCountry, toggleContinent, clearAll]);
+  }, [active, toggleCountry, toggleContinent, clearAll, knownCountries]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

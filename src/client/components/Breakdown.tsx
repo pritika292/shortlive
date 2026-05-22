@@ -1,6 +1,23 @@
 import type { BreakdownRow } from "../hooks/useSeries.js";
 
-export function Breakdown({ rows, label }: { rows: BreakdownRow[]; label: string }): JSX.Element {
+function flagFor(code: string): string {
+  if (code.length !== 2) return "🌐";
+  const base = 0x1f1e6;
+  const a = code.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
+  const b = code.toUpperCase().charCodeAt(1) - "A".charCodeAt(0);
+  if (a < 0 || a > 25 || b < 0 || b > 25) return "🌐";
+  return String.fromCodePoint(base + a) + String.fromCodePoint(base + b);
+}
+
+interface Props {
+  rows: BreakdownRow[];
+  label: string;
+  // When true, render a flag emoji before each value (intended for the
+  // countries breakdown). Off by default so devices + referrers stay clean.
+  showFlag?: boolean;
+}
+
+export function Breakdown({ rows, label, showFlag }: Props): JSX.Element {
   if (rows.length === 0) {
     return <div className="text-sm text-slate-500">No {label.toLowerCase()} data yet.</div>;
   }
@@ -13,10 +30,15 @@ export function Breakdown({ rows, label }: { rows: BreakdownRow[]; label: string
           <li key={r.value} className="text-sm">
             <div className="flex items-center justify-between mb-1">
               <span
-                className="font-medium text-slate-800 dark:text-slate-200 truncate max-w-[200px]"
+                className="flex items-center gap-2 font-medium text-slate-800 dark:text-slate-200 truncate max-w-[220px]"
                 title={r.value}
               >
-                {r.value}
+                {showFlag ? (
+                  <span aria-hidden className="text-base leading-none shrink-0">
+                    {flagFor(r.value)}
+                  </span>
+                ) : null}
+                <span className="truncate">{r.value}</span>
               </span>
               <span className="flex items-center gap-3 text-xs">
                 <span className="tabular-nums font-semibold text-slate-900 dark:text-white">

@@ -105,6 +105,22 @@ async function runSeries(
   };
 }
 
+async function runTotal(
+  short: string,
+  countries: string[] | null,
+  devices: string[] | null,
+): Promise<number> {
+  const { filters, params } = buildClickFilters(short, countries, devices);
+  const { rows } = await getPool().query<{ c: string }>(
+    `SELECT COUNT(*)::text AS c
+       FROM clicks
+      WHERE url_id = (SELECT id FROM urls WHERE short = $1)
+        ${filters.join(" ")}`,
+    params,
+  );
+  return Number(rows[0]?.c ?? 0);
+}
+
 async function runBreakdown(
   short: string,
   dim: Dim,
@@ -231,11 +247,12 @@ aggRouter.get("/api/agg/snapshot", async (req, res) => {
     return res.status(400).json({ error: "invalid_filter" });
   }
 
-  // Run series + every requested breakdown in parallel against the pool. With
-  // the new composite indexes each query is sub-5ms server-side, so this is
-  // ~one network RTT total instead of four.
-  const [series, ...breakdowns] = await Promise.all([
+  // Run series + filtered total + every requested breakdown in parallel
+  // against the pool. With the composite indexes each query is sub-5ms
+  // server-side, so this is ~one network RTT total.
+  const [series, total, ...breakdowns] = await Promise.all([
     runSeries(short, window, bucket, countries, devices),
+    runTotal(short, countries, devices),
     ...dims.map((d) => runBreakdown(short, d as Dim, limit, countries, devices)),
   ]);
 
@@ -251,6 +268,7 @@ aggRouter.get("/api/agg/snapshot", async (req, res) => {
     bucket,
     bucketSeconds: series.bucketSeconds,
     series: series.series,
+    total,
     breakdowns: breakdownsByDim,
   });
 });

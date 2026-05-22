@@ -24,7 +24,9 @@ describe("<HomePage />", () => {
     const create = screen.getAllByRole("link", { name: /Create your own/i });
     expect(create.some((a) => a.getAttribute("href") === "/login?next=/create")).toBe(true);
 
-    expect(screen.getByText(/Sub-second analytics/)).toBeInTheDocument();
+    // First match wins. "Live analytics" also appears in the hero gradient
+    // headline, so use getAllByText and assert non-empty rather than getByText.
+    expect(screen.getAllByText(/Live analytics/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Four rule types/)).toBeInTheDocument();
     expect(screen.getByText(/Signed webhooks/)).toBeInTheDocument();
   });

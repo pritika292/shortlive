@@ -50,9 +50,9 @@ describe("<Dashboard />", () => {
     expect(screen.getByText(/Total clicks/i)).toBeInTheDocument();
     expect(screen.getByText(/Recent clicks/i)).toBeInTheDocument();
     expect(screen.getByText(/Clicks per minute/i)).toBeInTheDocument();
-    expect(screen.getByText(/Top countries/i)).toBeInTheDocument();
-    expect(screen.getByText(/Top referrers/i)).toBeInTheDocument();
-    expect(screen.getByText(/Devices/i)).toBeInTheDocument();
+    expect(screen.getByText(/Top 5 countries/i)).toBeInTheDocument();
+    expect(screen.getByText(/Top 5 referrers/i)).toBeInTheDocument();
+    expect(screen.getByText(/Top devices/i)).toBeInTheDocument();
     expect(screen.getByText(/Click locations/i)).toBeInTheDocument();
   });
 });

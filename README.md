@@ -1,6 +1,6 @@
 # shortlive
 
-> URL shortener with sub-second live click analytics and rule-based webhook automation.
+> URL shortener with live click analytics and rule-based webhook automation.
 
 [![ci](https://github.com/pritika292/shortlive/actions/workflows/ci.yml/badge.svg)](https://github.com/pritika292/shortlive/actions/workflows/ci.yml)
 [![deploy](https://github.com/pritika292/shortlive/actions/workflows/deploy.yml/badge.svg)](https://github.com/pritika292/shortlive/actions/workflows/deploy.yml)
@@ -67,7 +67,7 @@
 
 - **Async fail-soft on the hot path**: `GET /:short` returns the 302 first, then queues click logging in a `setImmediate`. Visitors never wait on analytics or rule evaluation.
 - **Bounded buffer hydration**: Redis ZSET `shortlive:recent_clicks:{short}` capped at 100 entries via `ZREMRANGEBYRANK` after each insert. New dashboard tabs get instant history without a Postgres round trip.
-- **Pub/sub fan-out for live UI**: one `PUBLISH` per click, N subscribers per dashboard tab. Sub-second click-to-pin latency. Subscribe before hydrate so the very first live event after connect is never lost in the race.
+- **Pub/sub fan-out for live UI**: one `PUBLISH` per click, N subscribers per dashboard tab. Click-to-pin latency is typically under a few seconds on a single-region VM. Subscribe before hydrate so the very first live event after connect is never lost in the race.
 - **Sliding-window rate detection**: `velocity` rules use `ZADD + ZREMRANGEBYSCORE + ZCARD + EXPIRE` in a single `MULTI` pipeline. Window math stays consistent under concurrent clicks; the ZSET self-cleans on quiet links via TTL.
 - **Structural idempotency for webhooks**: BullMQ `jobId` IS the `firing_id`. Retries can never double-deliver the same firing to a receiver that processed it once.
 - **Exponential backoff with DLQ**: 5 attempts (1s, 4s, 16s, 64s, 256s); final failures flip `firings.status = 'failed'` and surface in the owner UI for manual retry.
@@ -82,9 +82,11 @@
 
 Two things most URL shorteners don't do:
 
-1. **Sub-second click analytics.** Every click is pushed to the dashboard over a
-   WebSocket: counter, map pin, time-series, breakdowns all update without polling.
-   Most shorteners refresh analytics every 15–60 seconds, which is useless for
+1. **Live click analytics.** Every click is pushed to the dashboard over a
+   WebSocket: counter, map pin, and recent feed update as the click lands.
+   Aggregations (chart, breakdowns) catch up on a 10-second poll. Latency
+   end-to-end is typically a few seconds on a single-region VM; most
+   shorteners refresh analytics every 15-60 seconds, which is useless for
    reacting in real time.
 
 2. **Rule-based webhook automation.** Configure per-link rules. shortlive POSTs to

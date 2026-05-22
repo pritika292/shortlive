@@ -46,7 +46,7 @@ export function HomePage(): JSX.Element {
                   Smart webhooks.
                 </h1>
                 <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-xl leading-relaxed">
-                  Watch every click land in under a second. Pin them on a map. Trigger HMAC-signed
+                  Watch clicks land in real time, pin them on a map, and trigger HMAC-signed
                   webhooks when a click pattern matches your rule.
                 </p>
                 <div className="flex flex-wrap gap-3 text-base">
@@ -77,7 +77,7 @@ export function HomePage(): JSX.Element {
                 </div>
 
                 <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
-                  <Stat value="< 1s" label="click latency" />
+                  <Stat value="< 5s" label="click latency" />
                   <Stat value="4" label="rule types" />
                   <Stat value="HMAC" label="signed POSTs" />
                 </div>
@@ -141,10 +141,10 @@ export function HomePage(): JSX.Element {
                 </svg>
               }
               accent="emerald"
-              title="Sub-second analytics"
+              title="Live analytics"
             >
-              Live click feed, world map, and time-series chart, pushed over a WebSocket so
-              dashboards tick instantly.
+              Live click feed, world map, and time-series chart, pushed over a WebSocket and caught
+              up on a 10-second poll.
             </Feature>
             <Feature
               icon={
@@ -368,9 +368,9 @@ function Feature({
         ? "from-cyan-500 to-sky-500"
         : "from-violet-500 to-fuchsia-500";
   return (
-    <div className="glass-card p-8 sm:p-10 flex flex-col group hover:translate-y-[-2px] transition-transform">
+    <div className="glass-card p-8 sm:p-10 flex flex-col justify-center group hover:translate-y-[-2px] transition-transform">
       <div
-        className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${iconBg} text-white shadow-lg mb-7`}
+        className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${iconBg} text-white shadow-lg mb-6`}
       >
         {icon}
       </div>
