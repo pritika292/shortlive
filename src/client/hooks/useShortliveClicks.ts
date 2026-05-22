@@ -13,6 +13,7 @@ interface State {
   status: "connecting" | "open" | "closed";
   totalClicks: number;
   recent: ClickEvent[];
+  mapPoints: ClickEvent[];
   hydrated: boolean;
 }
 
@@ -23,6 +24,7 @@ type Action =
   | { type: "click"; click: ClickEvent };
 
 const MAX_RECENT = 20;
+const MAX_MAP_POINTS = 100;
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -30,18 +32,28 @@ function reducer(state: State, action: Action): State {
       return { ...state, status: action.status };
     case "set_total":
       return { ...state, totalClicks: action.total };
-    case "hydrate":
+    case "hydrate": {
+      const withCoords = action.clicks.filter((c) => c.lat !== null && c.lon !== null);
       return {
         ...state,
         recent: action.clicks.slice(0, MAX_RECENT),
+        mapPoints: withCoords.slice(0, MAX_MAP_POINTS),
         hydrated: true,
       };
-    case "click":
+    }
+    case "click": {
+      const recent = [action.click, ...state.recent].slice(0, MAX_RECENT);
+      const mapPoints =
+        action.click.lat !== null && action.click.lon !== null
+          ? [action.click, ...state.mapPoints].slice(0, MAX_MAP_POINTS)
+          : state.mapPoints;
       return {
         ...state,
         totalClicks: state.totalClicks + 1,
-        recent: [action.click, ...state.recent].slice(0, MAX_RECENT),
+        recent,
+        mapPoints,
       };
+    }
   }
 }
 
@@ -49,6 +61,7 @@ const initialState: State = {
   status: "connecting",
   totalClicks: 0,
   recent: [],
+  mapPoints: [],
   hydrated: false,
 };
 
