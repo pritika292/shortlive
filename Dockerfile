@@ -12,6 +12,7 @@ RUN npm ci
 COPY tsconfig.json tsconfig.build.json vite.config.ts tailwind.config.js postcss.config.js ./
 COPY src ./src
 COPY migrations ./migrations
+COPY scripts ./scripts
 RUN npm run build
 
 # Drop dev deps from the install we just did. Smaller node_modules to copy.
@@ -26,6 +27,9 @@ ENV NODE_ENV=production
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/src/server ./src/server
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/package.json ./package.json
 
 USER node
