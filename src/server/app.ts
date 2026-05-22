@@ -8,6 +8,7 @@ import { shortenRouter } from "./routes/shorten.js";
 import { redirectRouter } from "./routes/redirect.js";
 import { summaryRouter } from "./routes/summary.js";
 import { aggRouter } from "./routes/agg.js";
+import { rulesRouter } from "./routes/rules.js";
 import { sessionMiddleware } from "./middleware/session.js";
 
 const CLIENT_DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../client");
@@ -32,6 +33,7 @@ export function createApp(): Express {
   app.use(shortenRouter);
   app.use(summaryRouter);
   app.use(aggRouter);
+  app.use(rulesRouter);
 
   // Serve the built SPA when it exists (production / post-build).
   const indexHtml = path.join(CLIENT_DIST, "index.html");

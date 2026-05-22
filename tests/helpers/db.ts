@@ -4,6 +4,8 @@ import { drainClickLogs } from "../../src/server/services/click_logger.js";
 
 export async function resetDb(client: pg.ClientBase): Promise<void> {
   await drainClickLogs();
+  await client.query("DROP TABLE IF EXISTS firings CASCADE");
+  await client.query("DROP TABLE IF EXISTS rules CASCADE");
   await client.query("DROP TABLE IF EXISTS clicks CASCADE");
   await client.query("DROP TABLE IF EXISTS urls CASCADE");
   await client.query("DROP TABLE IF EXISTS sessions CASCADE");
