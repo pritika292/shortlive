@@ -1,0 +1,70 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import request from "supertest";
+import pg from "pg";
+import { createApp } from "../../src/server/app.js";
+import { resetDb } from "../helpers/db.js";
+import { closePool } from "../../src/server/db/pool.js";
+
+const DATABASE_URL = process.env.DATABASE_URL;
+const describeIfDb = DATABASE_URL ? describe : describe.skip;
+
+describeIfDb("agg endpoints", () => {
+  let client: pg.Client;
+  const app = createApp();
+
+  beforeAll(async () => {
+    client = new pg.Client({ connectionString: DATABASE_URL });
+    await client.connect();
+  });
+
+  beforeEach(async () => {
+    await resetDb(client);
+    await client.query(
+      `INSERT INTO urls(short, target, owner_id) VALUES('demo', 'https://x', NULL)`,
+    );
+    // Seed 5 clicks/min over the past 10 minutes (50 rows). Vary country + device.
+    await client.query(
+      `INSERT INTO clicks(url_id, ts, country, device, referrer)
+         SELECT (SELECT id FROM urls WHERE short='demo'),
+                NOW() - (m || ' minutes')::interval - (s || ' seconds')::interval,
+                CASE WHEN s % 2 = 0 THEN 'US' ELSE 'DE' END,
+                CASE WHEN s % 3 = 0 THEN 'mobile' ELSE 'desktop' END,
+                'https://hn.example.com/'
+           FROM generate_series(0, 9) AS m
+                CROSS JOIN LATERAL generate_series(0, 4) AS s`,
+    );
+  });
+
+  afterAll(async () => {
+    await client.end();
+    await closePool();
+  });
+
+  it("returns minute-bucketed series for the last hour", async () => {
+    const res = await request(app).get("/api/agg/series?short=demo&window=1h&bucket=1m");
+    expect(res.status).toBe(200);
+    expect(res.body.series.length).toBeGreaterThan(0);
+    const total = res.body.series.reduce((sum: number, p: { count: number }) => sum + p.count, 0);
+    expect(total).toBe(50);
+  });
+
+  it("returns top countries with percentages summing to 100", async () => {
+    const res = await request(app).get("/api/agg/breakdown?short=demo&dim=country");
+    expect(res.status).toBe(200);
+    expect(res.body.total).toBe(50);
+    const sum = res.body.rows.reduce((acc: number, r: { percent: number }) => acc + r.percent, 0);
+    expect(sum).toBeGreaterThan(99.5);
+    expect(sum).toBeLessThan(100.5);
+    expect(res.body.rows.map((r: { value: string }) => r.value).sort()).toEqual(["DE", "US"]);
+  });
+
+  it("rejects unknown dimensions", async () => {
+    const res = await request(app).get("/api/agg/breakdown?short=demo&dim=bogus");
+    expect(res.status).toBe(400);
+  });
+
+  it("rejects malformed shortcodes", async () => {
+    const res = await request(app).get("/api/agg/series?short=!!");
+    expect(res.status).toBe(400);
+  });
+});
