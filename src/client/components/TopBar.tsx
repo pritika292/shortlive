@@ -1,5 +1,6 @@
 import { useSession } from "../hooks/useSession.js";
 import { ThemeToggle } from "./ThemeToggle.js";
+import { LogoMark } from "./Logo.js";
 
 interface Props {
   current?: "home" | "demo" | "create" | "links" | "login" | "analytics" | "rules" | "about";
@@ -16,6 +17,7 @@ export function TopBar({ current }: Props = {}): JSX.Element {
           href="/"
           className="flex items-center gap-2 text-slate-900 dark:text-slate-100 hover:text-black dark:hover:text-white"
         >
+          <LogoMark size={22} className="text-sky-600 dark:text-sky-400" />
           <span className="text-lg font-semibold tracking-tight">shortlive</span>
         </a>
 
