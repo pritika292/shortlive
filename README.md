@@ -323,14 +323,17 @@ a single table with `idx_clicks_url_ts` is fine.
 ## Run locally
 
 ```bash
-mise install                    # installs Node 20 per .tool-versions
+mise install                                    # Node 20 per .tool-versions
 npm install
 cp .env.example .env
 
-docker compose up -d            # starts a project-local Postgres + Redis
-npm run migrate                 # creates schemas + tables
-npm run dev                     # http://localhost:3010
+docker compose -f docker-compose.local.yml up -d   # local Postgres + Redis
+npm run migrate                                  # create schemas + tables
+npm run dev                                      # http://localhost:3010
 ```
+
+The root `docker-compose.yml` is the **production** compose (used by the VM
+deploy). For local development, always pass `-f docker-compose.local.yml`.
 
 When committing for the first time after cloning:
 ```bash
