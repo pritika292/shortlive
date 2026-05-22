@@ -3,22 +3,21 @@ import type { SeriesPoint, BreakdownRow, SeriesFilters } from "./useSeries.js";
 
 export interface DashboardSnapshot {
   series: SeriesPoint[];
+  // Total clicks matching the active filter set. Drives the LiveCounter so
+  // toggling a filter updates the count immediately instead of leaving the
+  // unfiltered WS-tracked total in place.
+  total: number;
   breakdowns: {
     country: BreakdownRow[];
     device: BreakdownRow[];
     referrer: BreakdownRow[];
   };
-  total: {
-    country: number;
-    device: number;
-    referrer: number;
-  };
 }
 
 const EMPTY: DashboardSnapshot = {
   series: [],
+  total: 0,
   breakdowns: { country: [], device: [], referrer: [] },
-  total: { country: 0, device: 0, referrer: 0 },
 };
 
 // 150ms is long enough to coalesce a normal click-multiple-chips-in-a-row
@@ -53,6 +52,7 @@ function buildQuery(short: string, filters?: SeriesFilters, limit = 20): string 
 
 interface SnapshotResponse {
   series: SeriesPoint[];
+  total?: number;
   breakdowns: Record<string, { total: number; rows: BreakdownRow[] }>;
 }
 
@@ -94,15 +94,11 @@ export function useDashboardSnapshot(
           const j = (await r.json()) as SnapshotResponse;
           const data: DashboardSnapshot = {
             series: j.series,
+            total: j.total ?? 0,
             breakdowns: {
               country: j.breakdowns.country?.rows ?? [],
               device: j.breakdowns.device?.rows ?? [],
               referrer: j.breakdowns.referrer?.rows ?? [],
-            },
-            total: {
-              country: j.breakdowns.country?.total ?? 0,
-              device: j.breakdowns.device?.total ?? 0,
-              referrer: j.breakdowns.referrer?.total ?? 0,
             },
           };
           cache.set(cacheKey, { data, ts: Date.now() });
