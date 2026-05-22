@@ -44,7 +44,8 @@ logs the click asynchronously, so the user is never blocked on analytics.
 
 Credentials are issued out-of-band — there's no self-serve signup. The same
 username + password works across every project using this shared auth (one
-`auth.users` table on the host Postgres instance).
+`auth.users` table on the host Postgres instance). **If you've received an
+invite, see the email for your username and password.**
 
 The redirect endpoint is always public, because that's the whole point of a URL
 shortener; everything that mutates state requires authentication.
