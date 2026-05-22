@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getPool } from "../db/pool.js";
 import { config } from "../config.js";
 import { verify } from "../services/passwords.js";
-import { createSession } from "../services/sessions.js";
+import { createSession, deleteSession } from "../services/sessions.js";
 
 export const SESSION_COOKIE = "sid";
 
@@ -49,4 +49,21 @@ authRouter.post("/login", async (req, res) => {
     path: "/",
   });
   return res.json({ ok: true, username });
+});
+
+authRouter.post("/logout", async (req, res) => {
+  const sid = req.cookies?.[SESSION_COOKIE] as string | undefined;
+  if (sid) {
+    await deleteSession(getPool(), sid);
+  }
+  res.clearCookie(SESSION_COOKIE, { path: "/" });
+  res.json({ ok: true });
+});
+
+authRouter.get("/whoami", (req, res) => {
+  if (!req.user) {
+    res.status(401).json({ error: "unauthorized" });
+    return;
+  }
+  res.json({ username: req.user.username });
 });
