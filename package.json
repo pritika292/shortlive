@@ -8,10 +8,10 @@
   },
   "scripts": {
     "dev:server": "tsx watch src/server/index.ts",
-    "dev:client": "vite",
+    "dev:client": "vite -c build/vite.config.ts",
     "dev": "concurrently -n server,client -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
     "build:server": "tsc -p tsconfig.build.json",
-    "build:client": "vite build",
+    "build:client": "vite build -c build/vite.config.ts",
     "build": "npm run build:server && npm run build:client",
     "start": "node dist/server/index.js",
     "migrate": "tsx src/server/db/migrate.ts",
@@ -19,8 +19,8 @@
     "lint": "eslint src scripts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "vitest run -c build/vitest.config.ts",
+    "test:watch": "vitest -c build/vitest.config.ts"
   },
   "prettier": {
     "semi": true,

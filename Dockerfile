@@ -9,7 +9,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY tsconfig.json tsconfig.build.json vite.config.ts tailwind.config.js postcss.config.js ./
+COPY tsconfig.json tsconfig.build.json ./
+COPY build ./build
 COPY src ./src
 COPY migrations ./migrations
 COPY scripts ./scripts
