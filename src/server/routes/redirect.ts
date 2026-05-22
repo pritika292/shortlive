@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { getPool } from "../db/pool.js";
 import { verify } from "../services/passwords.js";
+import { queueClickLog } from "../services/click_logger.js";
+import { extractIp } from "../services/ip.js";
 
 const UNLOCK_COOKIE_PREFIX = "link_unlocked_";
 const UNLOCK_TTL_MS = 30 * 60 * 1000;
@@ -8,6 +10,7 @@ const UNLOCK_TTL_MS = 30 * 60 * 1000;
 export const redirectRouter: Router = Router();
 
 interface UrlRow {
+  id: string;
   target: string;
   expires_at: Date | null;
   password_hash: string | null;
@@ -15,10 +18,28 @@ interface UrlRow {
 
 async function loadUrl(short: string): Promise<UrlRow | null> {
   const { rows } = await getPool().query<UrlRow>(
-    "SELECT target, expires_at, password_hash FROM urls WHERE short = $1",
+    "SELECT id, target, expires_at, password_hash FROM urls WHERE short = $1",
     [short],
   );
   return rows[0] ?? null;
+}
+
+function scheduleClickLog(
+  row: UrlRow,
+  req: {
+    headers: Record<string, string | string[] | undefined>;
+    ip?: string;
+    socket: { remoteAddress?: string };
+  },
+): void {
+  const ctx = {
+    urlId: Number(row.id),
+    ip: extractIp(req),
+    userAgent:
+      typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"] : undefined,
+    referrer: typeof req.headers["referer"] === "string" ? req.headers["referer"] : undefined,
+  };
+  setImmediate(() => queueClickLog(ctx));
 }
 
 function isExpired(row: UrlRow): boolean {
@@ -71,6 +92,7 @@ redirectRouter.get("/:short", async (req, res, next) => {
   }
 
   res.redirect(302, row.target);
+  scheduleClickLog(row, req);
 });
 
 redirectRouter.post("/:short/unlock", async (req, res, next) => {
@@ -96,4 +118,5 @@ redirectRouter.post("/:short/unlock", async (req, res, next) => {
     path: "/",
   });
   res.redirect(302, row.target);
+  scheduleClickLog(row, req);
 });
