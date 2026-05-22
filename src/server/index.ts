@@ -6,6 +6,7 @@ import { initGeo } from "./services/geo.js";
 import { attachWebSocketServer } from "./ws/server.js";
 import { seedDemo } from "./seed/demo.js";
 import { startDemoSimulator } from "./seed/simulator.js";
+import { startWebhookWorker, stopWebhookWorker } from "./services/webhook_worker.js";
 
 const cfg = config();
 await initGeo();
@@ -22,6 +23,7 @@ try {
 }
 
 const simulator = cfg.NODE_ENV === "test" ? null : startDemoSimulator();
+if (cfg.NODE_ENV !== "test") startWebhookWorker();
 
 const app = createApp();
 const server = http.createServer(app);
@@ -34,6 +36,7 @@ server.listen(cfg.PORT, () => {
 function shutdown(signal: NodeJS.Signals): void {
   console.log(`Received ${signal}; shutting down`);
   simulator?.stop();
+  void stopWebhookWorker();
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(1), 5_000).unref();
 }
