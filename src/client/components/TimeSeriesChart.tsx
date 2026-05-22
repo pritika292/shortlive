@@ -11,7 +11,7 @@ import type { SeriesPoint } from "../hooks/useSeries.js";
 
 function formatTs(ts: number): string {
   const d = new Date(ts);
-  return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+  return `${d.getMinutes().toString().padStart(2, "0")}:${d.getSeconds().toString().padStart(2, "0")}`;
 }
 
 export function TimeSeriesChart({ series }: { series: SeriesPoint[] }): JSX.Element {
