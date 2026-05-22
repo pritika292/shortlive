@@ -2,6 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 
 export interface SessionUser {
   username: string;
+  // Set when the session belongs to a Quickstart playground user. The
+  // TopBar uses this to render a countdown chip instead of the username.
+  temp?: boolean;
+  expires_at?: string;
 }
 
 export type SessionStatus = "loading" | "guest" | "authed";

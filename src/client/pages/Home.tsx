@@ -1,6 +1,7 @@
 import { TopBar } from "../components/TopBar.js";
 import { Footer } from "../components/Footer.js";
 import { LogoMark } from "../components/Logo.js";
+import { QuickstartButton } from "../components/QuickstartButton.js";
 import { useSession } from "../hooks/useSession.js";
 
 export function HomePage(): JSX.Element {
@@ -50,30 +51,24 @@ export function HomePage(): JSX.Element {
                   webhooks when a click pattern matches your rule.
                 </p>
                 <div className="flex flex-wrap gap-3 text-base">
-                  <a href="/demo" className="btn-primary text-base px-7 py-3">
+                  <QuickstartButton variant="primary">Quickstart playground</QuickstartButton>
+                  <a href="/demo" className="btn-secondary text-base px-7 py-3">
                     <span aria-hidden className="relative inline-flex h-2 w-2 mr-1">
-                      <span className="absolute inset-0 rounded-full bg-white animate-ping opacity-75" />
-                      <span className="relative inline-block h-2 w-2 rounded-full bg-white" />
+                      <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75" />
+                      <span className="relative inline-block h-2 w-2 rounded-full bg-emerald-500" />
                     </span>
-                    Watch the live demo
+                    Watch the demo
                   </a>
-                  <a href={createHref} className="btn-secondary text-base px-7 py-3">
-                    Create your own
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-4 w-4"
-                      aria-hidden
-                    >
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
+                </div>
+                <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                  Quickstart is a 30-minute session. No email, no password. For a permanent account,{" "}
+                  <a
+                    href={createHref}
+                    className="font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500"
+                  >
+                    sign in
                   </a>
+                  .
                 </div>
 
                 <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">

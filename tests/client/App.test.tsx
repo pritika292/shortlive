@@ -12,10 +12,10 @@ describe("<App />", () => {
     fetchSpy.mockRestore();
   });
 
-  it("renders the home headline and a Watch the live demo CTA", () => {
+  it("renders the home headline and a Watch the demo CTA", () => {
     render(<App />);
     expect(screen.getByText(/Live analytics\./i)).toBeInTheDocument();
-    const demoCta = screen.getAllByRole("link", { name: /Watch the live demo/i });
+    const demoCta = screen.getAllByRole("link", { name: /Watch the demo/i });
     expect(demoCta.some((a) => a.getAttribute("href") === "/demo")).toBe(true);
   });
 });

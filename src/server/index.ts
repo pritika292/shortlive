@@ -6,6 +6,7 @@ import { initGeo } from "./services/geo.js";
 import { attachWebSocketServer } from "./ws/server.js";
 import { seedDemo } from "./seed/demo.js";
 import { startWebhookWorker, stopWebhookWorker } from "./services/webhook_worker.js";
+import { startTempUserSweeper } from "./services/temp_user_sweeper.js";
 
 const cfg = config();
 await initGeo();
@@ -18,6 +19,7 @@ try {
 }
 
 if (cfg.NODE_ENV !== "test") startWebhookWorker();
+const sweeper = cfg.NODE_ENV === "test" ? null : startTempUserSweeper();
 
 const app = createApp();
 const server = http.createServer(app);
@@ -29,6 +31,7 @@ server.listen(cfg.PORT, () => {
 
 function shutdown(signal: NodeJS.Signals): void {
   console.log(`Received ${signal}; shutting down`);
+  sweeper?.stop();
   void stopWebhookWorker();
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(1), 5_000).unref();

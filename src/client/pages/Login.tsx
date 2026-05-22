@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TopBar } from "../components/TopBar.js";
 import { Footer } from "../components/Footer.js";
 import { LogoMark } from "../components/Logo.js";
+import { QuickstartButton } from "../components/QuickstartButton.js";
 
 export function LoginPage(): JSX.Element {
   const [username, setUsername] = useState("");
@@ -107,8 +108,16 @@ export function LoginPage(): JSX.Element {
             </button>
           </div>
 
-          <div className="mt-8 text-xs text-center text-slate-500 dark:text-slate-500">
-            Credentials are issued out of band. There is no self-serve sign-up.
+          <div className="mt-8 pt-6 border-t border-slate-200/60 dark:border-white/5 text-center">
+            <div className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400 mb-3">
+              Or skip the credentials
+            </div>
+            <div className="flex justify-center">
+              <QuickstartButton variant="primary">Quickstart a 30-min playground</QuickstartButton>
+            </div>
+            <div className="mt-3 text-xs text-slate-500 dark:text-slate-500">
+              No email, no password. Data wipes after 30 minutes.
+            </div>
           </div>
         </form>
       </main>
