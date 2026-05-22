@@ -1,9 +1,80 @@
 # shortlive
 
-URL shortener with sub-second live analytics and rule-based webhook automation.
+> URL shortener with sub-second live click analytics and rule-based webhook automation.
 
-> **Demo**: a pre-seeded link is live at `/demo` once deployed.
-> **Repo**: [github.com/pritika292/shortlive](https://github.com/pritika292/shortlive)
+[![ci](https://github.com/pritika292/shortlive/actions/workflows/ci.yml/badge.svg)](https://github.com/pritika292/shortlive/actions/workflows/ci.yml)
+[![deploy](https://github.com/pritika292/shortlive/actions/workflows/deploy.yml/badge.svg)](https://github.com/pritika292/shortlive/actions/workflows/deploy.yml)
+[![demo](https://img.shields.io/badge/demo-live-success)](http://135.232.183.50:3010/demo)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![node](https://img.shields.io/badge/node-20-339933?logo=node.js&logoColor=white)](./.tool-versions)
+
+![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/-Node.js-339933?logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/-Express-000000?logo=express&logoColor=white)
+![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/-Vite-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/-Tailwind-06B6D4?logo=tailwindcss&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=white)
+![BullMQ](https://img.shields.io/badge/-BullMQ-EE0000)
+![WebSocket](https://img.shields.io/badge/-WebSocket-010101)
+![Leaflet](https://img.shields.io/badge/-Leaflet-199900?logo=leaflet&logoColor=white)
+![Recharts](https://img.shields.io/badge/-Recharts-22B5BF)
+![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)
+![Azure](https://img.shields.io/badge/-Azure-0078D4?logo=microsoftazure&logoColor=white)
+![Vitest](https://img.shields.io/badge/-Vitest-6E9F18?logo=vitest&logoColor=white)
+
+**Live**: <http://135.232.183.50:3010/demo>
+
+---
+
+## Stack at a glance
+
+**Languages**: TypeScript (strict), SQL, Bash
+
+**Application**:
+- Node 20 + Express 5 — minimal HTTP layer, top-level `await`
+- React 18 + Vite + Tailwind 3 — SPA bundled by Vite, served by Express in prod
+- `ws` — bare WebSocket per dashboard tab, fed by Redis pub/sub
+- Leaflet + CartoDB Light/Dark tiles — sleek map, no API key
+- Recharts — time-series chart
+
+**Data**:
+- PostgreSQL 16 — `urls`, `clicks`, `rules`, `firings`, `auth.users`, `sessions`
+- Redis 7 — sorted-set hydration buffer (100 most-recent clicks per link), pub/sub fan-out, sliding-window math for `velocity` rules, BullMQ backing store
+- MaxMind GeoLite2 — local mmdb for country + lat/lon, no per-click HTTP
+
+**Async + delivery**:
+- BullMQ — webhook delivery queue. `jobId = firing_id` gives structural idempotency: a retried firing cannot double-deliver.
+- 5 attempts with exponential backoff (1s / 4s / 16s / 64s / 256s); failures land in the DLQ and the owner can manually retry from the UI.
+- `X-Shortlive-Signature: sha256=...` on every POST, keyed by a per-rule signing secret generated at create time.
+
+**Infra**:
+- Azure VM (B2as_v2, northcentralus) — single VM kept always-on; shared `pritika` Docker network on the host for Postgres + Redis.
+- Docker multi-stage build → ~214 MB runtime image. `docker-compose.yml` joins the shared network and reads creds from `/opt/pritika/_infra/*.env` (bind-mounted, never in any repo).
+- GitHub Actions + Azure OIDC federation — no stored Azure credentials. The deploy workflow exchanges a short-lived workflow token for an Azure token via `azure/login@v2`, then runs `az vm run-command` to deploy.
+- Azure Key Vault + Managed Identity for any secret access. The AI Foundry account has `disableLocalAuth=true`, so API keys structurally cannot work even if leaked.
+
+**DevOps**:
+- pre-commit hooks: gitleaks, end-of-file-fixer, trailing-whitespace, shellcheck, check-yaml, check-json.
+- ESLint flat config + `typescript-eslint` strict, Prettier (inlined in `package.json`).
+- Vitest workspace: server tests in node, React component tests in jsdom — runs them in parallel as two named projects.
+
+---
+
+## Distributed-systems patterns used here
+
+- **Async fail-soft on the hot path** — `GET /:short` returns the 302 first, then queues click logging in a `setImmediate`. Visitors never wait on analytics or rule evaluation.
+- **Bounded buffer hydration** — Redis ZSET `shortlive:recent_clicks:{short}` capped at 100 entries via `ZREMRANGEBYRANK` after each insert. New dashboard tabs get instant history without a Postgres round trip.
+- **Pub/sub fan-out for live UI** — one `PUBLISH` per click, N subscribers per dashboard tab. Sub-second click-to-pin latency. Subscribe before hydrate so the very first live event after connect is never lost in the race.
+- **Sliding-window rate detection** — `velocity` rules use `ZADD + ZREMRANGEBYSCORE + ZCARD + EXPIRE` in a single `MULTI` pipeline. Window math stays consistent under concurrent clicks; the ZSET self-cleans on quiet links via TTL.
+- **Structural idempotency for webhooks** — BullMQ `jobId` IS the `firing_id`. Retries can never double-deliver the same firing to a receiver that processed it once.
+- **Exponential backoff with DLQ** — 5 attempts (1s, 4s, 16s, 64s, 256s); final failures flip `firings.status = 'failed'` and surface in the owner UI for manual retry.
+- **HMAC-signed deliveries** — receivers verify `X-Shortlive-Signature: sha256=...` keyed by `rules.signing_secret`. Per-rule, so leaking one rule's secret doesn't compromise others.
+- **Destination handshake (anti-DDoS-amplifier)** — rules can't fire until the destination URL echoes a one-time nonce within 5s. Without this guard, real visitor traffic could be turned into a victim-URL flood.
+- **Hand-rolled migration ledger** — `migrations/*.sql` applied in order, transaction-wrapped, tracked in a `_migrations` table. Idempotent on container start (the Dockerfile CMD runs migrate before the server).
+- **OIDC-federated deploys, zero stored credentials** — every deploy is a short-lived Azure token exchanged from a workflow JWT. No `AZURE_CREDENTIALS` secret in the repo, no Azure password anywhere in git history.
 
 ---
 
