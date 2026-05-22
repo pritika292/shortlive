@@ -1,8 +1,26 @@
 # shortlive progress
 
-Quick at-a-glance status of every feature block. Updated as part of every PR that completes a block.
+| Phase | Done | Total | Done % |
+|---|---|---|---|
+| 1 — Bootstrap | 6 | 6 | 100% |
+| 2 — Auth foundation | 4 | 4 | 100% |
+| 3 — URL shortening + redirect | 5 | 5 | 100% |
+| 4 — Click logging + GeoIP | 1 | 1 | 100% |
+| 5 — Live channel | 2 | 2 | 100% |
+| 6 — Deploy infrastructure | 1 | 1 | 100% |
+| 7 — Dashboard UI | 6 | 6 | 100% |
+| 8 — Rule engine | 3 | 3 | 100% |
+| 9 — Webhook delivery | 2 | 2 | 100% |
+| 10 — Admin user + create flow | 5 | 5 | 100% |
+| 11 — UI hardening | 0 | 8 | 0% |
+| 12 — Repo presentation | 0 | 1 | 0% |
+| **Total** | **35** | **44** | **80%** |
 
-## Phases
+Last updated: after block 10.5 merged.
+
+---
+
+## Detail
 
 ### Phase 1 — Bootstrap
 - [x] 1.1 — Node + Express skeleton + /health
@@ -71,27 +89,3 @@ Quick at-a-glance status of every feature block. Updated as part of every PR tha
 
 ### Phase 12 — Repo presentation
 - [ ] 12.1 — README badges + tech-stack + repo metadata + LICENSE
-
----
-
-## Score
-
-| Phase | Done | Total | Done % |
-|---|---|---|---|
-| 1 — Bootstrap | 6 | 6 | 100% |
-| 2 — Auth foundation | 4 | 4 | 100% |
-| 3 — URL shortening + redirect | 5 | 5 | 100% |
-| 4 — Click logging + GeoIP | 1 | 1 | 100% |
-| 5 — Live channel | 2 | 2 | 100% |
-| 6 — Deploy infrastructure | 1 | 1 | 100% |
-| 7 — Dashboard UI | 6 | 6 | 100% |
-| 8 — Rule engine | 3 | 3 | 100% |
-| 9 — Webhook delivery | 2 | 2 | 100% |
-| 10 — Admin user + create flow | 5 | 5 | 100% |
-| 11 — UI hardening | 0 | 8 | 0% |
-| 12 — Repo presentation | 0 | 1 | 0% |
-| **Total** | **35** | **44** | **80%** |
-
----
-
-Last updated: after block 10.5 merged.
