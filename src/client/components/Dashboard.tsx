@@ -48,7 +48,7 @@ export function Dashboard({
         <header className="mb-8 flex items-baseline justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-            <p className="text-sm text-slate-400">{subtitle}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
           </div>
           <div className="text-xs text-slate-500 flex items-center gap-3 flex-wrap justify-end">
             <ConnectionDot status={status} />
@@ -107,8 +107,12 @@ function Card({
   className?: string;
 }): JSX.Element {
   return (
-    <div className={`rounded-xl border border-slate-800 bg-slate-900/50 p-5 ${className ?? ""}`}>
-      <div className="text-xs uppercase tracking-wider text-slate-500 mb-3">{title}</div>
+    <div
+      className={`rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-5 ${className ?? ""}`}
+    >
+      <div className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-500 mb-3">
+        {title}
+      </div>
       <div>{children}</div>
     </div>
   );

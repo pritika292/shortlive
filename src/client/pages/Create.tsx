@@ -84,34 +84,44 @@ export function CreatePage(): JSX.Element {
       <>
         <TopBar current="create" />
         <main className="min-h-[calc(100vh-56px)] flex items-center justify-center px-6">
-          <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900/50 p-6">
+          <div className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6">
             <h1 className="text-xl font-semibold tracking-tight mb-1">Short link created</h1>
-            <p className="text-sm text-slate-400 mb-5">Share or open it below.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">
+              Share or open it below.
+            </p>
 
-            <div className="rounded border border-slate-800 bg-slate-950 p-3 mb-4 flex items-center justify-between gap-3">
-              <code className="text-sm text-sky-400 break-all">{created.url}</code>
+            <div className="rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3 mb-4 flex items-center justify-between gap-3">
+              <code className="text-sm text-sky-600 dark:text-sky-400 break-all">
+                {created.url}
+              </code>
               <CopyButton text={created.url} />
             </div>
 
             <div className="flex flex-wrap gap-3 text-xs">
               <a
-                className="text-sky-400 hover:text-sky-300"
+                className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
                 href={created.url}
                 target="_blank"
                 rel="noreferrer"
               >
                 open in new tab ↗
               </a>
-              <a className="text-sky-400 hover:text-sky-300" href={`/a/${created.short}`}>
+              <a
+                className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
+                href={`/a/${created.short}`}
+              >
                 analytics →
               </a>
-              <a className="text-sky-400 hover:text-sky-300" href={`/a/${created.short}/rules`}>
+              <a
+                className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
+                href={`/a/${created.short}/rules`}
+              >
                 rules →
               </a>
               <button
                 type="button"
                 onClick={reset}
-                className="ml-auto text-slate-300 hover:text-slate-100"
+                className="ml-auto text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100"
               >
                 create another
               </button>
@@ -128,11 +138,12 @@ export function CreatePage(): JSX.Element {
       <main className="min-h-[calc(100vh-56px)] flex items-center justify-center px-6 py-8">
         <form
           onSubmit={submit}
-          className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900/50 p-6"
+          className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6"
         >
           <h1 className="text-xl font-semibold tracking-tight mb-1">Create a short link</h1>
-          <p className="text-sm text-slate-400 mb-6">
-            Signed in as <span className="text-slate-300">{session.user?.username}</span>.
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+            Signed in as{" "}
+            <span className="text-slate-700 dark:text-slate-300">{session.user?.username}</span>.
           </p>
 
           <div className="grid gap-3 text-sm">
@@ -215,7 +226,7 @@ function Field({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5"
+        className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
       />
     </div>
   );
@@ -236,7 +247,7 @@ function CopyButton({ text }: { text: string }): JSX.Element {
     <button
       type="button"
       onClick={() => void copy()}
-      className="text-xs bg-slate-800 hover:bg-slate-700 rounded px-2 py-1 text-slate-200 shrink-0"
+      className="text-xs bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded px-2 py-1 text-slate-800 dark:text-slate-200 shrink-0"
     >
       {copied ? "copied" : "copy"}
     </button>

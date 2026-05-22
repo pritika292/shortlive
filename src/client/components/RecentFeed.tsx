@@ -23,7 +23,7 @@ export function RecentFeed({ clicks }: { clicks: ClickEvent[] }): JSX.Element {
     return <div className="text-sm text-slate-500">Waiting for clicks…</div>;
   }
   return (
-    <ul className="text-sm divide-y divide-slate-800">
+    <ul className="text-sm divide-y divide-slate-200 dark:divide-slate-800">
       {clicks.map((c, i) => (
         <li
           key={`${c.ts}-${i}`}
@@ -33,7 +33,7 @@ export function RecentFeed({ clicks }: { clicks: ClickEvent[] }): JSX.Element {
             <span aria-hidden className="text-base">
               {flagFor(c.country)}
             </span>
-            <span className="text-slate-300">{c.country ?? "??"}</span>
+            <span className="text-slate-700 dark:text-slate-300">{c.country ?? "??"}</span>
             {c.device ? <span className="text-xs text-slate-500">{c.device}</span> : null}
           </span>
           <span className="text-xs text-slate-500 tabular-nums">{relativeTime(c.ts)}</span>

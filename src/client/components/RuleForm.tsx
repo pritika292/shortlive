@@ -65,7 +65,7 @@ export function RuleForm({ short, onCreated }: Props): JSX.Element {
           id="rule-type"
           value={type}
           onChange={(e) => setType(e.target.value as RuleType)}
-          className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5"
+          className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
         >
           <option value="threshold">threshold — fire once at N total clicks</option>
           <option value="velocity">velocity — fire when N clicks land in T seconds</option>
@@ -88,7 +88,7 @@ export function RuleForm({ short, onCreated }: Props): JSX.Element {
           placeholder="https://your-receiver.example/webhook"
           value={destinationUrl}
           onChange={(e) => setDestinationUrl(e.target.value)}
-          className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5"
+          className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
         />
       </div>
 
@@ -103,7 +103,7 @@ export function RuleForm({ short, onCreated }: Props): JSX.Element {
             min={1}
             value={count}
             onChange={(e) => setCount(Number(e.target.value))}
-            className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5 w-32"
+            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5 w-32"
           />
         </div>
       )}
@@ -118,7 +118,7 @@ export function RuleForm({ short, onCreated }: Props): JSX.Element {
             min={1}
             value={windowSec}
             onChange={(e) => setWindowSec(Number(e.target.value))}
-            className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5 w-32"
+            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5 w-32"
           />
         </div>
       )}
@@ -134,7 +134,7 @@ export function RuleForm({ short, onCreated }: Props): JSX.Element {
             id="rule-dimension"
             value={dimension}
             onChange={(e) => setDimension(e.target.value as typeof dimension)}
-            className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5"
+            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
           >
             <option value="country">country</option>
             <option value="device">device</option>
@@ -156,7 +156,7 @@ export function RuleForm({ short, onCreated }: Props): JSX.Element {
             placeholder="US, DE, IN"
             value={countriesText}
             onChange={(e) => setCountriesText(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5"
+            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
           />
         </div>
       )}
@@ -171,7 +171,7 @@ export function RuleForm({ short, onCreated }: Props): JSX.Element {
           min={0}
           value={cooldown}
           onChange={(e) => setCooldown(Number(e.target.value))}
-          className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5 w-32"
+          className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5 w-32"
         />
       </div>
 

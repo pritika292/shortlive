@@ -52,13 +52,13 @@ export function FiringsLog({ short, ruleId }: Props): JSX.Element {
           <th className="text-right pb-1 font-normal w-20" />
         </tr>
       </thead>
-      <tbody className="text-slate-300">
+      <tbody className="text-slate-700 dark:text-slate-300">
         {firings.map((f) => (
-          <tr key={f.id} className="border-t border-slate-800">
+          <tr key={f.id} className="border-t border-slate-200 dark:border-slate-800">
             <td className="py-1 tabular-nums">{new Date(f.ts).toLocaleTimeString()}</td>
             <td className={`py-1 ${statusColor(f.status)}`}>{f.status}</td>
             <td className="py-1 text-right tabular-nums">{f.attempts}</td>
-            <td className="py-1 text-right tabular-nums text-slate-400">
+            <td className="py-1 text-right tabular-nums text-slate-500 dark:text-slate-400">
               {f.last_response_code ?? "—"}
             </td>
             <td className="py-1 text-right">
@@ -67,7 +67,7 @@ export function FiringsLog({ short, ruleId }: Props): JSX.Element {
                   type="button"
                   disabled={retrying === f.id}
                   onClick={() => void onRetry(f.id)}
-                  className="text-sky-400 hover:text-sky-300 disabled:opacity-50"
+                  className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 disabled:opacity-50"
                 >
                   {retrying === f.id ? "retrying…" : "retry"}
                 </button>

@@ -12,11 +12,11 @@
 | 8 — Rule engine | 3 | 3 | 100% |
 | 9 — Webhook delivery | 2 | 2 | 100% |
 | 10 — Admin user + create flow | 5 | 5 | 100% |
-| 11 — UI hardening | 1 | 8 | 13% |
+| 11 — UI hardening | 2 | 8 | 25% |
 | 12 — Repo presentation | 0 | 1 | 0% |
-| **Total** | **36** | **44** | **82%** |
+| **Total** | **37** | **44** | **84%** |
 
-Last updated: after block 11.1 merged.
+Last updated: after block 11.2 merged.
 
 ---
 
@@ -79,7 +79,7 @@ Last updated: after block 11.1 merged.
 
 ### Phase 11 — UI hardening
 - [x] 11.1 — Persistent top navigation
-- [ ] 11.2 — Light/dark theme system
+- [x] 11.2 — Light/dark theme system
 - [ ] 11.3 — Interactive chart filters
 - [ ] 11.4 — Tremor-style visual polish pass
 - [ ] 11.5 — Sleek map + continent/country filters
