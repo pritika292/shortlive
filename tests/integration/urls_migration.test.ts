@@ -11,7 +11,7 @@ describeIfDb("urls migration", () => {
   beforeAll(async () => {
     client = new pg.Client({ connectionString: DATABASE_URL });
     await client.connect();
-    await client.query("DROP TABLE IF EXISTS urls");
+    await client.query("DROP TABLE IF EXISTS urls CASCADE");
     await resetDb(client);
   });
 

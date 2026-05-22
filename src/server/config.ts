@@ -6,6 +6,11 @@ const ConfigSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3010),
   SESSION_SECRET: z.string().min(32, "SESSION_SECRET must be at least 32 chars"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  IP_HASH_PEPPER: z
+    .string()
+    .min(16, "IP_HASH_PEPPER must be at least 16 chars")
+    .default("dev-only-replace-in-prod"),
+  GEOLITE2_PATH: z.string().optional(),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
