@@ -264,15 +264,44 @@ function Field({
   );
 }
 
+// The modern Clipboard API only works in secure contexts (HTTPS or
+// localhost). Our deploy serves over plain HTTP, so we fall back to the
+// legacy textarea + execCommand trick which works everywhere.
+function legacyCopy(text: string): boolean {
+  if (typeof document === "undefined") return false;
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.position = "absolute";
+  ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+  document.body.removeChild(ta);
+  return ok;
+}
+
 function CopyButton({ text }: { text: string }): JSX.Element {
   const [copied, setCopied] = useState(false);
   async function copy(): Promise<void> {
-    try {
-      await navigator.clipboard.writeText(text);
+    let ok = false;
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        ok = true;
+      } catch {
+        // Fall through to the legacy path.
+      }
+    }
+    if (!ok) ok = legacyCopy(text);
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {
-      // Clipboard API may be unavailable (e.g. file://); ignore.
     }
   }
   return (

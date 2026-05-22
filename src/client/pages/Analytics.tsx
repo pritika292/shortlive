@@ -5,10 +5,12 @@ interface Props {
 }
 
 export function AnalyticsPage({ short }: Props): JSX.Element {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const fullUrl = `${origin}/${short}`;
   return (
     <Dashboard
       short={short}
-      title={`/${short}`}
+      title={fullUrl}
       subtitle="Live analytics for your short link."
       topBarCurrent="analytics"
       headerRight={
