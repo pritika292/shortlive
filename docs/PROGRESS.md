@@ -12,11 +12,11 @@
 | 8 — Rule engine | 3 | 3 | 100% |
 | 9 — Webhook delivery | 2 | 2 | 100% |
 | 10 — Admin user + create flow | 5 | 5 | 100% |
-| 11 — UI hardening | 0 | 8 | 0% |
+| 11 — UI hardening | 1 | 8 | 13% |
 | 12 — Repo presentation | 0 | 1 | 0% |
-| **Total** | **35** | **44** | **80%** |
+| **Total** | **36** | **44** | **82%** |
 
-Last updated: after block 10.5 merged.
+Last updated: after block 11.1 merged.
 
 ---
 
@@ -78,7 +78,7 @@ Last updated: after block 10.5 merged.
 - [x] 10.5 — Per-link analytics page (/a/:short)
 
 ### Phase 11 — UI hardening
-- [ ] 11.1 — Persistent top navigation
+- [x] 11.1 — Persistent top navigation
 - [ ] 11.2 — Light/dark theme system
 - [ ] 11.3 — Interactive chart filters
 - [ ] 11.4 — Tremor-style visual polish pass

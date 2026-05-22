@@ -6,11 +6,7 @@ export function DemoPage(): JSX.Element {
       short="demo"
       title="shortlive · demo"
       subtitle="Live click analytics for the public demo link."
-      headerRight={
-        <a className="hover:text-slate-300" href="/">
-          ← home
-        </a>
-      }
+      topBarCurrent="demo"
     />
   );
 }
