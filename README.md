@@ -342,6 +342,40 @@ pre-commit install              # one-time per clone; enables gitleaks + hygiene
 
 ---
 
+## Project layout
+
+```
+src/
+  server/           Express app, routes, services, ws, seeders
+  client/           React + Vite SPA (pages, components, hooks)
+migrations/         Hand-rolled .sql files applied in lexical order
+tests/
+  unit/             Node-env Vitest tests (services, helpers)
+  integration/      Node-env tests against the docker-compose Postgres + Redis
+  client/           Jsdom-env Vitest + Testing Library component tests
+scripts/            Operational scripts (bootstrap-vm.sh)
+docs/               PLAN.md and other long-form docs
+.github/workflows/  CI + deploy pipelines
+```
+
+Build/tooling files at the repo root are kept where each tool expects to
+find them. Brief rundown:
+
+| File | Tool | Why at root |
+|---|---|---|
+| `tsconfig.json`, `tsconfig.build.json` | TypeScript | Default discovery |
+| `eslint.config.js` | ESLint flat config | Default discovery |
+| `vite.config.ts`, `vitest.config.ts`, `vitest.workspace.ts` | Vite / Vitest | Default discovery |
+| `tailwind.config.js`, `postcss.config.js` | Tailwind / PostCSS | Looked up from CWD |
+| `Dockerfile`, `docker-compose.yml` | Docker | Required for `deploy.sh` |
+| `docker-compose.local.yml` | Docker (dev only) | Sibling of the prod compose |
+| `.pre-commit-config.yaml`, `.editorconfig`, `.tool-versions` | dev tooling | Default discovery |
+
+Prettier config is inlined in `package.json#prettier` to keep one fewer file
+at the root.
+
+---
+
 ## Tests
 
 > CI workflow lands with the first code PR. Until then this section will read "pending."

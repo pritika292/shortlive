@@ -18,7 +18,7 @@ work needs.
 
 This plan replaces the previous plan (the README-reframe — that work is shipped).
 
-The plan itself will be committed as `shortlive/PLAN.md` (public — shows the roadmap,
+The plan itself will be committed as `shortlive/docs/PLAN.md` (public — shows the roadmap,
 marks done vs planned, with no private context). The first deploy lands at block **6.1**
 (after the live channel is wired); every subsequent merge to `main` auto-deploys via
 the OIDC pipeline.
@@ -375,4 +375,4 @@ reverts. The deploy pipeline re-runs.
 - `src/client/components/{Map,TimeSeriesChart,RecentFeed,RuleForm,FiringsLog}.tsx`
 - `tests/unit/*.test.ts`, `tests/integration/*.test.ts`
 - `.github/workflows/{ci,deploy}.yml`
-- `PLAN.md` (this file, committed publicly so the roadmap is visible)
+- `docs/PLAN.md` (this file, committed publicly so the roadmap is visible)
