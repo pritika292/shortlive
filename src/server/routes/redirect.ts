@@ -26,6 +26,7 @@ async function loadUrl(short: string): Promise<UrlRow | null> {
 
 function scheduleClickLog(
   row: UrlRow,
+  short: string,
   req: {
     headers: Record<string, string | string[] | undefined>;
     ip?: string;
@@ -34,6 +35,7 @@ function scheduleClickLog(
 ): void {
   const ctx = {
     urlId: Number(row.id),
+    short,
     ip: extractIp(req),
     userAgent:
       typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"] : undefined,
@@ -92,7 +94,7 @@ redirectRouter.get("/:short", async (req, res, next) => {
   }
 
   res.redirect(302, row.target);
-  scheduleClickLog(row, req);
+  scheduleClickLog(row, short, req);
 });
 
 redirectRouter.post("/:short/unlock", async (req, res, next) => {
@@ -118,5 +120,5 @@ redirectRouter.post("/:short/unlock", async (req, res, next) => {
     path: "/",
   });
   res.redirect(302, row.target);
-  scheduleClickLog(row, req);
+  scheduleClickLog(row, short, req);
 });
