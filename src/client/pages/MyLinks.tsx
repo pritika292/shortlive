@@ -35,7 +35,8 @@ export function MyLinksPage(): JSX.Element {
 
   useEffect(() => {
     if (session.status === "guest") {
-      window.location.assign("/login?next=/links");
+      // No more login UI: guests bounce home where they can Quickstart.
+      window.location.assign("/");
       return;
     }
     if (session.status === "authed") void refresh();

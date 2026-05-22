@@ -6,6 +6,9 @@ describe("<QuickstartButton />", () => {
   let fetchSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
+    // Clear the warn-once flag so each test starts as a fresh-browser visitor
+    // (modal shows). Individual tests opt into the warned state explicitly.
+    window.localStorage.removeItem("shortlive:quickstart-warned");
     fetchSpy = vi.spyOn(global, "fetch").mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -19,9 +22,10 @@ describe("<QuickstartButton />", () => {
   });
   afterEach(() => {
     fetchSpy.mockRestore();
+    window.localStorage.removeItem("shortlive:quickstart-warned");
   });
 
-  it("opens the modal and POSTs to /api/quickstart on accept", async () => {
+  it("opens the modal and POSTs to /api/quickstart on accept (first visit)", async () => {
     render(<QuickstartButton />);
     // Modal not shown yet.
     expect(screen.queryByText(/30-minute playground/i)).not.toBeInTheDocument();
@@ -30,6 +34,25 @@ describe("<QuickstartButton />", () => {
     await screen.findByText(/30-minute playground/i);
 
     fireEvent.click(screen.getByRole("button", { name: /Start playground/i }));
+    await waitFor(() => {
+      const call = fetchSpy.mock.calls.find(
+        (c) =>
+          typeof c[0] === "string" &&
+          c[0] === "/api/quickstart" &&
+          (c[1] as RequestInit | undefined)?.method === "POST",
+      );
+      expect(call).toBeDefined();
+    });
+  });
+
+  it("skips the modal on subsequent visits and fires the POST directly", async () => {
+    // Simulate a previously-warned browser.
+    window.localStorage.setItem("shortlive:quickstart-warned", "1");
+    render(<QuickstartButton />);
+    fireEvent.click(screen.getByRole("button", { name: /Quickstart/i }));
+    // No modal pops up.
+    expect(screen.queryByText(/30-minute playground/i)).not.toBeInTheDocument();
+    // POST fires straight away.
     await waitFor(() => {
       const call = fetchSpy.mock.calls.find(
         (c) =>

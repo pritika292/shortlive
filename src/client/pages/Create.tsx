@@ -20,7 +20,8 @@ export function CreatePage(): JSX.Element {
 
   useEffect(() => {
     if (session.status === "guest") {
-      window.location.assign("/login?next=/create");
+      // No more login UI: guests bounce home where they can Quickstart.
+      window.location.assign("/");
     }
   }, [session.status]);
 

@@ -5,7 +5,7 @@ import { LogoMark } from "./Logo.js";
 import { QuickstartButton } from "./QuickstartButton.js";
 
 interface Props {
-  current?: "home" | "demo" | "create" | "links" | "login" | "analytics" | "rules" | "about";
+  current?: "home" | "demo" | "create" | "links" | "analytics" | "rules" | "about";
 }
 
 export function TopBar({ current }: Props = {}): JSX.Element {
