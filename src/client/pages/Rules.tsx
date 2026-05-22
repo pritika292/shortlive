@@ -18,19 +18,22 @@ export function RulesPage({ short }: Props): JSX.Element {
         <header className="mb-8 flex items-baseline justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              Rules · <span className="text-slate-400">{short}</span>
+              Rules · <span className="text-slate-500 dark:text-slate-400">{short}</span>
             </h1>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Configure webhooks that fire when click patterns match.
             </p>
           </div>
-          <a href={`/a/${short}`} className="text-xs text-slate-500 hover:text-slate-300">
+          <a
+            href={`/a/${short}`}
+            className="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-300"
+          >
             ← analytics
           </a>
         </header>
 
         <section className="mb-8">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-5">
             <div className="text-xs uppercase tracking-wider text-slate-500 mb-3">
               Create a rule
             </div>
@@ -100,18 +103,21 @@ function RuleCard({
   }
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-5">
       <div className="flex items-baseline justify-between mb-2">
         <div>
-          <span className="text-sky-400 font-medium">{rule.type}</span>
+          <span className="text-sky-600 dark:text-sky-400 font-medium">{rule.type}</span>
           <span className="text-xs text-slate-500 ml-2">{rule.id}</span>
         </div>
         <VerifiedBadge verified={rule.destination_verified} />
       </div>
 
-      <div className="text-sm text-slate-300 mb-2 break-all">{rule.destination_url}</div>
+      <div className="text-sm text-slate-700 dark:text-slate-300 mb-2 break-all">
+        {rule.destination_url}
+      </div>
       <div className="text-xs text-slate-500 mb-3">
-        config: <code className="text-slate-400">{JSON.stringify(rule.config)}</code>
+        config:{" "}
+        <code className="text-slate-500 dark:text-slate-400">{JSON.stringify(rule.config)}</code>
         {" · "}
         cooldown {rule.cooldown_seconds}s
         {rule.last_fired_at ? ` · last fired ${new Date(rule.last_fired_at).toLocaleString()}` : ""}
@@ -127,7 +133,7 @@ function RuleCard({
           type="button"
           disabled={busy}
           onClick={() => void toggleEnabled()}
-          className="text-slate-300 hover:text-slate-100 disabled:opacity-50"
+          className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100 disabled:opacity-50"
         >
           {rule.enabled ? "disable" : "enable"}
         </button>
@@ -135,14 +141,14 @@ function RuleCard({
           type="button"
           disabled={busy}
           onClick={() => void onVerify()}
-          className="text-slate-300 hover:text-slate-100 disabled:opacity-50"
+          className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100 disabled:opacity-50"
         >
           re-verify
         </button>
         <button
           type="button"
           onClick={() => setShowFirings((v) => !v)}
-          className="text-slate-300 hover:text-slate-100"
+          className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100"
         >
           {showFirings ? "hide firings" : "show firings"}
         </button>
@@ -157,7 +163,7 @@ function RuleCard({
       </div>
 
       {showFirings && (
-        <div className="mt-4 pt-4 border-t border-slate-800">
+        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
           <FiringsLog short={short} ruleId={rule.id} />
         </div>
       )}

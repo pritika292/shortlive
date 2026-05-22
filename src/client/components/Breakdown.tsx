@@ -13,9 +13,9 @@ export function Breakdown({ rows, label }: { rows: BreakdownRow[]; label: string
           <th className="text-right pb-2 font-normal w-12">%</th>
         </tr>
       </thead>
-      <tbody className="text-slate-300">
+      <tbody className="text-slate-700 dark:text-slate-300">
         {rows.map((r) => (
-          <tr key={r.value} className="border-t border-slate-800">
+          <tr key={r.value} className="border-t border-slate-200 dark:border-slate-800">
             <td className="py-1.5 truncate max-w-[180px]" title={r.value}>
               {r.value}
             </td>

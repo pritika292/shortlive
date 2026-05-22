@@ -76,11 +76,15 @@ export function MyLinksPage(): JSX.Element {
         <header className="mb-8 flex items-baseline justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Your links</h1>
-            <p className="text-sm text-slate-400">
-              Signed in as <span className="text-slate-300">{session.user?.username}</span>.
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Signed in as{" "}
+              <span className="text-slate-700 dark:text-slate-300">{session.user?.username}</span>.
             </p>
           </div>
-          <a className="text-sm text-sky-400 hover:text-sky-300" href="/create">
+          <a
+            className="text-sm text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
+            href="/create"
+          >
             + new link
           </a>
         </header>
@@ -90,15 +94,18 @@ export function MyLinksPage(): JSX.Element {
         {links.length === 0 ? (
           <div className="text-sm text-slate-500">
             You haven't created any links yet —{" "}
-            <a className="text-sky-400 hover:text-sky-300" href="/create">
+            <a
+              className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
+              href="/create"
+            >
               create one
             </a>
             .
           </div>
         ) : (
-          <div className="rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="text-xs uppercase tracking-wider text-slate-500 bg-slate-900">
+              <thead className="text-xs uppercase tracking-wider text-slate-500 bg-slate-100 dark:bg-slate-900">
                 <tr>
                   <th className="text-left px-4 py-2 font-normal">Short</th>
                   <th className="text-left px-4 py-2 font-normal">Target</th>
@@ -107,11 +114,14 @@ export function MyLinksPage(): JSX.Element {
                   <th className="text-right px-4 py-2 font-normal w-48">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                 {links.map((l) => (
                   <tr key={l.short}>
                     <td className="px-4 py-2 font-mono">
-                      <a className="text-sky-400 hover:text-sky-300" href={`/${l.short}`}>
+                      <a
+                        className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
+                        href={`/${l.short}`}
+                      >
                         /{l.short}
                       </a>
                     </td>
@@ -123,11 +133,14 @@ export function MyLinksPage(): JSX.Element {
                       {new Date(l.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-2 text-right text-xs">
-                      <a className="text-sky-400 hover:text-sky-300 mr-3" href={`/a/${l.short}`}>
+                      <a
+                        className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 mr-3"
+                        href={`/a/${l.short}`}
+                      >
                         analytics
                       </a>
                       <a
-                        className="text-sky-400 hover:text-sky-300 mr-3"
+                        className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 mr-3"
                         href={`/a/${l.short}/rules`}
                       >
                         rules

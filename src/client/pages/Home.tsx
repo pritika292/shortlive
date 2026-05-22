@@ -7,14 +7,20 @@ export function HomePage(): JSX.Element {
       <main className="min-h-[calc(100vh-56px)] flex items-center justify-center px-6">
         <div className="text-center max-w-lg">
           <h1 className="text-4xl font-semibold tracking-tight mb-3">shortlive</h1>
-          <p className="text-slate-400 mb-8">
+          <p className="text-slate-600 dark:text-slate-400 mb-8">
             URL shortener with sub-second live click analytics and rule-based webhook automation.
           </p>
-          <div className="grid gap-3 text-sm text-slate-400">
-            <a className="text-sky-400 hover:text-sky-300" href="/demo">
+          <div className="grid gap-3 text-sm">
+            <a
+              className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
+              href="/demo"
+            >
               Watch the public demo dashboard →
             </a>
-            <a className="text-sky-400 hover:text-sky-300" href="/login">
+            <a
+              className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
+              href="/login"
+            >
               Log in to your dashboard →
             </a>
           </div>

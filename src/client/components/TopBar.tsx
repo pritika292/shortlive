@@ -1,4 +1,5 @@
 import { useSession } from "../hooks/useSession.js";
+import { ThemeToggle } from "./ThemeToggle.js";
 
 interface Props {
   current?: "home" | "demo" | "create" | "links" | "login" | "analytics" | "rules" | "about";
@@ -9,9 +10,12 @@ export function TopBar({ current }: Props = {}): JSX.Element {
   const isAuthed = session.status === "authed";
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-slate-950/60">
+    <header className="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-950/60">
       <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-6">
-        <a href="/" className="flex items-center gap-2 text-slate-100 hover:text-white">
+        <a
+          href="/"
+          className="flex items-center gap-2 text-slate-900 dark:text-slate-100 hover:text-black dark:hover:text-white"
+        >
           <span className="text-lg font-semibold tracking-tight">shortlive</span>
         </a>
 
@@ -33,17 +37,18 @@ export function TopBar({ current }: Props = {}): JSX.Element {
         </nav>
 
         <div className="ml-auto flex items-center gap-3 text-sm">
+          <ThemeToggle />
           {session.status === "loading" ? (
             <span className="text-slate-500 text-xs">…</span>
           ) : isAuthed ? (
             <>
-              <span className="text-slate-400 text-xs">
+              <span className="text-slate-500 dark:text-slate-400 text-xs">
                 {session.user?.username ?? "signed in"}
               </span>
               <button
                 type="button"
                 onClick={() => void session.logout()}
-                className="text-xs text-slate-400 hover:text-slate-200"
+                className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               >
                 sign out
               </button>
@@ -51,7 +56,7 @@ export function TopBar({ current }: Props = {}): JSX.Element {
           ) : (
             <a
               href="/login"
-              className="text-xs text-slate-300 hover:text-white"
+              className="text-xs text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white"
               data-current={current === "login"}
             >
               Sign in
@@ -77,8 +82,8 @@ function NavLink({
       href={href}
       className={`px-3 py-1.5 rounded-full transition-colors ${
         active
-          ? "bg-slate-800 text-slate-100"
-          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+          ? "bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60"
       }`}
     >
       {children}

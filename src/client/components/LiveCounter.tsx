@@ -10,7 +10,9 @@ export function LiveCounter({ count }: { count: number }): JSX.Element {
   }, [count]);
 
   return (
-    <div className={`transition-colors ${pulse ? "text-sky-400" : "text-slate-100"}`}>
+    <div
+      className={`transition-colors ${pulse ? "text-sky-600 dark:text-sky-400" : "text-slate-900 dark:text-slate-100"}`}
+    >
       <div className="text-4xl font-semibold tabular-nums">{count.toLocaleString()}</div>
     </div>
   );

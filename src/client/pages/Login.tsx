@@ -40,10 +40,12 @@ export function LoginPage(): JSX.Element {
       <main className="min-h-[calc(100vh-56px)] flex items-center justify-center px-6">
         <form
           onSubmit={submit}
-          className="w-full max-w-sm rounded-xl border border-slate-800 bg-slate-900/50 p-6"
+          className="w-full max-w-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6"
         >
           <h1 className="text-xl font-semibold tracking-tight mb-1">Sign in</h1>
-          <p className="text-sm text-slate-400 mb-6">Use the credentials from your invite email.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+            Use the credentials from your invite email.
+          </p>
 
           <div className="grid gap-3 text-sm">
             <div className="grid gap-1">
@@ -61,7 +63,7 @@ export function LoginPage(): JSX.Element {
                 autoFocus
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5"
+                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
               />
             </div>
             <div className="grid gap-1">
@@ -78,7 +80,7 @@ export function LoginPage(): JSX.Element {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5"
+                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-2 py-1.5"
               />
             </div>
             {error && <div className="text-rose-400 text-xs">{error}</div>}
