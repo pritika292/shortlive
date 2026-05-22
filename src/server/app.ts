@@ -9,6 +9,7 @@ import { redirectRouter } from "./routes/redirect.js";
 import { summaryRouter } from "./routes/summary.js";
 import { aggRouter } from "./routes/agg.js";
 import { rulesRouter } from "./routes/rules.js";
+import { meRouter } from "./routes/me.js";
 import { sessionMiddleware } from "./middleware/session.js";
 
 const CLIENT_DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../client");
@@ -16,7 +17,7 @@ const CLIENT_DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 // Paths that should serve the SPA's index.html rather than fall through to the
 // :short redirect. Anything not on this allowlist that's a single segment is
 // treated as a short code.
-const SPA_PATHS = ["/", "/demo", "/login", "/create"];
+const SPA_PATHS = ["/", "/demo", "/login", "/create", "/links"];
 
 export function createApp(): Express {
   const app = express();
@@ -34,6 +35,7 @@ export function createApp(): Express {
   app.use(summaryRouter);
   app.use(aggRouter);
   app.use(rulesRouter);
+  app.use(meRouter);
 
   // Serve the built SPA when it exists (production / post-build).
   const indexHtml = path.join(CLIENT_DIST, "index.html");
