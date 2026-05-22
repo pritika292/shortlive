@@ -13,6 +13,12 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Opt JavaScript actions (checkout, setup-node) onto the runner's Node 24
+# ahead of the June 2026 forced cutover so we stop seeing the deprecation
+# warning on every run.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 # Jobs run sequentially via `needs:` so a failure short-circuits the rest of
 # the pipeline instead of burning CI minutes on every checker for an
 # already-broken PR. Order is cheapest first: lint, typecheck, docker-build,
