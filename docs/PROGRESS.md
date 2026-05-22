@@ -12,11 +12,11 @@
 | 8 — Rule engine | 3 | 3 | 100% |
 | 9 — Webhook delivery | 2 | 2 | 100% |
 | 10 — Admin user + create flow | 5 | 5 | 100% |
-| 11 — UI hardening | 5 | 8 | 63% |
+| 11 — UI hardening | 7 | 8 | 88% |
 | 12 — Repo presentation | 0 | 1 | 0% |
-| **Total** | **40** | **44** | **91%** |
+| **Total** | **42** | **44** | **95%** |
 
-Last updated: after block 11.7 merged.
+Last updated: after blocks 11.5 + 11.3 merged.
 
 ---
 
@@ -80,9 +80,9 @@ Last updated: after block 11.7 merged.
 ### Phase 11 — UI hardening
 - [x] 11.1 — Persistent top navigation
 - [x] 11.2 — Light/dark theme system
-- [ ] 11.3 — Interactive chart filters
+- [x] 11.3 — Interactive chart filters
 - [ ] 11.4 — Tremor-style visual polish pass
-- [ ] 11.5 — Sleek map + continent/country filters
+- [x] 11.5 — Sleek map + continent/country filters
 - [x] 11.6 — Logo + brand mark + homepage hero
 - [x] 11.7 — Enrich demo data (volume, variety, natural cadence)
 - [x] 11.8 — "By Pritika" footer + About page

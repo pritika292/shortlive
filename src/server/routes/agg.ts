@@ -5,11 +5,28 @@ import { getPool } from "../db/pool.js";
 export const aggRouter: Router = Router();
 
 const SHORT_RE = /^[0-9A-Za-z-]{3,32}$/;
+const COUNTRY_RE = /^[A-Z]{2}$/;
+const DEVICE_VALUES = new Set(["desktop", "mobile", "tablet"]);
+
+function parseCsv(value: unknown, validator: (s: string) => boolean): string[] | null {
+  if (typeof value !== "string" || value.length === 0) return null;
+  const parts = value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (parts.length === 0) return null;
+  for (const p of parts) {
+    if (!validator(p)) return null;
+  }
+  return parts;
+}
 
 const SeriesQuery = z.object({
   short: z.string().regex(SHORT_RE),
   window: z.enum(["15m", "1h", "6h", "24h"]).default("1h"),
   bucket: z.enum(["1m", "5m", "15m", "1h"]).default("1m"),
+  country: z.string().optional(),
+  device: z.string().optional(),
 });
 
 const WINDOW_MS: Record<string, number> = {
@@ -31,8 +48,28 @@ aggRouter.get("/api/agg/series", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: "invalid_request" });
   const { short, window, bucket } = parsed.data;
 
+  const countries = parseCsv(parsed.data.country, (s) => COUNTRY_RE.test(s));
+  const devices = parseCsv(parsed.data.device, (s) => DEVICE_VALUES.has(s));
+  if (
+    (parsed.data.country !== undefined && countries === null) ||
+    (parsed.data.device !== undefined && devices === null)
+  ) {
+    return res.status(400).json({ error: "invalid_filter" });
+  }
+
   const since = new Date(Date.now() - (WINDOW_MS[window] ?? 60 * 60_000));
   const bucketSec = BUCKET_SECONDS[bucket] ?? 60;
+
+  const params: unknown[] = [short, since, bucketSec];
+  const filters: string[] = [];
+  if (countries) {
+    params.push(countries);
+    filters.push(`AND country = ANY($${params.length}::text[])`);
+  }
+  if (devices) {
+    params.push(devices);
+    filters.push(`AND device = ANY($${params.length}::text[])`);
+  }
 
   const { rows } = await getPool().query<{ ts: Date; count: string }>(
     `SELECT to_timestamp(floor(extract(epoch FROM ts) / $3) * $3) AS ts,
@@ -40,9 +77,10 @@ aggRouter.get("/api/agg/series", async (req, res) => {
        FROM clicks
       WHERE url_id = (SELECT id FROM urls WHERE short = $1)
         AND ts >= $2
+        ${filters.join(" ")}
       GROUP BY 1
       ORDER BY 1`,
-    [short, since, bucketSec],
+    params,
   );
 
   return res.json({
@@ -57,7 +95,9 @@ aggRouter.get("/api/agg/series", async (req, res) => {
 const BreakdownQuery = z.object({
   short: z.string().regex(SHORT_RE),
   dim: z.enum(["country", "device", "referrer"]),
-  limit: z.coerce.number().int().positive().max(20).default(5),
+  limit: z.coerce.number().int().positive().max(50).default(20),
+  country: z.string().optional(),
+  device: z.string().optional(),
 });
 
 aggRouter.get("/api/agg/breakdown", async (req, res) => {
@@ -65,21 +105,44 @@ aggRouter.get("/api/agg/breakdown", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: "invalid_request" });
   const { short, dim, limit } = parsed.data;
 
-  // Whitelisted column to keep the SQL static.
+  const countries = parseCsv(parsed.data.country, (s) => COUNTRY_RE.test(s));
+  const devices = parseCsv(parsed.data.device, (s) => DEVICE_VALUES.has(s));
+  if (
+    (parsed.data.country !== undefined && countries === null) ||
+    (parsed.data.device !== undefined && devices === null)
+  ) {
+    return res.status(400).json({ error: "invalid_filter" });
+  }
+
+  // Whitelisted column.
   const column = dim;
+  const params: unknown[] = [short];
+  const filters: string[] = [];
+  if (countries) {
+    params.push(countries);
+    filters.push(`AND country = ANY($${params.length}::text[])`);
+  }
+  if (devices) {
+    params.push(devices);
+    filters.push(`AND device = ANY($${params.length}::text[])`);
+  }
+  params.push(limit);
+  const limitIdx = params.length;
+
   const { rows } = await getPool().query<{ value: string | null; count: string; total: string }>(
     `WITH base AS (
        SELECT ${column} AS value
          FROM clicks
         WHERE url_id = (SELECT id FROM urls WHERE short = $1)
+          ${filters.join(" ")}
      ),
      totals AS (SELECT COUNT(*)::text AS total FROM base)
      SELECT value, COUNT(*)::text AS count, totals.total
        FROM base, totals
       GROUP BY value, totals.total
       ORDER BY COUNT(*) DESC
-      LIMIT $2`,
-    [short, limit],
+      LIMIT $${limitIdx}`,
+    params,
   );
 
   const total = rows[0] ? Number(rows[0].total) : 0;
