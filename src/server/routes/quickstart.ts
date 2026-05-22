@@ -2,7 +2,6 @@ import { Router } from "express";
 import { randomBytes } from "node:crypto";
 import { customAlphabet } from "nanoid";
 import { getPool } from "../db/pool.js";
-import { config } from "../config.js";
 import { hash } from "../services/passwords.js";
 import { createSession } from "../services/sessions.js";
 import { SESSION_COOKIE } from "./auth.js";
@@ -69,7 +68,10 @@ quickstartRouter.post("/api/quickstart", async (req, res) => {
 
   res.cookie(SESSION_COOKIE, session.sid, {
     httpOnly: true,
-    secure: config().NODE_ENV === "production",
+    // We serve over plain HTTP on a single-region demo VM. A Secure cookie
+    // would be silently dropped by the browser on http://, so the session
+    // never makes it back to /whoami. Re-enable this when HTTPS lands.
+    secure: false,
     sameSite: "lax",
     expires: session.expiresAt,
     path: "/",

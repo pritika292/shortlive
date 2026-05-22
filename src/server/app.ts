@@ -18,7 +18,7 @@ const CLIENT_DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 // Paths that should serve the SPA's index.html rather than fall through to the
 // :short redirect. Anything not on this allowlist that's a single segment is
 // treated as a short code.
-const SPA_PATHS = ["/", "/demo", "/login", "/create", "/links", "/about"];
+const SPA_PATHS = ["/", "/demo", "/create", "/links", "/about"];
 
 export function createApp(): Express {
   const app = express();

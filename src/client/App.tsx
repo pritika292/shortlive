@@ -1,7 +1,6 @@
 import { HomePage } from "./pages/Home.js";
 import { DemoPage } from "./pages/Demo.js";
 import { RulesPage } from "./pages/Rules.js";
-import { LoginPage } from "./pages/Login.js";
 import { CreatePage } from "./pages/Create.js";
 import { MyLinksPage } from "./pages/MyLinks.js";
 import { AnalyticsPage } from "./pages/Analytics.js";
@@ -10,7 +9,6 @@ import { AboutPage } from "./pages/About.js";
 export function App(): JSX.Element {
   const path = typeof window !== "undefined" ? window.location.pathname : "/";
   if (path === "/demo") return <DemoPage />;
-  if (path === "/login") return <LoginPage />;
   if (path === "/create") return <CreatePage />;
   if (path === "/links") return <MyLinksPage />;
   if (path === "/about") return <AboutPage />;

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { markWarned, postQuickstart } from "../lib/quickstart.js";
 
 interface Props {
   next: string;
@@ -12,25 +13,17 @@ export function QuickstartModal({ next, onClose }: Props): JSX.Element {
   async function accept(): Promise<void> {
     setError(null);
     setSubmitting(true);
-    try {
-      const res = await fetch("/api/quickstart", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: "{}",
-      });
-      if (!res.ok) {
-        if (res.status === 429) {
-          setError("The playground is full right now. Try again in a minute.");
-        } else {
-          setError(`Couldn't start a playground (HTTP ${res.status}).`);
-        }
-        return;
-      }
-      window.location.assign(next);
-    } catch {
-      setError("Network error. Try again.");
-    } finally {
+    // Remember the user has been warned BEFORE we navigate away, so the next
+    // visit (which might be in a fresh page load with no JS state) skips
+    // the modal directly via the localStorage flag.
+    markWarned();
+    const result = await postQuickstart(next);
+    if (!result.ok) {
+      setError(
+        result.error === "capacity"
+          ? "The playground is full right now. Try again in a minute."
+          : `Couldn't start a playground (HTTP ${result.status ?? "??"}).`,
+      );
       setSubmitting(false);
     }
   }
@@ -72,9 +65,13 @@ export function QuickstartModal({ next, onClose }: Props): JSX.Element {
         >
           This is a 30-minute playground.
         </h2>
-        <p className="text-slate-600 dark:text-slate-300 mb-5 leading-relaxed">
+        <p className="text-slate-600 dark:text-slate-300 mb-3 leading-relaxed">
           You can create links, fire clicks, and set up rules. After 30 minutes the playground
           session and everything you created in it (links, rules, click history) gets wiped.
+        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-5 italic leading-relaxed">
+          shortlive is a portfolio demo running on limited infrastructure. Data wipes after 30
+          minutes so the demo stays free and snappy for everyone.
         </p>
         <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1.5 mb-6">
           <li className="flex gap-2">
@@ -90,10 +87,10 @@ export function QuickstartModal({ next, onClose }: Props): JSX.Element {
             All your data is yours for the next 30 minutes.
           </li>
           <li className="flex gap-2">
-            <span aria-hidden className="text-amber-500 mt-0.5">
-              ⚠
+            <span aria-hidden className="text-emerald-500 mt-0.5">
+              ✓
             </span>
-            For real use, sign in with proper credentials instead.
+            You won't see this warning again on this browser.
           </li>
         </ul>
 

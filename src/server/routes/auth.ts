@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
 import { getPool } from "../db/pool.js";
-import { config } from "../config.js";
 import { verify } from "../services/passwords.js";
 import { createSession, deleteSession } from "../services/sessions.js";
 
@@ -43,7 +42,8 @@ authRouter.post("/login", async (req, res) => {
 
   res.cookie(SESSION_COOKIE, session.sid, {
     httpOnly: true,
-    secure: config().NODE_ENV === "production",
+    // See note in quickstart.ts: plain HTTP would drop a Secure cookie.
+    secure: false,
     sameSite: "lax",
     expires: session.expiresAt,
     path: "/",
