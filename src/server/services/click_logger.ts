@@ -3,6 +3,7 @@ import { getPool } from "../db/pool.js";
 import { lookup } from "./geo.js";
 import { hashIp } from "./ip.js";
 import { recordClickEvent } from "./redis.js";
+import { evaluateRulesForClick } from "./rule_engine.js";
 
 export interface ClickContext {
   urlId: number;
@@ -25,9 +26,13 @@ export async function logClick(ctx: ClickContext): Promise<void> {
   const ipHash = hashIp(ctx.ip);
   const device = deviceFromUa(ctx.userAgent);
   const ts = Date.now();
-  const pgWrite = getPool().query(
+  const pg = getPool();
+  const {
+    rows: [inserted],
+  } = await pg.query<{ id: string }>(
     `INSERT INTO clicks(url_id, ts, country, lat, lon, user_agent, device, referrer, ip_hash)
-       VALUES($1, to_timestamp($2 / 1000.0), $3, $4, $5, $6, $7, $8, $9)`,
+       VALUES($1, to_timestamp($2 / 1000.0), $3, $4, $5, $6, $7, $8, $9)
+     RETURNING id`,
     [
       ctx.urlId,
       ts,
@@ -40,7 +45,8 @@ export async function logClick(ctx: ClickContext): Promise<void> {
       ipHash,
     ],
   );
-  const redisWrite = recordClickEvent(ctx.short, {
+  const clickId = inserted ? Number(inserted.id) : undefined;
+  await recordClickEvent(ctx.short, {
     ts,
     country: geo.country,
     lat: geo.lat,
@@ -48,7 +54,15 @@ export async function logClick(ctx: ClickContext): Promise<void> {
     device,
     referrer: ctx.referrer ?? null,
   });
-  await Promise.all([pgWrite, redisWrite]);
+  await evaluateRulesForClick({
+    short: ctx.short,
+    click: {
+      ...ctx,
+      country: geo.country,
+      device,
+      clickId,
+    },
+  });
 }
 
 export function queueClickLog(ctx: ClickContext): void {
