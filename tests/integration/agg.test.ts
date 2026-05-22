@@ -58,6 +58,27 @@ describeIfDb("agg endpoints", () => {
     expect(res.body.rows.map((r: { value: string }) => r.value).sort()).toEqual(["DE", "US"]);
   });
 
+  it("excludes NULL values from the breakdown so '(unknown)' never appears", async () => {
+    // Inject a batch of null-country clicks alongside the existing US/DE rows.
+    await client.query(
+      `INSERT INTO clicks(url_id, ts, country, device, referrer)
+         SELECT (SELECT id FROM urls WHERE short='demo'),
+                NOW(),
+                NULL,
+                'desktop',
+                NULL
+           FROM generate_series(1, 20)`,
+    );
+    const res = await request(app).get("/api/agg/breakdown?short=demo&dim=country");
+    expect(res.status).toBe(200);
+    const values = res.body.rows.map((r: { value: string }) => r.value);
+    expect(values).not.toContain(null);
+    expect(values).not.toContain("(unknown)");
+    expect(values.sort()).toEqual(["DE", "US"]);
+    // total reflects only the non-null rows
+    expect(res.body.total).toBe(50);
+  });
+
   it("rejects unknown dimensions", async () => {
     const res = await request(app).get("/api/agg/breakdown?short=demo&dim=bogus");
     expect(res.status).toBe(400);

@@ -25,8 +25,26 @@ describe("<RecentFeed />", () => {
     expect(screen.getAllByText("DE").length).toBeGreaterThan(0);
   });
 
-  it("handles a click with a null country gracefully", () => {
+  it("hides null-country entries so the feed never shows 'Unknown' clutter", () => {
+    const now = Date.now();
+    render(
+      <RecentFeed
+        clicks={[
+          makeClick(now, null),
+          makeClick(now - 1000, "US"),
+          makeClick(now - 2000, null),
+          makeClick(now - 3000, "DE"),
+        ]}
+      />,
+    );
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(screen.queryByText(/unknown/i)).not.toBeInTheDocument();
+    expect(screen.getByText("US")).toBeInTheDocument();
+    expect(screen.getByText("DE")).toBeInTheDocument();
+  });
+
+  it("falls back to the waiting state when every click has a null country", () => {
     render(<RecentFeed clicks={[makeClick(Date.now(), null)]} />);
-    expect(screen.getByText(/unknown/i)).toBeInTheDocument();
+    expect(screen.getByText(/waiting for the first click/i)).toBeInTheDocument();
   });
 });

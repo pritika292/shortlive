@@ -129,11 +129,16 @@ aggRouter.get("/api/agg/breakdown", async (req, res) => {
   params.push(limit);
   const limitIdx = params.length;
 
-  const { rows } = await getPool().query<{ value: string | null; count: string; total: string }>(
+  // Exclude NULL values from the breakdown. Null countries / devices /
+  // referrers are noise on the demo (the host has no GeoLite2 for real
+  // visitors) and a "(unknown)" bucket dominating the top of the chart looks
+  // like a data-quality bug to anyone visiting the page.
+  const { rows } = await getPool().query<{ value: string; count: string; total: string }>(
     `WITH base AS (
        SELECT ${column} AS value
          FROM clicks
         WHERE url_id = (SELECT id FROM urls WHERE short = $1)
+          AND ${column} IS NOT NULL
           ${filters.join(" ")}
      ),
      totals AS (SELECT COUNT(*)::text AS total FROM base)
@@ -151,7 +156,7 @@ aggRouter.get("/api/agg/breakdown", async (req, res) => {
     dim,
     total,
     rows: rows.map((r) => ({
-      value: r.value ?? "(unknown)",
+      value: r.value,
       count: Number(r.count),
       percent: total > 0 ? Number(((Number(r.count) / total) * 100).toFixed(1)) : 0,
     })),

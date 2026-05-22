@@ -64,68 +64,6 @@
   }
 }
 
-/* Blinking green dot for the world map. The ring is a soft emerald pulse
-   so traffic is visible even on tiny zoom levels. */
-.shortlive-pin {
-  pointer-events: none;
-}
-
-.shortlive-pin__dot {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 10px;
-  height: 10px;
-  margin-left: -5px;
-  margin-top: -5px;
-  border-radius: 9999px;
-  background: #10b981;
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.65),
-    0 0 12px rgba(16, 185, 129, 0.85);
-  animation: shortlive-pin-blink 1.4s ease-in-out infinite;
-}
-
-.dark .shortlive-pin__dot {
-  box-shadow:
-    0 0 0 2px rgba(2, 6, 23, 0.7),
-    0 0 14px rgba(16, 185, 129, 0.95);
-}
-
-.shortlive-pin__ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 14px;
-  height: 14px;
-  margin-left: -7px;
-  margin-top: -7px;
-  border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.45);
-  animation: shortlive-pin-pulse 1.8s ease-out infinite;
-}
-
-@keyframes shortlive-pin-blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
-}
-
-@keyframes shortlive-pin-pulse {
-  0% {
-    transform: scale(0.8);
-    opacity: 0.85;
-  }
-  100% {
-    transform: scale(2.6);
-    opacity: 0;
-  }
-}
-
 /* Gentle marquee for the homepage stats row. */
 @keyframes shortlive-marquee {
   0% {
@@ -140,14 +78,4 @@
   display: flex;
   width: max-content;
   animation: shortlive-marquee 35s linear infinite;
-}
-
-/* Leaflet attribution: blend into the dark theme instead of bright white. */
-.dark .leaflet-control-attribution {
-  background: rgba(2, 6, 23, 0.6) !important;
-  color: rgba(226, 232, 240, 0.7) !important;
-}
-
-.dark .leaflet-control-attribution a {
-  color: rgba(125, 211, 252, 0.85) !important;
 }

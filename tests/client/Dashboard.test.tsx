@@ -5,8 +5,8 @@ import { Dashboard } from "../../src/client/components/Dashboard.js";
 // Recharts + Leaflet both poke at things jsdom doesn't fully implement.
 // Stub them at the module level — we only care that the dashboard wires
 // up the four card categories.
-vi.mock("../../src/client/components/ClickMap.js", () => ({
-  ClickMap: () => <div data-testid="map-stub" />,
+vi.mock("../../src/client/components/WorldMap.js", () => ({
+  WorldMap: () => <div data-testid="map-stub" />,
 }));
 vi.mock("../../src/client/components/TimeSeriesChart.js", () => ({
   TimeSeriesChart: () => <div data-testid="chart-stub" />,
