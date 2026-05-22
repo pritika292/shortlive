@@ -1,9 +1,10 @@
 import { useShortliveClicks } from "../hooks/useShortliveClicks.js";
 import { LiveCounter } from "../components/LiveCounter.js";
 import { RecentFeed } from "../components/RecentFeed.js";
+import { ClickMap } from "../components/ClickMap.js";
 
 export function DemoPage(): JSX.Element {
-  const { totalClicks, recent, status, hydrated } = useShortliveClicks("demo");
+  const { totalClicks, recent, mapPoints, status, hydrated } = useShortliveClicks("demo");
 
   return (
     <main className="min-h-screen px-6 py-8 max-w-6xl mx-auto">
@@ -20,25 +21,25 @@ export function DemoPage(): JSX.Element {
         </div>
       </header>
 
-      <section className="grid gap-6 md:grid-cols-3 mb-8">
+      <section className="grid gap-6 md:grid-cols-3 mb-6">
         <Card title="Total clicks">
           <LiveCounter count={totalClicks} />
         </Card>
-        <Card title="Map">
-          <span className="text-sm text-slate-500">pins coming next</span>
+        <Card title="Recent clicks">
+          {hydrated || recent.length > 0 ? (
+            <RecentFeed clicks={recent.slice(0, 8)} />
+          ) : (
+            <span className="text-sm text-slate-500">Connecting…</span>
+          )}
         </Card>
         <Card title="Time series">
           <span className="text-sm text-slate-500">chart coming next</span>
         </Card>
       </section>
 
-      <section>
-        <Card title="Recent clicks">
-          {hydrated || recent.length > 0 ? (
-            <RecentFeed clicks={recent} />
-          ) : (
-            <span className="text-sm text-slate-500">Connecting…</span>
-          )}
+      <section className="grid gap-6">
+        <Card title="Click locations">
+          <ClickMap points={mapPoints} hydrated={hydrated} />
         </Card>
       </section>
     </main>
