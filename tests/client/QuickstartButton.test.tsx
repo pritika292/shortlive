@@ -41,14 +41,14 @@ describe("<QuickstartButton />", () => {
     });
   });
 
-  it("shows a rate-limit error on 429 without navigating", async () => {
+  it("shows a friendly error on 429 (playground full) without navigating", async () => {
     fetchSpy.mockResolvedValueOnce(
-      new Response(JSON.stringify({ error: "rate_limited" }), { status: 429 }),
+      new Response(JSON.stringify({ error: "playground_at_capacity" }), { status: 429 }),
     );
     render(<QuickstartButton />);
     fireEvent.click(screen.getByRole("button", { name: /Quickstart/i }));
     await screen.findByText(/30-minute playground/i);
     fireEvent.click(screen.getByRole("button", { name: /Start playground/i }));
-    await screen.findByText(/too many playgrounds/i);
+    await screen.findByText(/playground is full/i);
   });
 });

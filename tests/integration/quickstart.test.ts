@@ -54,12 +54,40 @@ describeIfDb("POST /api/quickstart", () => {
     expect(minutesUntilExpiry).toBeLessThan(31);
   });
 
-  it("rate-limits a second quickstart from the same IP", async () => {
+  it("allows back-to-back quickstarts from the same source (no per-IP gate)", async () => {
+    // Docker port-publishing made the original per-IP gate produce false
+    // positives where every visitor looked like the bridge IP. The endpoint
+    // now uses a global concurrent cap instead, so back-to-back calls
+    // succeed when we're nowhere near capacity.
     const first = await request(app).post("/api/quickstart").send({});
     expect(first.status).toBe(200);
     const second = await request(app).post("/api/quickstart").send({});
-    expect(second.status).toBe(429);
-    expect(second.body.error).toBe("rate_limited");
+    expect(second.status).toBe(200);
+    expect(second.body.username).not.toBe(first.body.username);
+  });
+
+  it("returns 429 with playground_at_capacity once 200 live temp users exist", async () => {
+    // Seed 200 unexpired temp users straight into the DB. Hash isn't used
+    // anywhere; just satisfy NOT NULL.
+    const values: string[] = [];
+    const params: unknown[] = [];
+    for (let i = 0; i < 200; i++) {
+      const idx = i * 3;
+      values.push(`($${idx + 1}, $${idx + 2}, $${idx + 3})`);
+      params.push(
+        `temp-capacity${i.toString().padStart(3, "0")}`,
+        "unused",
+        new Date(Date.now() + 30 * 60_000),
+      );
+    }
+    await client.query(
+      `INSERT INTO auth.users(username, password_hash, expires_at) VALUES ${values.join(", ")}`,
+      params,
+    );
+
+    const res = await request(app).post("/api/quickstart").send({});
+    expect(res.status).toBe(429);
+    expect(res.body.error).toBe("playground_at_capacity");
   });
 
   it("returns the playground info on /whoami while the session is live", async () => {

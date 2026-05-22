@@ -21,7 +21,7 @@ export function QuickstartModal({ next, onClose }: Props): JSX.Element {
       });
       if (!res.ok) {
         if (res.status === 429) {
-          setError("Too many playgrounds from this IP. Wait a few minutes and try again.");
+          setError("The playground is full right now. Try again in a minute.");
         } else {
           setError(`Couldn't start a playground (HTTP ${res.status}).`);
         }
