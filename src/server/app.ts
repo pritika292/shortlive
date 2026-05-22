@@ -48,6 +48,11 @@ export function createApp(): Express {
         res.sendFile(indexHtml);
       });
     }
+    // /a/:short and /a/:short/rules are owner-only SPA pages. Auth lives in
+    // the API calls the SPA makes; here we just serve the bundle.
+    app.get(/^\/a\/[0-9A-Za-z-]{3,32}(?:\/rules)?\/?$/, (_req, res) => {
+      res.sendFile(indexHtml);
+    });
   }
 
   app.use(redirectRouter);
