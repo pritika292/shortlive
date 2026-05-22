@@ -3,6 +3,7 @@ import type pg from "pg";
 import { getPool } from "../db/pool.js";
 import { getRedis } from "./redis.js";
 import { getWebhookQueue } from "./queue.js";
+import { WORKER_OPTS } from "./webhook_worker.js";
 import type { ClickContext } from "./click_logger.js";
 
 const firingId = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 24);
@@ -203,7 +204,7 @@ export async function evaluateRulesForClick(
     await getWebhookQueue().add(
       "deliver",
       { firingId: fid, ruleId: rule.id, short: ctx.short },
-      { jobId: fid },
+      { jobId: fid, ...WORKER_OPTS },
     );
 
     await setCooldown(rule.id, rule.cooldown_seconds);
