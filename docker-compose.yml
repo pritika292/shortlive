@@ -1,50 +1,34 @@
-# Local development dependencies for shortlive: Postgres + Redis.
-# This is NOT the production compose — production runs inside the shared
-# `pritika` network on the host VM via docker-compose.prod.yml (added in 6.1).
+# Production compose — joins the shared `pritika` Docker network on the VM and
+# reads infra credentials (POSTGRES_PASSWORD, REDIS_PASSWORD) from
+# /opt/pritika/_infra/.env plus per-project secrets from
+# /opt/pritika/_infra/shortlive.env. Both files live outside the repo; the
+# deploy pipeline ensures shortlive.env exists before this stack is brought up.
 #
-# Quick start:
-#   docker compose up -d
-#   psql $DATABASE_URL -c 'SELECT 1'
-#
-# Stop:
-#   docker compose down
-# Wipe data:
-#   docker compose down -v
+# For local development use docker-compose.local.yml.
+
+networks:
+  pritika:
+    external: true
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: shortlive-postgres
+  app:
+    build: .
+    container_name: shortlive
     restart: unless-stopped
+    networks: [pritika]
+    ports:
+      - "3010:3010"
+    env_file:
+      - /opt/pritika/_infra/.env
+      - /opt/pritika/_infra/shortlive.env
     environment:
-      POSTGRES_USER: shortlive
-      POSTGRES_PASSWORD: devpass
-      POSTGRES_DB: shortlive
-    ports:
-      - "5432:5432"
-    volumes:
-      - shortlive_pg_data:/var/lib/postgresql/data
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@pritika-postgres:5432/shortlive
+      REDIS_URL: redis://:${REDIS_PASSWORD}@pritika-redis:6379/1
+      PORT: "3010"
+      NODE_ENV: production
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U shortlive -d shortlive"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    container_name: shortlive-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - shortlive_redis_data:/data
-    command: ["redis-server", "--appendonly", "yes"]
-    healthcheck:
-      test: ["CMD", "redis-cli", "PING"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-volumes:
-  shortlive_pg_data:
-  shortlive_redis_data:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3010/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    mem_limit: 384m

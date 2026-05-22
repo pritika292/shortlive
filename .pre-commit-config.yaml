@@ -32,8 +32,13 @@ repos:
         args: ['--fix=lf']
 
   # ---- Shell scripts (only triggers if .sh files change) ----
-  - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+  # Uses the locally-installed `shellcheck` binary. The upstream docker-based
+  # hook hangs on the iCloud bind-mount path; the system shellcheck is just
+  # as good and an order of magnitude faster.
+  - repo: local
     hooks:
       - id: shellcheck
         name: shellcheck (.sh files)
+        entry: shellcheck
+        language: system
+        types: [shell]
