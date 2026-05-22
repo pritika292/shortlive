@@ -21,6 +21,13 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "prettier": {
+    "semi": true,
+    "singleQuote": false,
+    "trailingComma": "all",
+    "printWidth": 100,
+    "tabWidth": 2
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bullmq": "^5.77.0",
