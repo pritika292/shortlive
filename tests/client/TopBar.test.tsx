@@ -12,13 +12,13 @@ describe("<TopBar />", () => {
     fetchSpy.mockRestore();
   });
 
-  it("guest view: Create your own points at /login?next=/create", async () => {
+  it("guest view: Create points at /login?next=/create and shows a sign-in link", async () => {
     fetchSpy.mockResolvedValueOnce(new Response("", { status: 401 }));
     render(<TopBar />);
     await waitFor(() => {
-      expect(screen.getByText(/Sign in/i)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /sign in/i })).toBeInTheDocument();
     });
-    const createLink = screen.getByRole("link", { name: /Create your own/i });
+    const createLink = screen.getByRole("link", { name: /^Create$/i });
     expect(createLink).toHaveAttribute("href", "/login?next=/create");
   });
 
@@ -30,10 +30,7 @@ describe("<TopBar />", () => {
     await waitFor(() => {
       expect(screen.getByText("alice")).toBeInTheDocument();
     });
-    expect(screen.getByRole("link", { name: /Create your own/i })).toHaveAttribute(
-      "href",
-      "/create",
-    );
+    expect(screen.getByRole("link", { name: /^Create$/i })).toHaveAttribute("href", "/create");
     expect(screen.getByRole("link", { name: /My links/i })).toHaveAttribute("href", "/links");
   });
 

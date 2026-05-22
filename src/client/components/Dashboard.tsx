@@ -77,71 +77,80 @@ function DashboardInner({
   return (
     <>
       <TopBar current={topBarCurrent} />
-      <main className="min-h-[calc(100vh-56px)] px-6 py-8 max-w-6xl mx-auto">
-        <header className="mb-6 flex items-baseline justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
-          </div>
-          <div className="text-xs text-slate-500 flex items-center gap-3 flex-wrap justify-end">
-            <ConnectionDot status={status} />
-            {headerRight}
-          </div>
-        </header>
+      <main className="relative min-h-[calc(100vh-72px)]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[360px] bg-gradient-to-b from-emerald-200/30 via-cyan-100/10 to-transparent dark:from-emerald-500/10 dark:via-cyan-500/5"
+        />
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-10">
+          <header className="mb-8 flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="text-4xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                {title}
+              </h1>
+              <p className="text-base text-slate-600 dark:text-slate-400 mt-2">{subtitle}</p>
+            </div>
+            <div className="flex items-center gap-4 flex-wrap justify-end">
+              <ConnectionDot status={status} />
+              {headerRight}
+            </div>
+          </header>
 
-        <section className="mb-6 flex items-center justify-between gap-3 flex-wrap">
-          <ContinentFilter />
-          {hasFilter && (
-            <button
-              type="button"
-              onClick={() => filters.clearAll()}
-              className="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
-            >
-              clear filter
-            </button>
-          )}
-        </section>
-
-        <section className="grid gap-6 md:grid-cols-3 mb-6">
-          <Card title={hasFilter ? "Clicks (filtered)" : "Total clicks"}>
-            <LiveCounter count={totalClicks} />
-          </Card>
-          <Card title="Recent clicks" className="md:col-span-2">
-            {hydrated || recent.length > 0 ? (
-              <RecentFeed clicks={recent.slice(0, 8)} />
-            ) : (
-              <span className="text-sm text-slate-500">Connecting…</span>
+          <section className="mb-6 flex items-center justify-between gap-3 flex-wrap">
+            <ContinentFilter />
+            {hasFilter && (
+              <button
+                type="button"
+                onClick={() => filters.clearAll()}
+                className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors"
+              >
+                clear filter ×
+              </button>
             )}
-          </Card>
-        </section>
+          </section>
 
-        <section className="grid gap-6 mb-6">
-          <Card title="Clicks per minute (last hour)">
-            <TimeSeriesChart series={series} />
-          </Card>
-        </section>
+          <section className="grid gap-6 md:grid-cols-3 mb-6">
+            <Card title={hasFilter ? "Clicks (filtered)" : "Total clicks"} accent="emerald">
+              <LiveCounter count={totalClicks} />
+            </Card>
+            <Card title="Recent clicks" className="md:col-span-2">
+              {hydrated || recent.length > 0 ? (
+                <RecentFeed clicks={recent.slice(0, 8)} />
+              ) : (
+                <span className="text-sm text-slate-500">Connecting…</span>
+              )}
+            </Card>
+          </section>
 
-        <section className="grid gap-6 md:grid-cols-3 mb-6">
-          <Card title="Top countries">
-            <ClickableBreakdown rows={country} label="Country" />
-          </Card>
-          <Card title="Top referrers">
-            <Breakdown rows={referrer} label="Referrer" />
-          </Card>
-          <Card title="Devices">
-            <Breakdown rows={device} label="Device" />
-          </Card>
-        </section>
+          <section className="grid gap-6 mb-6">
+            <Card title="Clicks per minute (last hour)" accent="cyan">
+              <TimeSeriesChart series={series} />
+            </Card>
+          </section>
 
-        <section>
-          <Card title="Click locations">
-            <ClickMap
-              points={mapPoints}
-              hydrated={hydrated}
-              filteredCountries={effectiveCountries.size > 0 ? effectiveCountries : undefined}
-            />
-          </Card>
-        </section>
+          <section className="grid gap-6 md:grid-cols-3 mb-6">
+            <Card title="Top countries">
+              <ClickableBreakdown rows={country} label="Country" />
+            </Card>
+            <Card title="Top referrers">
+              <Breakdown rows={referrer} label="Referrer" />
+            </Card>
+            <Card title="Devices">
+              <Breakdown rows={device} label="Device" />
+            </Card>
+          </section>
+
+          <section className="mb-6">
+            <Card title="Click locations" accent="violet">
+              <ClickMap
+                points={mapPoints}
+                hydrated={hydrated}
+                filteredCountries={effectiveCountries.size > 0 ? effectiveCountries : undefined}
+                filteredContinents={filters.continents.size > 0 ? filters.continents : undefined}
+              />
+            </Card>
+          </section>
+        </div>
       </main>
       <Footer />
     </>
@@ -151,10 +160,10 @@ function DashboardInner({
 function ClickableBreakdown({ rows, label }: { rows: BreakdownRow[]; label: string }): JSX.Element {
   const filters = useDashboardFilters();
   if (rows.length === 0) {
-    return <div className="text-xs text-slate-500">No {label.toLowerCase()} data yet.</div>;
+    return <div className="text-sm text-slate-500">No {label.toLowerCase()} data yet.</div>;
   }
   return (
-    <ul className="text-sm divide-y divide-slate-200 dark:divide-slate-800">
+    <ul className="text-sm divide-y divide-slate-200/60 dark:divide-white/5">
       {rows.map((r) => {
         const active = filters.countries.has(r.value);
         return (
@@ -163,17 +172,17 @@ function ClickableBreakdown({ rows, label }: { rows: BreakdownRow[]; label: stri
               type="button"
               onClick={() => filters.toggleCountry(r.value)}
               className={
-                "w-full flex items-center justify-between py-1.5 px-1 rounded transition-colors " +
+                "w-full flex items-center justify-between py-2 px-2 rounded-lg transition-colors " +
                 (active
-                  ? "bg-sky-100 dark:bg-sky-900/40 text-slate-900 dark:text-slate-100"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60")
+                  ? "bg-gradient-to-r from-emerald-500/15 to-cyan-500/10 text-slate-900 dark:text-slate-100 ring-1 ring-emerald-400/30"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.04]")
               }
             >
-              <span className="text-left truncate max-w-[180px]" title={r.value}>
+              <span className="text-left truncate max-w-[180px] font-medium" title={r.value}>
                 {r.value}
               </span>
               <span className="flex items-center gap-3">
-                <span className="tabular-nums">{r.count}</span>
+                <span className="tabular-nums font-semibold">{r.count}</span>
                 <span className="tabular-nums text-slate-500 w-10 text-right">{r.percent}%</span>
               </span>
             </button>
@@ -188,16 +197,29 @@ function Card({
   title,
   children,
   className,
+  accent,
 }: {
   title: string;
   children: ReactNode;
   className?: string;
+  accent?: "emerald" | "cyan" | "violet";
 }): JSX.Element {
+  const accentBar =
+    accent === "emerald"
+      ? "bg-gradient-to-r from-emerald-400 to-cyan-400"
+      : accent === "cyan"
+        ? "bg-gradient-to-r from-cyan-400 to-sky-400"
+        : accent === "violet"
+          ? "bg-gradient-to-r from-violet-400 to-fuchsia-400"
+          : "bg-slate-200 dark:bg-white/10";
   return (
-    <div
-      className={`rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-5 ${className ?? ""}`}
-    >
-      <div className="text-xs uppercase tracking-wider text-slate-500 mb-3">{title}</div>
+    <div className={`glass-card p-6 ${className ?? ""}`}>
+      <div className="flex items-center gap-3 mb-4">
+        <span className={`h-2.5 w-2.5 rounded-full ${accentBar}`} aria-hidden />
+        <div className="text-xs uppercase tracking-[0.18em] font-semibold text-slate-500 dark:text-slate-400">
+          {title}
+        </div>
+      </div>
       <div>{children}</div>
     </div>
   );
@@ -205,11 +227,15 @@ function Card({
 
 function ConnectionDot({ status }: { status: "connecting" | "open" | "closed" }): JSX.Element {
   const color =
-    status === "open" ? "bg-emerald-400" : status === "connecting" ? "bg-amber-400" : "bg-rose-500";
+    status === "open"
+      ? "bg-emerald-400 shadow-emerald-400/60"
+      : status === "connecting"
+        ? "bg-amber-400 shadow-amber-400/60"
+        : "bg-rose-500 shadow-rose-500/60";
   return (
-    <span className="flex items-center gap-1.5">
-      <span className={`inline-block size-2 rounded-full ${color}`} aria-hidden />
-      <span>{status}</span>
+    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-white/60 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300">
+      <span className={`inline-block size-2 rounded-full ${color} shadow-md`} aria-hidden />
+      {status}
     </span>
   );
 }

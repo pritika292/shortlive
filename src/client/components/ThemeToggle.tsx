@@ -1,40 +1,54 @@
-import { useTheme, type ThemePreference } from "../hooks/useTheme.js";
+import { useTheme } from "../hooks/useTheme.js";
 
-const ORDER: ThemePreference[] = ["light", "system", "dark"];
-const LABELS: Record<ThemePreference, string> = {
-  light: "Light",
-  system: "System",
-  dark: "Dark",
-};
-const ICONS: Record<ThemePreference, string> = {
-  light: "☼",
-  system: "🖥",
-  dark: "☾",
-};
+function SunIcon(): JSX.Element {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon(): JSX.Element {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
 
 export function ThemeToggle(): JSX.Element {
-  const { preference, setPreference } = useTheme();
+  const { resolved, setPreference } = useTheme();
+  const isDark = resolved === "dark";
   return (
-    <div className="flex items-center rounded-full border border-slate-700 bg-slate-900/60 p-0.5 text-xs">
-      {ORDER.map((p) => {
-        const active = p === preference;
-        return (
-          <button
-            key={p}
-            type="button"
-            aria-pressed={active}
-            aria-label={`Use ${LABELS[p].toLowerCase()} theme`}
-            onClick={() => setPreference(p)}
-            className={
-              "px-2 py-0.5 rounded-full transition-colors " +
-              (active ? "bg-slate-700 text-slate-100" : "text-slate-400 hover:text-slate-100")
-            }
-          >
-            <span aria-hidden>{ICONS[p]}</span>
-            <span className="sr-only">{LABELS[p]}</span>
-          </button>
-        );
-      })}
-    </div>
+    <button
+      type="button"
+      onClick={() => setPreference(isDark ? "light" : "dark")}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className="icon-btn"
+    >
+      {isDark ? <SunIcon /> : <MoonIcon />}
+    </button>
   );
 }

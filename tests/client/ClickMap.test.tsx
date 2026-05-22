@@ -8,6 +8,8 @@ import { ClickMap } from "../../src/client/components/ClickMap.js";
 const map = {
   remove: vi.fn(),
   removeLayer: vi.fn(),
+  flyTo: vi.fn(),
+  flyToBounds: vi.fn(),
 };
 const tileLayer = { addTo: vi.fn().mockReturnValue({}) };
 
@@ -17,11 +19,13 @@ vi.mock("leaflet", () => ({
   default: {
     map: vi.fn(() => map),
     tileLayer: vi.fn(() => tileLayer),
-    circleMarker: vi.fn((latlng: [number, number]) => {
+    divIcon: vi.fn(() => ({})),
+    latLng: vi.fn((lat: number, lon: number) => ({ lat, lon })),
+    latLngBounds: vi.fn(() => ({ extend: vi.fn() })),
+    marker: vi.fn((latlng: [number, number]) => {
       addToCalls.push({ lat: latlng[0], lon: latlng[1] });
       return {
         addTo: vi.fn().mockReturnThis(),
-        setStyle: vi.fn(),
       };
     }),
   },

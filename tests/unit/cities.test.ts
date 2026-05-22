@@ -11,9 +11,9 @@ describe("seed/cities", () => {
     expect(CITIES.length).toBeGreaterThanOrEqual(50);
   });
 
-  it("covers every continent", () => {
+  it("covers every inhabited continent", () => {
     const continents = new Set(CITIES.map((c) => c.continent));
-    for (const c of ["AF", "AN", "AS", "EU", "NA", "OC", "SA"] as const) {
+    for (const c of ["AF", "AS", "EU", "NA", "OC", "SA"] as const) {
       expect(continents.has(c)).toBe(true);
     }
   });

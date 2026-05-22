@@ -1,3 +1,151 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    font-size: 16.5px;
+  }
+  body {
+    font-feature-settings:
+      "ss01" on,
+      "cv11" on;
+  }
+}
+
+@layer components {
+  /* Glass card with a subtle gradient border. Sits on top of the page
+     background; works in both light and dark mode. */
+  .glass-card {
+    @apply relative rounded-2xl border border-slate-200 dark:border-white/10
+           bg-white/70 dark:bg-white/[0.03]
+           backdrop-blur-xl
+           shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_20px_50px_-20px_rgba(15,23,42,0.15)]
+           dark:shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset,0_30px_60px_-30px_rgba(0,0,0,0.6)];
+  }
+
+  .glow-emerald {
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35), 0 8px 30px -8px rgba(16, 185, 129, 0.45);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full
+           text-sm font-semibold text-white
+           bg-gradient-to-r from-emerald-500 via-cyan-500 to-sky-500
+           shadow-lg shadow-emerald-500/25
+           hover:shadow-emerald-500/40 hover:brightness-110
+           active:brightness-95 transition-all;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full
+           text-sm font-semibold
+           border border-slate-300 dark:border-white/15
+           text-slate-900 dark:text-slate-100
+           bg-white/60 dark:bg-white/[0.04]
+           backdrop-blur
+           hover:bg-white dark:hover:bg-white/[0.08]
+           hover:border-slate-400 dark:hover:border-white/25
+           transition-all;
+  }
+
+  .icon-btn {
+    @apply inline-flex items-center justify-center
+           h-10 w-10 rounded-full
+           border border-slate-200 dark:border-white/10
+           bg-white/70 dark:bg-white/[0.04]
+           text-slate-600 dark:text-slate-300
+           hover:bg-white dark:hover:bg-white/[0.08]
+           hover:text-slate-900 dark:hover:text-white
+           hover:border-slate-300 dark:hover:border-white/20
+           transition-all;
+  }
+}
+
+/* Blinking green dot for the world map. The ring is a soft emerald pulse
+   so traffic is visible even on tiny zoom levels. */
+.shortlive-pin {
+  pointer-events: none;
+}
+
+.shortlive-pin__dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  background: #10b981;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.65),
+    0 0 12px rgba(16, 185, 129, 0.85);
+  animation: shortlive-pin-blink 1.4s ease-in-out infinite;
+}
+
+.dark .shortlive-pin__dot {
+  box-shadow:
+    0 0 0 2px rgba(2, 6, 23, 0.7),
+    0 0 14px rgba(16, 185, 129, 0.95);
+}
+
+.shortlive-pin__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.45);
+  animation: shortlive-pin-pulse 1.8s ease-out infinite;
+}
+
+@keyframes shortlive-pin-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes shortlive-pin-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* Gentle marquee for the homepage stats row. */
+@keyframes shortlive-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: shortlive-marquee 35s linear infinite;
+}
+
+/* Leaflet attribution: blend into the dark theme instead of bright white. */
+.dark .leaflet-control-attribution {
+  background: rgba(2, 6, 23, 0.6) !important;
+  color: rgba(226, 232, 240, 0.7) !important;
+}
+
+.dark .leaflet-control-attribution a {
+  color: rgba(125, 211, 252, 0.85) !important;
+}

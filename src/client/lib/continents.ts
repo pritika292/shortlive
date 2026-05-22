@@ -1,7 +1,7 @@
 // ISO-3166-alpha-2 → continent code. Imported by the map filter UI and the
 // server's breakdown endpoint (via a JS-only build that re-exports the map).
 
-export type ContinentCode = "AF" | "AN" | "AS" | "EU" | "NA" | "OC" | "SA";
+export type ContinentCode = "AF" | "AS" | "EU" | "NA" | "OC" | "SA";
 
 const CONTINENT_OF: Record<string, ContinentCode> = {
   // Africa
@@ -63,13 +63,6 @@ const CONTINENT_OF: Record<string, ContinentCode> = {
   ZA: "AF",
   ZM: "AF",
   ZW: "AF",
-
-  // Antarctica
-  AQ: "AN",
-  BV: "AN",
-  GS: "AN",
-  HM: "AN",
-  TF: "AN",
 
   // Asia
   AE: "AS",
@@ -276,10 +269,20 @@ export function continentOf(country: string | null | undefined): ContinentCode |
 
 export const CONTINENT_LABEL: Record<ContinentCode, string> = {
   AF: "Africa",
-  AN: "Antarctica",
   AS: "Asia",
   EU: "Europe",
   NA: "N. America",
   OC: "Oceania",
   SA: "S. America",
+};
+
+// Geographic bounds for each continent — used to fly the map to a region
+// when a filter is selected. [southWest_lat, southWest_lon, northEast_lat, northEast_lon].
+export const CONTINENT_BOUNDS: Record<ContinentCode, [number, number, number, number]> = {
+  NA: [7, -168, 72, -52],
+  SA: [-56, -82, 13, -34],
+  EU: [35, -25, 72, 45],
+  AF: [-35, -18, 38, 52],
+  AS: [-11, 26, 78, 180],
+  OC: [-48, 110, 0, 180],
 };

@@ -59,7 +59,7 @@ export function FiringsLog({ short, ruleId }: Props): JSX.Element {
             <td className={`py-1 ${statusColor(f.status)}`}>{f.status}</td>
             <td className="py-1 text-right tabular-nums">{f.attempts}</td>
             <td className="py-1 text-right tabular-nums text-slate-500 dark:text-slate-400">
-              {f.last_response_code ?? "—"}
+              {f.last_response_code ?? "·"}
             </td>
             <td className="py-1 text-right">
               {f.status === "failed" ? (

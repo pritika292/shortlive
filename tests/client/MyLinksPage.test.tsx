@@ -43,7 +43,7 @@ describe("<MyLinksPage />", () => {
   it("renders the empty state when the user has no links", async () => {
     setup([linksRes([])]);
     render(<MyLinksPage />);
-    await screen.findByText(/haven't created any links yet/i);
+    await screen.findByText(/no links yet/i);
   });
 
   it("renders rows with the analytics, rules, and delete actions", async () => {
@@ -60,8 +60,8 @@ describe("<MyLinksPage />", () => {
     ]);
     render(<MyLinksPage />);
     await screen.findByText("/abc1234");
-    expect(screen.getByRole("link", { name: /^analytics$/ })).toHaveAttribute("href", "/a/abc1234");
-    expect(screen.getByRole("link", { name: /^rules$/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /analytics/i })).toHaveAttribute("href", "/a/abc1234");
+    expect(screen.getByRole("link", { name: /^rules$/i })).toHaveAttribute(
       "href",
       "/a/abc1234/rules",
     );
@@ -89,7 +89,7 @@ describe("<MyLinksPage />", () => {
     await screen.findByText("/del4567");
     fireEvent.click(screen.getByRole("button", { name: /^delete$/i }));
 
-    await screen.findByText(/haven't created any links yet/i);
+    await screen.findByText(/no links yet/i);
     const deleteCall = fetchSpy.mock.calls.find(
       (c) =>
         typeof c[0] === "string" &&

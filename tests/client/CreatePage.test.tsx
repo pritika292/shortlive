@@ -58,7 +58,7 @@ describe("<CreatePage />", () => {
     });
 
     fireEvent.click(screen.getByRole("button", { name: /create short link/i }));
-    await screen.findByText(/short link created/i);
+    await screen.findByText(/your short link is live/i);
 
     const shortenCall = fetchSpy.mock.calls.find(
       (c) => typeof c[0] === "string" && c[0] === "/shorten",

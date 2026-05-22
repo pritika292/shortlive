@@ -21,7 +21,7 @@ describe("<Breakdown />", () => {
     expect(screen.getByText("US")).toBeInTheDocument();
     expect(screen.getByText("30")).toBeInTheDocument();
     expect(screen.getByText("20")).toBeInTheDocument();
-    expect(screen.getByText("60")).toBeInTheDocument();
-    expect(screen.getByText("40")).toBeInTheDocument();
+    expect(screen.getByText("60%")).toBeInTheDocument();
+    expect(screen.getByText("40%")).toBeInTheDocument();
   });
 });

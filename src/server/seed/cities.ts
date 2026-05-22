@@ -13,7 +13,7 @@ export interface City {
   ip: string;
   // Continent code, used by the map filter later. Kept here so cities have a
   // single source of truth.
-  continent: "NA" | "EU" | "AS" | "SA" | "AF" | "OC" | "AN";
+  continent: "NA" | "EU" | "AS" | "SA" | "AF" | "OC";
 }
 
 const UAS = [
@@ -559,28 +559,16 @@ export const CITIES: City[] = [
     ip: "203.0.113.92",
   },
 
-  // Antarctica novelty
-  {
-    country: "AQ",
-    continent: "AN",
-    lat: -77.8419,
-    lon: 166.6863,
-    device: "desktop",
-    referrer: null,
-    ua: ua(2),
-    ip: "203.0.113.99",
-  },
 ];
 
 // Continent share of total clicks. Sums to ~1.0.
 export const CONTINENT_WEIGHTS: Record<City["continent"], number> = {
   NA: 0.28,
   EU: 0.22,
-  AS: 0.25,
+  AS: 0.26,
   SA: 0.1,
   AF: 0.1,
   OC: 0.04,
-  AN: 0.01,
 };
 
 // Time-of-day weight (UTC hour 0-23). Peaks at ~9am Eastern (13Z), ~9am UTC,

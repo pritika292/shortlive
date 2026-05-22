@@ -12,26 +12,22 @@ describe("<ThemeToggle />", () => {
     document.documentElement.classList.remove("dark");
   });
 
-  it("cycles through the three preferences and persists each one", () => {
+  it("toggles between dark (default) and light, persisting the choice", () => {
     render(<ThemeToggle />);
-    const light = screen.getByRole("button", { name: /use light theme/i });
-    const dark = screen.getByRole("button", { name: /use dark theme/i });
-    const system = screen.getByRole("button", { name: /use system theme/i });
-
-    fireEvent.click(light);
+    // Default is dark, so the toggle button offers "switch to light".
+    const toggle = screen.getByRole("button", { name: /switch to light/i });
+    fireEvent.click(toggle);
     expect(window.localStorage.getItem("shortlive:theme")).toBe("light");
     expect(document.documentElement.classList.contains("dark")).toBe(false);
 
-    fireEvent.click(dark);
+    const back = screen.getByRole("button", { name: /switch to dark/i });
+    fireEvent.click(back);
     expect(window.localStorage.getItem("shortlive:theme")).toBe("dark");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
-
-    fireEvent.click(system);
-    expect(window.localStorage.getItem("shortlive:theme")).toBe("system");
   });
 
-  it("renders the three buttons", () => {
+  it("renders a single toggle button", () => {
     render(<ThemeToggle />);
-    expect(screen.getAllByRole("button").length).toBe(3);
+    expect(screen.getAllByRole("button").length).toBe(1);
   });
 });

@@ -73,86 +73,109 @@ export function MyLinksPage(): JSX.Element {
   return (
     <>
       <TopBar current="links" />
-      <main className="min-h-[calc(100vh-56px)] px-6 py-8 max-w-4xl mx-auto">
-        <header className="mb-8 flex items-baseline justify-between">
+      <main className="relative min-h-[calc(100vh-72px)] max-w-6xl mx-auto px-6 lg:px-8 py-10">
+        <header className="mb-8 flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Your links</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+              Your links
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">
               Signed in as{" "}
-              <span className="text-slate-700 dark:text-slate-300">{session.user?.username}</span>.
+              <span className="font-semibold text-slate-800 dark:text-slate-200">
+                {session.user?.username}
+              </span>
+              .
             </p>
           </div>
-          <a
-            className="text-sm text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
-            href="/create"
-          >
-            + new link
+          <a href="/create" className="btn-primary">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+              aria-hidden
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            New link
           </a>
         </header>
 
-        {error && <div className="text-sm text-rose-400 mb-4">{error}</div>}
+        {error && (
+          <div className="mb-6 rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 px-4 py-2.5 text-sm">
+            {error}
+          </div>
+        )}
 
         {links.length === 0 ? (
-          <div className="text-sm text-slate-500">
-            You haven't created any links yet —{" "}
-            <a
-              className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
-              href="/create"
-            >
-              create one
+          <div className="glass-card p-12 text-center">
+            <div className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">
+              No links yet
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">
+              Spin up your first short link and start collecting clicks.
+            </p>
+            <a href="/create" className="btn-primary">
+              Create your first link
             </a>
-            .
           </div>
         ) : (
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-hidden">
+          <div className="glass-card overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="text-xs uppercase tracking-wider text-slate-500 bg-slate-100 dark:bg-slate-900">
+              <thead className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400 bg-slate-100/60 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/5">
                 <tr>
-                  <th className="text-left px-4 py-2 font-normal">Short</th>
-                  <th className="text-left px-4 py-2 font-normal">Target</th>
-                  <th className="text-right px-4 py-2 font-normal">Clicks</th>
-                  <th className="text-left px-4 py-2 font-normal">Created</th>
-                  <th className="text-right px-4 py-2 font-normal w-48">Actions</th>
+                  <th className="text-left px-5 py-3.5">Short</th>
+                  <th className="text-left px-5 py-3.5">Target</th>
+                  <th className="text-right px-5 py-3.5">Clicks</th>
+                  <th className="text-left px-5 py-3.5">Created</th>
+                  <th className="text-right px-5 py-3.5 w-56">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+              <tbody className="divide-y divide-slate-200/60 dark:divide-white/5 text-slate-700 dark:text-slate-300">
                 {links.map((l) => (
-                  <tr key={l.short}>
-                    <td className="px-4 py-2 font-mono">
+                  <tr key={l.short} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                    <td className="px-5 py-3.5 font-mono">
                       <a
-                        className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300"
+                        className="font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300"
                         href={`/${l.short}`}
                       >
                         /{l.short}
                       </a>
                     </td>
-                    <td className="px-4 py-2 truncate max-w-[280px]" title={l.target}>
+                    <td className="px-5 py-3.5 truncate max-w-[280px]" title={l.target}>
                       {l.target}
                     </td>
-                    <td className="px-4 py-2 text-right tabular-nums">{l.clickCount}</td>
-                    <td className="px-4 py-2 text-xs text-slate-500">
+                    <td className="px-5 py-3.5 text-right tabular-nums font-semibold text-slate-900 dark:text-white">
+                      {l.clickCount}
+                    </td>
+                    <td className="px-5 py-3.5 text-xs text-slate-500">
                       {new Date(l.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-2 text-right text-xs">
+                    <td className="px-5 py-3.5 text-right text-xs space-x-2">
                       <a
-                        className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 mr-3"
+                        className="inline-block px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.05] text-slate-700 dark:text-slate-200"
                         href={`/a/${l.short}`}
                       >
-                        analytics
+                        Analytics
                       </a>
                       <a
-                        className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 mr-3"
+                        className="inline-block px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.05] text-slate-700 dark:text-slate-200"
                         href={`/a/${l.short}/rules`}
                       >
-                        rules
+                        Rules
                       </a>
                       <button
                         type="button"
                         disabled={deleting === l.short}
                         onClick={() => void deleteLink(l.short)}
-                        className="text-rose-400 hover:text-rose-300 disabled:opacity-50"
+                        className="inline-block px-3 py-1.5 rounded-full text-xs font-medium border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 disabled:opacity-50"
                       >
-                        {deleting === l.short ? "…" : "delete"}
+                        {deleting === l.short ? "…" : "Delete"}
                       </button>
                     </td>
                   </tr>
