@@ -113,9 +113,10 @@ describeIfDb("agg endpoints", () => {
       expect(res.body.breakdowns.country.rows.map((r: { value: string }) => r.value)).toEqual([
         "US",
       ]);
-      // Series total reflects only US clicks (half of 50 = 25 since s % 2 alternates).
+      // Series total reflects only US clicks. The fixture uses s % 2 = 0 on
+      // s ∈ {0..4} so 3 out of 5 rows per minute land in US, totaling 30.
       const total = res.body.series.reduce((sum: number, p: { count: number }) => sum + p.count, 0);
-      expect(total).toBe(25);
+      expect(total).toBe(30);
     });
 
     it("rejects unknown dims", async () => {
