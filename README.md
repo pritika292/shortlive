@@ -353,21 +353,23 @@ tests/
   unit/             Node-env Vitest tests (services, helpers)
   integration/      Node-env tests against the docker-compose Postgres + Redis
   client/           Jsdom-env Vitest + Testing Library component tests
-scripts/            Operational scripts (bootstrap-vm.sh)
-docs/               PLAN.md and other long-form docs
+scripts/            Operational scripts (bootstrap-vm.sh, seed-user.ts)
+build/              Build-tooling configs (Vite, Vitest, Tailwind, PostCSS)
+docs/               PLAN.md, PROGRESS.md, long-form docs
 .github/workflows/  CI + deploy pipelines
 ```
 
-Build/tooling files at the repo root are kept where each tool expects to
-find them. Brief rundown:
+Build-tooling configs live in `build/`. npm scripts pass `-c build/<file>` to
+each tool so the root stays uncluttered.
+
+The configs that **stay** at the root are the ones their tool requires there
+for default discovery (and editor integration in the case of TS and ESLint):
 
 | File | Tool | Why at root |
 |---|---|---|
-| `tsconfig.json`, `tsconfig.build.json` | TypeScript | Default discovery |
-| `eslint.config.js` | ESLint flat config | Default discovery |
-| `vite.config.ts`, `vitest.config.ts`, `vitest.workspace.ts` | Vite / Vitest | Default discovery |
-| `tailwind.config.js`, `postcss.config.js` | Tailwind / PostCSS | Looked up from CWD |
-| `Dockerfile`, `docker-compose.yml` | Docker | Required for `deploy.sh` |
+| `tsconfig.json`, `tsconfig.build.json` | TypeScript | IDE Intellisense + default discovery |
+| `eslint.config.js` | ESLint flat config | IDE integration |
+| `Dockerfile`, `docker-compose.yml` | Docker | `deploy.sh` expects them here |
 | `docker-compose.local.yml` | Docker (dev only) | Sibling of the prod compose |
 | `.pre-commit-config.yaml`, `.editorconfig`, `.tool-versions` | dev tooling | Default discovery |
 
