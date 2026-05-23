@@ -4,7 +4,7 @@
 
 [![ci](https://github.com/pritika292/shortlive/actions/workflows/ci.yml/badge.svg)](https://github.com/pritika292/shortlive/actions/workflows/ci.yml)
 [![deploy](https://github.com/pritika292/shortlive/actions/workflows/deploy.yml/badge.svg)](https://github.com/pritika292/shortlive/actions/workflows/deploy.yml)
-[![demo](https://img.shields.io/badge/demo-live-success)](http://135.232.183.50:3010/)
+[![demo](https://img.shields.io/badge/demo-live-success)](https://shortlive.pritika.studio/)
 [![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
 ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -23,7 +23,7 @@
 ![GitHub Actions](https://img.shields.io/badge/-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)
 ![Vitest](https://img.shields.io/badge/-Vitest-6E9F18?logo=vitest&logoColor=white)
 
-**Live**: <http://135.232.183.50:3010/>  ·  one-click Quickstart, 30-minute playground, no signup.
+**Live**: <https://shortlive.pritika.studio/>  ·  one-click Quickstart, 30-minute playground, no signup.
 
 ---
 
