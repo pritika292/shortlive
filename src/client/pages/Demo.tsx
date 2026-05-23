@@ -6,12 +6,14 @@ import { CountryChipFilter } from "../components/CountryChipFilter.js";
 import { LiveCounter } from "../components/LiveCounter.js";
 import { RecentFeed } from "../components/RecentFeed.js";
 import { WorldMap } from "../components/WorldMap.js";
+import { DemoRulesPanel } from "../components/DemoRulesPanel.js";
 import { TimeSeriesChart } from "../components/TimeSeriesChart.js";
 import { Breakdown } from "../components/Breakdown.js";
 import { RunDemoButton } from "../components/RunDemoButton.js";
 import { DashboardFiltersProvider, useDashboardFilters } from "../contexts/DashboardFilters.js";
 import { CURATED_COUNTRIES } from "../lib/continents.js";
 import { useDemoSimulator } from "../hooks/useDemoSimulator.js";
+import { useDemoRules } from "../hooks/useDemoRules.js";
 import type { ClickEvent } from "../hooks/useShortliveClicks.js";
 import type { BreakdownRow, SeriesPoint } from "../hooks/useSeries.js";
 
@@ -51,6 +53,10 @@ function DemoInner(): JSX.Element {
     return () => clearInterval(id);
   }, []);
   const windows = useMemo(() => countWindows(visible, now), [visible, now]);
+
+  // Rule engine watches the unfiltered event stream — rules fire on the full
+  // burst regardless of which chip the user is inspecting.
+  const { rules, firings } = useDemoRules(sim.events, now);
 
   const series = useMemo(() => buildSeries(visible), [visible]);
   const country = useMemo(() => topBreakdown(visible, (e) => e.country, 5), [visible]);
@@ -149,6 +155,12 @@ function DemoInner(): JSX.Element {
           <section className="mb-6">
             <Card title="Click locations" accent="violet">
               <WorldMap points={visible.slice(0, 100)} />
+            </Card>
+          </section>
+
+          <section className="mb-6">
+            <Card title="Rule-based webhooks" accent="emerald">
+              <DemoRulesPanel rules={rules} firings={firings} now={now} />
             </Card>
           </section>
         </div>
