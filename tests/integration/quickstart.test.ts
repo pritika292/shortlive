@@ -4,7 +4,10 @@ import pg from "pg";
 import { createApp } from "../../src/server/app.js";
 import { closePool } from "../../src/server/db/pool.js";
 import { resetDb } from "../helpers/db.js";
-import { _resetQuickstartRateLimitForTests } from "../../src/server/routes/quickstart.js";
+import {
+  _resetQuickstartRateLimitForTests,
+  _seedQuickstartRateLimitForTests,
+} from "../../src/server/routes/quickstart.js";
 import { sweepExpiredUsers } from "../../src/server/services/temp_user_sweeper.js";
 import { SESSION_COOKIE } from "../../src/server/routes/auth.js";
 
@@ -54,32 +57,33 @@ describeIfDb("POST /api/quickstart", () => {
     expect(minutesUntilExpiry).toBeLessThan(31);
   });
 
-  it("allows up to 50 quickstarts per hour per IP, then 429s the 51st", async () => {
-    // Fire 50 successful quickstarts.
-    for (let i = 0; i < 50; i++) {
-      const r = await request(app).post("/api/quickstart").send({});
-      expect(r.status).toBe(200);
-    }
+  it("429s the 51st quickstart from the same IP within an hour", async () => {
+    // Pre-fill 50 hits for ::ffff:127.0.0.1 (supertest's default source) so
+    // we don't have to actually fire 50 bcrypt-bound requests.
+    _seedQuickstartRateLimitForTests("::ffff:127.0.0.1", 50);
+    // Also seed plain 127.0.0.1 in case node serves it under v4.
+    _seedQuickstartRateLimitForTests("127.0.0.1", 50);
+
     const overflow = await request(app).post("/api/quickstart").send({});
     expect(overflow.status).toBe(429);
     expect(overflow.body.error).toBe("ip_rate_limited");
   });
 
   it("counts per-IP not globally (different X-Forwarded-For = different bucket)", async () => {
-    // Burn 50 hits as one IP.
-    for (let i = 0; i < 50; i++) {
-      const r = await request(app)
-        .post("/api/quickstart")
-        .set("X-Forwarded-For", "10.10.10.10")
-        .send({});
-      expect(r.status).toBe(200);
-    }
-    // A different IP should still pass.
+    // Burn the bucket for one IP without doing the slow bcrypt path.
+    _seedQuickstartRateLimitForTests("10.10.10.10", 50);
+    // A different IP should still pass on its first try.
     const fresh = await request(app)
       .post("/api/quickstart")
       .set("X-Forwarded-For", "10.10.10.11")
       .send({});
     expect(fresh.status).toBe(200);
+    // While the burned IP is blocked.
+    const blocked = await request(app)
+      .post("/api/quickstart")
+      .set("X-Forwarded-For", "10.10.10.10")
+      .send({});
+    expect(blocked.status).toBe(429);
   });
 
   it("returns 429 with playground_at_capacity once 200 live temp users exist", async () => {

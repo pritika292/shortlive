@@ -119,7 +119,15 @@ quickstartRouter.post("/api/quickstart", async (req, res) => {
   });
 });
 
-// Test helper: clears the in-memory per-IP rate-limit table.
+// Test helpers: bypass the slow bcrypt path so integration tests can prove
+// the rate limiter without actually firing 50 requests.
 export function _resetQuickstartRateLimitForTests(): void {
   ipHits.clear();
+}
+export function _seedQuickstartRateLimitForTests(ip: string, count: number): void {
+  const now = Date.now();
+  ipHits.set(
+    ip,
+    Array.from({ length: count }, () => now),
+  );
 }
