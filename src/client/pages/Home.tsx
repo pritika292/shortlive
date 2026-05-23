@@ -64,7 +64,7 @@ export function HomePage(): JSX.Element {
                 </div>
 
                 <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
-                  <Stat value="< 5s" label="click latency" />
+                  <Stat value="< 1s" label="click latency" />
                   <Stat value="4" label="rule types" />
                   <Stat value="HMAC" label="signed POSTs" />
                 </div>

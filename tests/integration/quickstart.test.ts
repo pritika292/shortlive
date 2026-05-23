@@ -54,16 +54,32 @@ describeIfDb("POST /api/quickstart", () => {
     expect(minutesUntilExpiry).toBeLessThan(31);
   });
 
-  it("allows back-to-back quickstarts from the same source (no per-IP gate)", async () => {
-    // Docker port-publishing made the original per-IP gate produce false
-    // positives where every visitor looked like the bridge IP. The endpoint
-    // now uses a global concurrent cap instead, so back-to-back calls
-    // succeed when we're nowhere near capacity.
-    const first = await request(app).post("/api/quickstart").send({});
-    expect(first.status).toBe(200);
-    const second = await request(app).post("/api/quickstart").send({});
-    expect(second.status).toBe(200);
-    expect(second.body.username).not.toBe(first.body.username);
+  it("allows up to 50 quickstarts per hour per IP, then 429s the 51st", async () => {
+    // Fire 50 successful quickstarts.
+    for (let i = 0; i < 50; i++) {
+      const r = await request(app).post("/api/quickstart").send({});
+      expect(r.status).toBe(200);
+    }
+    const overflow = await request(app).post("/api/quickstart").send({});
+    expect(overflow.status).toBe(429);
+    expect(overflow.body.error).toBe("ip_rate_limited");
+  });
+
+  it("counts per-IP not globally (different X-Forwarded-For = different bucket)", async () => {
+    // Burn 50 hits as one IP.
+    for (let i = 0; i < 50; i++) {
+      const r = await request(app)
+        .post("/api/quickstart")
+        .set("X-Forwarded-For", "10.10.10.10")
+        .send({});
+      expect(r.status).toBe(200);
+    }
+    // A different IP should still pass.
+    const fresh = await request(app)
+      .post("/api/quickstart")
+      .set("X-Forwarded-For", "10.10.10.11")
+      .send({});
+    expect(fresh.status).toBe(200);
   });
 
   it("returns 429 with playground_at_capacity once 200 live temp users exist", async () => {
