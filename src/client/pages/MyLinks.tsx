@@ -134,7 +134,7 @@ export function MyLinksPage(): JSX.Element {
                   <th className="text-left px-5 py-3.5">Target</th>
                   <th className="text-right px-5 py-3.5">Clicks</th>
                   <th className="text-left px-5 py-3.5">Created</th>
-                  <th className="text-right px-5 py-3.5 w-56">Actions</th>
+                  <th className="text-right px-5 py-3.5 w-72">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/60 dark:divide-white/5 text-slate-700 dark:text-slate-300">
@@ -160,27 +160,29 @@ export function MyLinksPage(): JSX.Element {
                     <td className="px-5 py-3.5 text-xs text-slate-500">
                       {new Date(l.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-5 py-3.5 text-right text-xs space-x-2">
-                      <a
-                        className="inline-block px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.05] text-slate-700 dark:text-slate-200"
-                        href={`/a/${l.short}`}
-                      >
-                        Analytics
-                      </a>
-                      <a
-                        className="inline-block px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.05] text-slate-700 dark:text-slate-200"
-                        href={`/a/${l.short}/rules`}
-                      >
-                        Rules
-                      </a>
-                      <button
-                        type="button"
-                        disabled={deleting === l.short}
-                        onClick={() => void deleteLink(l.short)}
-                        className="inline-block px-3 py-1.5 rounded-full text-xs font-medium border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 disabled:opacity-50"
-                      >
-                        {deleting === l.short ? "…" : "Delete"}
-                      </button>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center justify-end gap-2 whitespace-nowrap">
+                        <a
+                          className="inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.05] text-slate-700 dark:text-slate-200"
+                          href={`/a/${l.short}`}
+                        >
+                          Analytics
+                        </a>
+                        <a
+                          className="inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.05] text-slate-700 dark:text-slate-200"
+                          href={`/a/${l.short}/rules`}
+                        >
+                          Rules
+                        </a>
+                        <button
+                          type="button"
+                          disabled={deleting === l.short}
+                          onClick={() => void deleteLink(l.short)}
+                          className="inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 disabled:opacity-50"
+                        >
+                          {deleting === l.short ? "…" : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
