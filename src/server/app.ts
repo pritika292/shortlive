@@ -22,6 +22,11 @@ const SPA_PATHS = ["/", "/demo", "/create", "/links", "/about"];
 
 export function createApp(): Express {
   const app = express();
+  // Honor X-Forwarded-For when a proxy (CDN, HTTPS terminator, future LB)
+  // sits in front of us. Without this, req.ip is always the proxy address
+  // and our per-IP rate limiter would treat every request as one source.
+  // Safe with no proxy: extractIp falls back to the socket address.
+  app.set("trust proxy", true);
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());

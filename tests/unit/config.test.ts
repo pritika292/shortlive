@@ -31,4 +31,20 @@ describe("loadConfig", () => {
   it("rejects NODE_ENV outside the allowed enum", () => {
     expect(() => loadConfig({ ...validEnv, NODE_ENV: "staging" })).toThrow();
   });
+
+  it("refuses to boot in production when IP_HASH_PEPPER is the dev default", () => {
+    expect(() => loadConfig({ ...validEnv, NODE_ENV: "production" })).toThrow(
+      /IP_HASH_PEPPER must be set to a real value/,
+    );
+  });
+
+  it("boots in production once IP_HASH_PEPPER is overridden", () => {
+    const cfg = loadConfig({
+      ...validEnv,
+      NODE_ENV: "production",
+      IP_HASH_PEPPER: "y".repeat(32),
+    });
+    expect(cfg.NODE_ENV).toBe("production");
+    expect(cfg.IP_HASH_PEPPER).toBe("y".repeat(32));
+  });
 });
