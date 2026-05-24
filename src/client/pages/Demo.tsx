@@ -130,7 +130,7 @@ function DemoInner(): JSX.Element {
               <WindowedCounts windows={windows} />
             </Card>
             <Card title="Recent clicks" className="md:col-span-2">
-              <RecentFeed clicks={visible.slice(0, 8)} />
+              <RecentFeed clicks={visible} />
             </Card>
           </section>
 
@@ -229,18 +229,18 @@ function WindowedCounts({ windows }: { windows: WindowCounts }): JSX.Element {
     { label: "30m", value: windows.m30 },
   ];
   return (
-    <div className="mt-4 pt-4 border-t border-slate-200/60 dark:border-white/5 grid grid-cols-4 gap-2 text-center">
+    <dl className="mt-4 pt-4 border-t border-slate-200/60 dark:border-white/5 divide-y divide-slate-200/40 dark:divide-white/[0.04]">
       {items.map((it) => (
-        <div key={it.label}>
-          <div className="text-lg font-semibold tabular-nums text-slate-900 dark:text-white">
-            {it.value}
-          </div>
-          <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
+        <div key={it.label} className="flex items-baseline justify-between py-2">
+          <dt className="text-[11px] uppercase tracking-[0.18em] font-semibold text-slate-500 dark:text-slate-400">
             {it.label}
-          </div>
+          </dt>
+          <dd className="text-xl font-semibold tabular-nums text-slate-900 dark:text-white">
+            {it.value}
+          </dd>
         </div>
       ))}
-    </div>
+    </dl>
   );
 }
 
