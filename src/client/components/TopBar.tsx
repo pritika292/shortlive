@@ -53,20 +53,20 @@ export function TopBar({ current }: Props = {}): JSX.Element {
           </NavLink>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2 text-sm">
+        <div className="ml-auto flex items-center gap-1.5 text-sm">
           <ContactStrip />
           <ThemeToggle />
           {session.status === "loading" ? (
             <span className="text-slate-500 text-xs">…</span>
           ) : isAuthed ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {/* The playground countdown used to live here. It pushed the
                   TopBar into wrap territory once #82 added the email + #150
                   bumped contact icons. The countdown now renders on each
                   page's own header via <PlaygroundBadge />, where there's
                   room for it. (#150 follow-up) */}
-              <span className="hidden md:inline-flex items-center gap-2 px-3 h-10 rounded-full border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] text-sm font-medium text-slate-700 dark:text-slate-200">
-                <span className="inline-flex h-6 w-6 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-white text-xs font-bold items-center justify-center">
+              <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 h-9 rounded-full border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] text-xs font-medium text-slate-700 dark:text-slate-200">
+                <span className="inline-flex h-5 w-5 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-white text-[10px] font-bold items-center justify-center">
                   {session.user?.username?.[0]?.toUpperCase() ?? "?"}
                 </span>
                 {session.user?.username}
