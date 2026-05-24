@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { markWarned, postQuickstart } from "../lib/quickstart.js";
 
 interface Props {
@@ -28,7 +29,13 @@ export function QuickstartModal({ next, onClose }: Props): JSX.Element {
     }
   }
 
-  return (
+  // TopBar uses `backdrop-blur-xl` which creates a containing block for
+  // `position: fixed` descendants — without a portal, this modal anchors to
+  // the TopBar instead of the viewport and renders half-cut at the top of
+  // the page. Portalling to document.body bypasses any filtered ancestor
+  // regardless of where the trigger button lives.
+  if (typeof document === "undefined") return <></>;
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -114,6 +121,7 @@ export function QuickstartModal({ next, onClose }: Props): JSX.Element {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

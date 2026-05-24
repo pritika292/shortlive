@@ -76,13 +76,17 @@
   }
 }
 
-/* Gentle marquee for the homepage stats row. */
+/* Gentle marquee for the homepage stats row.
+   Translate by one copy's width (the component renders 3 copies, so 1/3 =
+   33.3333%). With 3 copies in the DOM, the post-translate viewport always
+   shows at least 2 copies, which eliminates the gap-on-the-right at the
+   loop point on wide monitors. (#148) */
 @keyframes shortlive-marquee {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-33.3333%);
   }
 }
 

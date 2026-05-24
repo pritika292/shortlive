@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "../hooks/useSession.js";
 import { TopBar } from "../components/TopBar.js";
 import { Footer } from "../components/Footer.js";
+import { PlaygroundBadge } from "../components/PlaygroundBadge.js";
 
 interface CreatedLink {
   short: string;
@@ -85,7 +86,10 @@ export function CreatePage(): JSX.Element {
     return (
       <>
         <TopBar current="create" />
-        <main className="relative min-h-[calc(100vh-72px)] flex items-center justify-center px-6 py-12">
+        <main className="relative min-h-[calc(100vh-72px)] flex flex-col items-center px-6 py-12">
+          <div className="w-full max-w-xl mb-3 flex justify-end">
+            <PlaygroundBadge />
+          </div>
           <div className="w-full max-w-xl glass-card p-8 sm:p-10">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20 mb-4">
               <svg
@@ -136,11 +140,14 @@ export function CreatePage(): JSX.Element {
   return (
     <>
       <TopBar current="create" />
-      <main className="relative min-h-[calc(100vh-72px)] flex items-center justify-center px-6 py-12">
+      <main className="relative min-h-[calc(100vh-72px)] flex flex-col items-center px-6 py-12">
         <div
           aria-hidden
           className="absolute -top-24 right-1/4 -z-10 h-[300px] w-[500px] rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-500/10"
         />
+        <div className="w-full max-w-xl mb-3 flex justify-end">
+          <PlaygroundBadge />
+        </div>
         <form onSubmit={submit} className="w-full max-w-xl glass-card p-8 sm:p-10">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
             Create a short link
@@ -293,11 +300,13 @@ async function copyToClipboard(text: string): Promise<boolean> {
   return legacyCopy(text);
 }
 
-// The whole short URL is the click target: click it, the URL copies and a
-// transient "Copied!" affordance replaces the help text. (#151)
+// URL panel + a dedicated COPY button next to it. The URL itself is no
+// longer an implicit click target — the discrete button is clearer
+// affordance and matches what people expect after seeing a "live link"
+// followed by a copy icon on every other shortener.
 function ShortUrlPanel({ url }: { url: string }): JSX.Element {
   const [copied, setCopied] = useState(false);
-  async function handleClick(): Promise<void> {
+  async function handleCopy(): Promise<void> {
     const ok = await copyToClipboard(url);
     if (ok) {
       setCopied(true);
@@ -305,17 +314,17 @@ function ShortUrlPanel({ url }: { url: string }): JSX.Element {
     }
   }
   return (
-    <button
-      type="button"
-      onClick={() => void handleClick()}
-      title="Click to copy"
-      aria-label="Click to copy short URL to clipboard"
-      className="w-full mb-5 group rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.04] dark:hover:bg-white/[0.06] transition-colors p-4 flex items-center justify-between gap-3 text-left"
-    >
-      <code className="text-base font-semibold text-emerald-600 dark:text-emerald-400 break-all">
+    <div className="w-full mb-5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] p-3 sm:p-4 flex items-center justify-between gap-3">
+      <code className="text-base font-semibold text-emerald-600 dark:text-emerald-400 break-all min-w-0">
         {url}
       </code>
-      <span className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">
+      <button
+        type="button"
+        onClick={() => void handleCopy()}
+        aria-label="Copy short URL to clipboard"
+        title="Copy"
+        className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap"
+      >
         {copied ? (
           <>
             <svg
@@ -349,11 +358,11 @@ function ShortUrlPanel({ url }: { url: string }): JSX.Element {
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
-            Click to copy
+            Copy
           </>
         )}
-      </span>
-    </button>
+      </button>
+    </div>
   );
 }
 
