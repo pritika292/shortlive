@@ -2,6 +2,7 @@ import { TopBar } from "../components/TopBar.js";
 import { Footer } from "../components/Footer.js";
 import { LogoMark } from "../components/Logo.js";
 import { QuickstartButton } from "../components/QuickstartButton.js";
+import { TechLogos } from "../components/TechLogos.js";
 import { useSession } from "../hooks/useSession.js";
 
 export function HomePage(): JSX.Element {
@@ -188,39 +189,7 @@ export function HomePage(): JSX.Element {
           <div className="text-center text-xs uppercase tracking-[0.2em] font-semibold text-slate-500 mb-6">
             Built with
           </div>
-          <div className="marquee">
-            {Array.from({ length: 2 }).map((_, dup) => (
-              <div
-                key={dup}
-                className="flex items-center gap-10 px-5 text-slate-600 dark:text-slate-300 font-semibold text-lg"
-              >
-                <span>TypeScript</span>
-                <span className="opacity-40">·</span>
-                <span>React</span>
-                <span className="opacity-40">·</span>
-                <span>Vite</span>
-                <span className="opacity-40">·</span>
-                <span>Express</span>
-                <span className="opacity-40">·</span>
-                <span>Postgres</span>
-                <span className="opacity-40">·</span>
-                <span>Redis</span>
-                <span className="opacity-40">·</span>
-                <span>BullMQ</span>
-                <span className="opacity-40">·</span>
-                <span>WebSocket</span>
-                <span className="opacity-40">·</span>
-                <span>Leaflet</span>
-                <span className="opacity-40">·</span>
-                <span>Tailwind</span>
-                <span className="opacity-40">·</span>
-                <span>Docker</span>
-                <span className="opacity-40">·</span>
-                <span>Azure</span>
-                <span className="opacity-40">·</span>
-              </div>
-            ))}
-          </div>
+          <TechLogos />
         </section>
 
         {/* How it works */}
