@@ -42,7 +42,16 @@ export function useSession(): SessionState {
     try {
       await fetch("/logout", { method: "POST", credentials: "same-origin" });
     } catch {
-      // Best-effort. Refresh below will reflect the real server state.
+      // Best-effort. The hard-navigate below tears down state regardless.
+    }
+    // Hard-navigate to home instead of just refreshing the in-memory session.
+    // Without this, /analytics + /links keep their dashboard hooks alive —
+    // WebSocket reconnects, click streams keep painting — even though the
+    // user has signed out. The reload guarantees every subscription is torn
+    // down and the user lands on a guest-appropriate page.
+    if (typeof window !== "undefined") {
+      window.location.assign("/");
+      return;
     }
     await refresh();
   }, [refresh]);
