@@ -10,6 +10,7 @@ import { DemoRulesPanel } from "../components/DemoRulesPanel.js";
 import { TimeSeriesChart } from "../components/TimeSeriesChart.js";
 import { Breakdown } from "../components/Breakdown.js";
 import { RunDemoButton } from "../components/RunDemoButton.js";
+import { PlaygroundBadge } from "../components/PlaygroundBadge.js";
 import { DashboardFiltersProvider, useDashboardFilters } from "../contexts/DashboardFilters.js";
 import { CURATED_COUNTRIES } from "../lib/continents.js";
 import { useDemoSimulator } from "../hooks/useDemoSimulator.js";
@@ -82,7 +83,8 @@ function DemoInner(): JSX.Element {
                 are instant.
               </p>
             </div>
-            <div className="flex items-center gap-4 flex-wrap justify-end">
+            <div className="flex items-center gap-3 flex-wrap justify-end">
+              <PlaygroundBadge />
               <RunDemoButton
                 running={sim.running}
                 remainingSeconds={sim.remainingSeconds}

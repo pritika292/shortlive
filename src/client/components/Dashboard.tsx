@@ -10,6 +10,7 @@ import { TopBar } from "./TopBar.js";
 import { Footer } from "./Footer.js";
 import { ContinentFilter } from "./ContinentFilter.js";
 import { CountryChipFilter } from "./CountryChipFilter.js";
+import { PlaygroundBadge } from "./PlaygroundBadge.js";
 import { DashboardFiltersProvider, useDashboardFilters } from "../contexts/DashboardFilters.js";
 import { CURATED_COUNTRIES } from "../lib/continents.js";
 
@@ -84,13 +85,14 @@ function DashboardInner({
         />
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-10">
           <header className="mb-8 flex items-end justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="text-4xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+            <div className="min-w-0">
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent break-all">
                 {title}
               </h1>
               <p className="text-base text-slate-600 dark:text-slate-400 mt-2">{subtitle}</p>
             </div>
-            <div className="flex items-center gap-4 flex-wrap justify-end">
+            <div className="flex items-center gap-3 flex-wrap justify-end shrink-0">
+              <PlaygroundBadge />
               <ConnectionDot status={status} />
               {headerRight}
             </div>

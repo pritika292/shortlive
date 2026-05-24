@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useSession } from "../hooks/useSession.js";
 import { ContactStrip } from "./ContactStrip.js";
 import { ThemeToggle } from "./ThemeToggle.js";
@@ -61,16 +60,17 @@ export function TopBar({ current }: Props = {}): JSX.Element {
             <span className="text-slate-500 text-xs">…</span>
           ) : isAuthed ? (
             <div className="flex items-center gap-2">
-              {session.user?.temp && session.user.expires_at ? (
-                <PlaygroundCountdown expiresAt={session.user.expires_at} />
-              ) : (
-                <span className="hidden sm:inline-flex items-center gap-2 px-3 h-10 rounded-full border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] text-sm font-medium text-slate-700 dark:text-slate-200">
-                  <span className="inline-flex h-6 w-6 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-white text-xs font-bold items-center justify-center">
-                    {session.user?.username?.[0]?.toUpperCase() ?? "?"}
-                  </span>
-                  {session.user?.username}
+              {/* The playground countdown used to live here. It pushed the
+                  TopBar into wrap territory once #82 added the email + #150
+                  bumped contact icons. The countdown now renders on each
+                  page's own header via <PlaygroundBadge />, where there's
+                  room for it. (#150 follow-up) */}
+              <span className="hidden md:inline-flex items-center gap-2 px-3 h-10 rounded-full border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] text-sm font-medium text-slate-700 dark:text-slate-200">
+                <span className="inline-flex h-6 w-6 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-white text-xs font-bold items-center justify-center">
+                  {session.user?.username?.[0]?.toUpperCase() ?? "?"}
                 </span>
-              )}
+                {session.user?.username}
+              </span>
               <button
                 type="button"
                 onClick={() => void session.logout()}
@@ -101,37 +101,6 @@ export function TopBar({ current }: Props = {}): JSX.Element {
         </div>
       </div>
     </header>
-  );
-}
-
-function PlaygroundCountdown({ expiresAt }: { expiresAt: string }): JSX.Element {
-  const expiresMs = new Date(expiresAt).getTime();
-  const [remaining, setRemaining] = useState(() => Math.max(0, expiresMs - Date.now()));
-  useEffect(() => {
-    const id = setInterval(() => {
-      const next = Math.max(0, expiresMs - Date.now());
-      setRemaining(next);
-      // When the playground session ends, refresh the page so the server's
-      // session middleware can clear our cookie and we land back on guest UI.
-      if (next === 0) window.location.reload();
-    }, 1_000);
-    return () => clearInterval(id);
-  }, [expiresMs]);
-  const mins = Math.floor(remaining / 60_000);
-  const secs = Math.floor((remaining % 60_000) / 1_000);
-  return (
-    <span
-      title="Temporary playground session. Data wipes when the timer runs out."
-      className="inline-flex items-center gap-2 px-3 h-10 rounded-full border border-amber-300/70 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 text-sm font-medium text-amber-800 dark:text-amber-200"
-    >
-      <span aria-hidden className="relative inline-flex h-2 w-2">
-        <span className="absolute inset-0 rounded-full bg-amber-400 animate-ping opacity-75" />
-        <span className="relative inline-block h-2 w-2 rounded-full bg-amber-500" />
-      </span>
-      <span className="tabular-nums">
-        Playground · {mins}m {secs.toString().padStart(2, "0")}s
-      </span>
-    </span>
   );
 }
 

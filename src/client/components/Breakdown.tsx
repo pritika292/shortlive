@@ -1,13 +1,5 @@
 import type { BreakdownRow } from "../hooks/useSeries.js";
-
-function flagFor(code: string): string {
-  if (code.length !== 2) return "🌐";
-  const base = 0x1f1e6;
-  const a = code.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
-  const b = code.toUpperCase().charCodeAt(1) - "A".charCodeAt(0);
-  if (a < 0 || a > 25 || b < 0 || b > 25) return "🌐";
-  return String.fromCodePoint(base + a) + String.fromCodePoint(base + b);
-}
+import { flagFor } from "../lib/flag.js";
 
 interface Props {
   rows: BreakdownRow[];

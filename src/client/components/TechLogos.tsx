@@ -53,20 +53,19 @@ const LOGOS: TechLogo[] = [
 ];
 
 export function TechLogos(): JSX.Element {
-  // Two identical copies side-by-side; CSS marquee translates by -50% so
-  // when the first copy slides off the left, the second is already exactly
-  // in view. For the loop to look seamless, the spacing BETWEEN the two
-  // copies must equal the spacing INSIDE each copy. Each copy uses gap-10
-  // (40px) internally and a 40px right padding (pr-10) — that turns the
-  // seam between copies into the same 40px gap the eye is already used
-  // to seeing between every other logo. (#148)
+  // Three identical copies side-by-side; the marquee keyframe translates by
+  // -33.3333% (one copy's width) so after the slide the viewport always has
+  // at least two copies in view — no gap on the right at the loop point
+  // even on wide monitors. Each copy uses gap-10 (40px) internally and a
+  // 40px right padding (pr-10) so the seam between copies matches the
+  // gap between every other logo. (#148)
   return (
     <div className="marquee">
-      {Array.from({ length: 2 }).map((_, dup) => (
+      {Array.from({ length: 3 }).map((_, dup) => (
         <div
           key={dup}
           className="flex items-center gap-10 pr-10 text-slate-600 dark:text-slate-300"
-          aria-hidden={dup === 1 ? true : undefined}
+          aria-hidden={dup === 0 ? undefined : true}
         >
           {LOGOS.map((logo) => (
             <span key={logo.name} className="flex items-center gap-2.5 font-semibold text-lg">
