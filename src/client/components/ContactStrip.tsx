@@ -75,7 +75,7 @@ const LINKS: LinkSpec[] = [
 
 export function ContactStrip(): JSX.Element {
   return (
-    <div className="hidden sm:flex items-center gap-2 mr-1" aria-label="Pritika's contact links">
+    <div className="hidden sm:flex items-center gap-0.5" aria-label="Pritika's contact links">
       {LINKS.map((l) => {
         const isEmail = l.label === "Email";
         return (
@@ -86,17 +86,17 @@ export function ContactStrip(): JSX.Element {
             rel={l.href.startsWith("mailto:") ? undefined : "noopener noreferrer"}
             aria-label={l.label}
             title={l.label}
-            // #150: bigger icon buttons (h-10 / w-10 baseline; email expands
-            // to fit the full address text inline on sm+). Hover lifts the
-            // bg the way today, but the contact set is now visually distinct
-            // from the QuickstartButton beside it.
+            // Icon buttons sit tight (h-9 / w-9). The email pill expands to
+            // show the full address inline only on lg+; below that it
+            // collapses to icon-only so the TopBar stops wrapping in
+            // playground / quick-try sessions.
             className={
-              "inline-flex items-center justify-center h-10 rounded-full text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.04] transition-colors " +
-              (isEmail ? "px-3 gap-2 font-mono text-sm" : "w-10")
+              "inline-flex items-center justify-center h-9 rounded-full text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.04] transition-colors " +
+              (isEmail ? "px-2.5 gap-1.5 font-mono text-xs" : "w-9")
             }
           >
             {l.icon}
-            {isEmail && <span className="hidden md:inline">{EMAIL}</span>}
+            {isEmail && <span className="hidden lg:inline">{EMAIL}</span>}
           </a>
         );
       })}

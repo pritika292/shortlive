@@ -55,7 +55,7 @@ export function QuickstartButton({
           variant === "primary"
             ? "inline-flex items-center gap-2 px-7 py-3 rounded-full text-base font-semibold text-white bg-gradient-to-r from-emerald-500 via-cyan-500 to-sky-500 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
             : variant === "compact"
-              ? "inline-flex items-center gap-2 h-10 px-4 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 via-cyan-500 to-sky-500 shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+              ? "inline-flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-semibold text-white bg-gradient-to-r from-emerald-500 via-cyan-500 to-sky-500 shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed transition-all whitespace-nowrap"
               : "btn-secondary"
         }
       >
