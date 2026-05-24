@@ -1,8 +1,5 @@
 // Single-file source of truth for the author's contact info. Every link on
 // the About page reads from here; swap any value to update the site.
-//
-// All values below are PLACEHOLDERS for now. Replace before sharing the link
-// with anyone real.
 
 export interface Profile {
   fullName: string;
@@ -12,18 +9,15 @@ export interface Profile {
   linkedinUrl: string;
   githubUrl: string;
   portfolioUrl: string;
-  calendlyUrl: string;
 }
 
 export const PROFILE: Profile = {
   fullName: "Pritika Priyadarshini",
   intro:
-    "Fullstack and distributed-systems engineer. Currently building this and a handful of other small live projects to show how I'd ship product-quality code in a week.",
-  // PLACEHOLDERS — swap these in src/client/lib/profile.ts when ready.
-  email: "hello@example.com",
-  resumeUrl: "https://example.com/pritika-resume.pdf",
-  linkedinUrl: "https://www.linkedin.com/in/example",
+    "Backend / distributed-systems engineer. Five years shipping product-grade services. This and the rest of the projects on pritika.studio are how I show what I build when nobody's watching.",
+  email: "pritikaapriyadarshini@gmail.com",
+  resumeUrl: "https://pritika.studio/resume.pdf",
+  linkedinUrl: "https://linkedin.com/in/pritika-priyadarshini",
   githubUrl: "https://github.com/pritika292",
-  portfolioUrl: "https://example.com",
-  calendlyUrl: "https://calendly.com/example/intro",
+  portfolioUrl: "https://pritika.studio",
 };
