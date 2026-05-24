@@ -53,8 +53,19 @@ authRouter.post("/login", async (req, res) => {
 
 authRouter.post("/logout", async (req, res) => {
   const sid = req.cookies?.[SESSION_COOKIE] as string | undefined;
+  const pool = getPool();
   if (sid) {
-    await deleteSession(getPool(), sid);
+    // If this is a playground (temp) user, delete the user row so the FK
+    // cascades wipe their URLs immediately. Otherwise their short links
+    // would keep working for up to 5 minutes until the temp-user sweeper
+    // ran. Permanent users (expires_at IS NULL) are untouched.
+    if (req.user?.expiresAt) {
+      await pool.query("DELETE FROM auth.users WHERE id = $1 AND expires_at IS NOT NULL", [
+        req.user.id,
+      ]);
+    } else {
+      await deleteSession(pool, sid);
+    }
   }
   res.clearCookie(SESSION_COOKIE, { path: "/" });
   res.json({ ok: true });

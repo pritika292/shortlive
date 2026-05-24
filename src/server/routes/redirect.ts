@@ -16,9 +16,17 @@ interface UrlRow {
   password_hash: string | null;
 }
 
+// JOIN auth.users so we can filter out links whose owner is an expired
+// playground user even before the 5-minute sweeper deletes them. Without
+// this, a link survived (and kept redirecting) for up to 5 minutes after
+// the temp session ended.
 async function loadUrl(short: string): Promise<UrlRow | null> {
   const { rows } = await getPool().query<UrlRow>(
-    "SELECT id, target, expires_at, password_hash FROM urls WHERE short = $1",
+    `SELECT u.id, u.target, u.expires_at, u.password_hash
+       FROM urls u
+       JOIN auth.users a ON a.id = u.owner_id
+      WHERE u.short = $1
+        AND (a.expires_at IS NULL OR a.expires_at > NOW())`,
     [short],
   );
   return rows[0] ?? null;
