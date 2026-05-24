@@ -1,11 +1,76 @@
 // Dense distributed-systems topology for the shortlive About page.
 // Plain SVG. Boxes grouped by tier with a VM "subgraph" frame so the
 // picture reads as real infrastructure, not a marketing flowchart.
+//
+// Box helper auto-wraps long sub-labels at the " · " separator and
+// stretches the rect to fit additional lines. Each box can carry a
+// `tone` prop tinting stroke + label in the site's emerald / sky /
+// cyan / amber / violet / rose palette so the tier rhythm reads at
+// a glance.
+
+type Tone = "accent" | "edge" | "hot" | "async" | "data" | "auth" | "deploy" | "neutral";
+
+const TONE: Record<Tone, { stroke: string; label: string }> = {
+  accent: {
+    stroke: "stroke-emerald-500",
+    label: "fill-emerald-600 dark:fill-emerald-400",
+  },
+  edge: {
+    stroke: "stroke-sky-500 dark:stroke-sky-400",
+    label: "fill-sky-700 dark:fill-sky-300",
+  },
+  hot: {
+    stroke: "stroke-emerald-500 dark:stroke-emerald-400",
+    label: "fill-emerald-700 dark:fill-emerald-300",
+  },
+  async: {
+    stroke: "stroke-amber-500 dark:stroke-amber-400",
+    label: "fill-amber-700 dark:fill-amber-300",
+  },
+  data: {
+    stroke: "stroke-cyan-500 dark:stroke-cyan-400",
+    label: "fill-cyan-700 dark:fill-cyan-300",
+  },
+  auth: {
+    stroke: "stroke-violet-500 dark:stroke-violet-400",
+    label: "fill-violet-700 dark:fill-violet-300",
+  },
+  deploy: {
+    stroke: "stroke-rose-500 dark:stroke-rose-400",
+    label: "fill-rose-700 dark:fill-rose-300",
+  },
+  neutral: {
+    stroke: "stroke-slate-400 dark:stroke-slate-600",
+    label: "fill-slate-900 dark:fill-white",
+  },
+};
+
+const SUB_FONT_SIZE = 11;
+
+function wrapSub(sub: string, w: number): string[] {
+  const charBudget = Math.floor((w - 16) / (SUB_FONT_SIZE * 0.55));
+  if (sub.length <= charBudget) return [sub];
+  const tokens = sub.split(" · ");
+  if (tokens.length === 1) return [sub];
+  const lines: string[] = [];
+  let cur = "";
+  for (const t of tokens) {
+    const next = cur ? `${cur} · ${t}` : t;
+    if (next.length <= charBudget) {
+      cur = next;
+    } else {
+      if (cur) lines.push(cur);
+      cur = t;
+    }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
 
 export function ArchDiagram(): JSX.Element {
   return (
     <svg
-      viewBox="0 0 1200 720"
+      viewBox="0 0 1200 760"
       className="block w-full h-auto"
       role="img"
       aria-label="shortlive architecture: visitor hits Caddy on an Azure VM, the redirect handler responds in under 50ms and asynchronously enqueues a click; a click worker writes Postgres + publishes to Redis pub/sub, a WebSocket hub fans out to dashboards, and a rule engine drains a BullMQ webhook queue with HMAC, exponential backoff, and a dead-letter queue."
@@ -27,14 +92,14 @@ export function ArchDiagram(): JSX.Element {
 
       {/* External (left) */}
       <GroupLabel x={100} y={32} label="EXTERNAL" />
-      <Box x={20} y={50} w={200} h={56} label="visitor" subLabel="GET /:short" />
+      <Box x={20} y={50} w={200} h={56} label="visitor" sub="GET /:short" />
       <Box
         x={20}
         y={130}
         w={200}
         h={56}
         label="dashboard tabs"
-        subLabel="WebSocket subscribers"
+        sub="WebSocket subscribers"
         dashed
       />
       <Box
@@ -43,7 +108,7 @@ export function ArchDiagram(): JSX.Element {
         w={200}
         h={56}
         label="webhook receivers"
-        subLabel="POST + HMAC verify"
+        sub="POST + HMAC verify"
         dashed
       />
       <Box
@@ -52,25 +117,25 @@ export function ArchDiagram(): JSX.Element {
         w={200}
         h={56}
         label="MaxMind GeoLite2"
-        subLabel="country + continent enrich"
+        sub="country + continent enrich"
         dashed
       />
-      <Box
-        x={20}
-        y={370}
-        w={200}
-        h={56}
-        label="GitHub Actions"
-        subLabel="OIDC token exchange"
-        dashed
-      />
+      <Box x={20} y={370} w={200} h={56} label="GitHub Actions" sub="OIDC token exchange" dashed />
 
       {/* VM subgraph */}
-      <VmFrame x={280} y={20} w={620} h={680} label="Azure VM · B2as_v2 · northcentralus" />
+      <VmFrame x={280} y={20} w={620} h={720} label="Azure VM · B2as_v2 · northcentralus" />
 
       {/* Edge: Caddy */}
       <GroupLabel x={420} y={62} label="EDGE" />
-      <Box x={310} y={80} w={220} h={56} label="Caddy" subLabel="TLS · shortlive.pritika.studio" />
+      <Box
+        x={310}
+        y={80}
+        w={220}
+        h={56}
+        label="Caddy"
+        sub="TLS · shortlive.pritika.studio"
+        tone="edge"
+      />
 
       {/* Express tier */}
       <GroupLabel x={420} y={170} label="APP · shortlive :3010" />
@@ -80,8 +145,8 @@ export function ArchDiagram(): JSX.Element {
         w={220}
         h={62}
         label="Express 5 · Node 20"
-        subLabel="helmet · rate-limit · sessions"
-        accent
+        sub="helmet · rate-limit · sessions"
+        tone="accent"
       />
 
       {/* Hot path */}
@@ -92,8 +157,8 @@ export function ArchDiagram(): JSX.Element {
         w={220}
         h={56}
         label="redirect handler"
-        subLabel="SELECT target · 302 · setImmediate"
-        accent
+        sub="SELECT target · 302 · setImmediate"
+        tone="hot"
       />
 
       {/* Async pipeline */}
@@ -104,17 +169,27 @@ export function ArchDiagram(): JSX.Element {
         w={220}
         h={50}
         label="click queue"
-        subLabel="setImmediate · fail-soft"
+        sub="setImmediate · fail-soft"
+        tone="async"
         dashed
       />
-      <Box x={310} y={460} w={220} h={50} label="click worker" subLabel="INSERT · ZADD · PUBLISH" />
+      <Box
+        x={310}
+        y={460}
+        w={220}
+        h={50}
+        label="click worker"
+        sub="INSERT · ZADD · PUBLISH"
+        tone="async"
+      />
       <Box
         x={310}
         y={520}
         w={220}
         h={50}
         label="rule engine"
-        subLabel="threshold · velocity · per-click"
+        sub="threshold · velocity · per-click"
+        tone="async"
       />
       <Box
         x={310}
@@ -122,15 +197,17 @@ export function ArchDiagram(): JSX.Element {
         w={220}
         h={50}
         label="webhook worker"
-        subLabel="BullMQ · 5 tries · DLQ"
+        sub="BullMQ · 5 tries · DLQ"
+        tone="async"
       />
       <Box
         x={310}
         y={640}
         w={220}
-        h={42}
+        h={48}
         label="WebSocket hub"
-        subLabel="ws · subscribe-before-hydrate"
+        sub="ws · subscribe-before-hydrate"
+        tone="async"
       />
 
       {/* Data plane */}
@@ -139,33 +216,37 @@ export function ArchDiagram(): JSX.Element {
         x={620}
         y={80}
         w={260}
-        h={70}
+        h={74}
         label="Postgres 16"
-        subLabel="urls · clicks · rules · firings · sessions · auth.users"
+        sub="urls · clicks · rules · firings · sessions · auth.users"
+        tone="data"
       />
       <Box
         x={620}
-        y={170}
+        y={180}
         w={260}
-        h={56}
+        h={60}
         label="Redis 7 · pub/sub"
-        subLabel="shortlive:clicks.{short} · <1s fan-out"
+        sub="shortlive:clicks.{short} · <1s fan-out"
+        tone="data"
       />
       <Box
         x={620}
-        y={250}
+        y={260}
         w={260}
         h={56}
         label="Redis ZSET"
-        subLabel="recent_clicks:{short} · capped 100"
+        sub="recent_clicks:{short} · capped 100"
+        tone="data"
       />
       <Box
         x={620}
-        y={330}
+        y={340}
         w={260}
         h={56}
         label="BullMQ queue"
-        subLabel="firing_id idempotency · backoff"
+        sub="firing_id idempotency · backoff"
+        tone="data"
       />
 
       {/* Auth + identity */}
@@ -174,39 +255,43 @@ export function ArchDiagram(): JSX.Element {
         x={620}
         y={440}
         w={260}
-        h={50}
+        h={52}
         label="session middleware"
-        subLabel="HttpOnly cookie · sid"
+        sub="HttpOnly cookie · sid"
+        tone="auth"
         dashed
       />
       <Box
         x={620}
-        y={500}
+        y={510}
         w={260}
-        h={50}
+        h={56}
         label="auth.users (shared)"
-        subLabel="ON DELETE CASCADE · sweeper 5m"
+        sub="ON DELETE CASCADE · sweeper 5m"
+        tone="auth"
         dashed
       />
 
       {/* Secrets + deploy */}
-      <GroupLabel x={730} y={570} label="SECRETS · DEPLOY" />
+      <GroupLabel x={730} y={580} label="SECRETS · DEPLOY" />
       <Box
         x={620}
-        y={590}
+        y={600}
         w={260}
         h={48}
         label="Managed Identity"
-        subLabel="VM system-assigned"
+        sub="VM system-assigned"
+        tone="deploy"
         dashed
       />
       <Box
         x={620}
-        y={648}
+        y={660}
         w={260}
-        h={48}
+        h={56}
         label="Azure Key Vault"
-        subLabel="Postgres + Redis creds · boot"
+        sub="Postgres + Redis creds · boot"
+        tone="deploy"
         dashed
       />
 
@@ -218,7 +303,8 @@ export function ArchDiagram(): JSX.Element {
         w={260}
         h={56}
         label="GitHub · pritika292/shortlive"
-        subLabel="ci · deploy · OIDC"
+        sub="ci · deploy · OIDC"
+        tone="deploy"
         dashed
       />
       <Box
@@ -227,7 +313,8 @@ export function ArchDiagram(): JSX.Element {
         w={260}
         h={56}
         label="Azure Entra ID"
-        subLabel="federated identity credential"
+        sub="federated identity credential"
+        tone="deploy"
         dashed
       />
       <Box
@@ -236,7 +323,8 @@ export function ArchDiagram(): JSX.Element {
         w={260}
         h={56}
         label="Azure RBAC"
-        subLabel="VM Contributor · 1 VM"
+        sub="VM Contributor · 1 VM"
+        tone="deploy"
         dashed
       />
       <Box
@@ -245,14 +333,14 @@ export function ArchDiagram(): JSX.Element {
         w={260}
         h={56}
         label="az vm run-command"
-        subLabel="git pull · compose up"
+        sub="git pull · compose up"
+        tone="deploy"
         dashed
       />
 
       {/* Edges */}
-      {/* Visitor -> Caddy -> Express */}
       <Edge from={[220, 78]} to={[310, 108]} />
-      <Edge from={[420, 138]} to={[420, 190]} />
+      <Edge from={[420, 136]} to={[420, 190]} />
 
       {/* Express -> redirect handler */}
       <Edge from={[420, 252]} to={[420, 300]} />
@@ -264,33 +352,33 @@ export function ArchDiagram(): JSX.Element {
       <Edge from={[420, 450]} to={[420, 460]} />
 
       {/* click worker -> Postgres + Redis pub/sub + ZSET */}
-      <Edge from={[530, 470]} to={[620, 115]} />
-      <Edge from={[530, 480]} to={[620, 198]} />
-      <Edge from={[530, 490]} to={[620, 278]} />
+      <Edge from={[530, 470]} to={[620, 117]} />
+      <Edge from={[530, 480]} to={[620, 210]} />
+      <Edge from={[530, 490]} to={[620, 288]} />
 
       {/* click worker -> rule engine */}
       <Edge from={[420, 510]} to={[420, 520]} />
 
       {/* rule engine -> BullMQ queue */}
-      <Edge from={[530, 545]} to={[620, 358]} />
+      <Edge from={[530, 545]} to={[620, 368]} />
 
       {/* BullMQ queue -> webhook worker -> external receivers */}
-      <Edge from={[620, 358]} to={[530, 605]} />
+      <Edge from={[620, 368]} to={[530, 605]} />
       <Edge from={[310, 605]} to={[220, 238]} dashed />
 
       {/* Redis pub/sub -> WS hub -> dashboards */}
-      <Edge from={[620, 198]} to={[530, 661]} />
+      <Edge from={[620, 210]} to={[530, 661]} />
       <Edge from={[310, 661]} to={[220, 158]} dashed />
 
       {/* Express -> sessions / auth */}
-      <Edge from={[530, 220]} to={[620, 465]} dashed />
+      <Edge from={[530, 220]} to={[620, 466]} dashed />
 
-      {/* Click worker -> GeoLite2 (enrichment lookup, in-proc but external db file conceptually) */}
+      {/* Click worker -> GeoLite2 enrichment */}
       <Edge from={[310, 485]} to={[220, 318]} dashed />
 
       {/* MI -> Key Vault (boot) */}
-      <Edge from={[750, 638]} to={[750, 648]} dashed />
-      <Edge from={[530, 235]} to={[620, 614]} dashed />
+      <Edge from={[750, 648]} to={[750, 660]} dashed />
+      <Edge from={[530, 235]} to={[620, 624]} dashed />
 
       {/* Deploy: GitHub -> OIDC -> RBAC -> run-command -> Express */}
       <Edge from={[920, 78]} to={[920, 148]} dashed />
@@ -301,7 +389,7 @@ export function ArchDiagram(): JSX.Element {
       {/* Caption */}
       <text
         x={600}
-        y={710}
+        y={742}
         textAnchor="middle"
         className="fill-slate-500 dark:fill-slate-400 font-mono"
         fontSize={13}
@@ -373,8 +461,8 @@ function Box({
   w,
   h,
   label,
-  subLabel,
-  accent = false,
+  sub,
+  tone = "neutral",
   dashed = false,
 }: {
   x: number;
@@ -382,15 +470,17 @@ function Box({
   w: number;
   h: number;
   label: string;
-  subLabel?: string;
-  accent?: boolean;
+  sub?: string;
+  tone?: Tone;
   dashed?: boolean;
 }): JSX.Element {
-  const stroke = accent
-    ? "stroke-emerald-500"
-    : dashed
-      ? "stroke-slate-300 dark:stroke-slate-700"
-      : "stroke-slate-400 dark:stroke-slate-600";
+  const subLines = sub ? wrapSub(sub, w) : [];
+  const extraHeight = Math.max(0, (subLines.length - 1) * 12);
+  const rectH = h + extraHeight;
+  const palette = TONE[tone];
+  const isAccent = tone === "accent";
+  const strokeClass =
+    dashed && tone === "neutral" ? "stroke-slate-300 dark:stroke-slate-700" : palette.stroke;
   const dashAttr = dashed ? "6 4" : undefined;
   return (
     <g>
@@ -398,38 +488,35 @@ function Box({
         x={x}
         y={y}
         width={w}
-        height={h}
+        height={rectH}
         rx={6}
         ry={6}
-        className={`fill-transparent ${stroke}`}
-        strokeWidth={1.5}
+        className={`fill-transparent ${strokeClass}`}
+        strokeWidth={isAccent ? 1.75 : 1.5}
         strokeDasharray={dashAttr}
       />
       <text
         x={x + w / 2}
-        y={subLabel === undefined ? y + h / 2 + 5 : y + h / 2 - 4}
+        y={sub ? y + h / 2 - 4 : y + h / 2 + 5}
         textAnchor="middle"
-        className={
-          accent
-            ? "fill-emerald-600 dark:fill-emerald-400 font-mono"
-            : "fill-slate-900 dark:fill-white font-mono"
-        }
-        fontSize={accent ? 16 : 14}
-        fontWeight={accent ? 600 : 500}
+        className={`${palette.label} font-mono`}
+        fontSize={isAccent ? 16 : 14}
+        fontWeight={isAccent ? 600 : 500}
       >
         {label}
       </text>
-      {subLabel !== undefined && (
+      {subLines.map((line, i) => (
         <text
+          key={i}
           x={x + w / 2}
-          y={y + h / 2 + 14}
+          y={y + h / 2 + 14 + i * 12}
           textAnchor="middle"
           className="fill-slate-500 dark:fill-slate-400 font-mono"
-          fontSize={11}
+          fontSize={SUB_FONT_SIZE}
         >
-          {subLabel}
+          {line}
         </text>
-      )}
+      ))}
     </g>
   );
 }
