@@ -70,23 +70,23 @@ export function AboutPage(): JSX.Element {
             <p className="text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-slate-400">
               Story
             </p>
-            <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
+            <p className="text-[15px] leading-relaxed text-justify text-slate-700 dark:text-slate-300">
               shortlive is a URL shortener with a sub-second live analytics dashboard. Click a short
               link, the dashboard updates before the next blink.
             </p>
-            <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
+            <p className="text-[15px] leading-relaxed text-justify text-slate-700 dark:text-slate-300">
               The redirect path stays fast by being deliberately boring: a single indexed lookup, a
               302, and an asynchronous enqueue of the click event. Nothing else runs in the hot
               path. A worker drains the queue, writes the row to Postgres, and publishes the click
               on a Redis channel. A WebSocket hub fans the event out to every dashboard tab watching
               that link.
             </p>
-            <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
+            <p className="text-[15px] leading-relaxed text-justify text-slate-700 dark:text-slate-300">
               The rule engine on the side runs HMAC-signed webhooks with exponential backoff and a
               dead-letter queue for terminal failures, so &ldquo;send my click to my CRM&rdquo; is
               one rule away.
             </p>
-            <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
+            <p className="text-[15px] leading-relaxed text-justify text-slate-700 dark:text-slate-300">
               The whole stack runs on one Azure VM in northcentralus, deployed by GitHub Actions via
               OIDC. No long-lived secrets in the repo; runtime configuration is materialized from
               Azure Key Vault at boot.
