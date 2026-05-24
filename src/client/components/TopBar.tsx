@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSession } from "../hooks/useSession.js";
+import { ContactStrip } from "./ContactStrip.js";
 import { ThemeToggle } from "./ThemeToggle.js";
 import { LogoMark } from "./Logo.js";
 import { QuickstartButton } from "./QuickstartButton.js";
@@ -54,6 +55,7 @@ export function TopBar({ current }: Props = {}): JSX.Element {
         </nav>
 
         <div className="ml-auto flex items-center gap-2 text-sm">
+          <ContactStrip />
           <ThemeToggle />
           {session.status === "loading" ? (
             <span className="text-slate-500 text-xs">…</span>
