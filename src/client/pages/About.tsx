@@ -1,77 +1,153 @@
 import { TopBar } from "../components/TopBar.js";
 import { Footer } from "../components/Footer.js";
+import { ArchDiagram } from "../components/ArchDiagram.js";
 import { PROFILE } from "../lib/profile.js";
+
+interface TechRow {
+  name: string;
+  why: string;
+}
+
+const TECH: TechRow[] = [
+  {
+    name: "Express 5 + TypeScript",
+    why: "thin router for the redirect hot path; strict types end-to-end",
+  },
+  {
+    name: "React 18 + Vite",
+    why: "fast HMR; one bundle for landing + dashboard + demo + analytics",
+  },
+  { name: "Postgres 16", why: "links, clicks, rules, webhook events; idx on (short, created_at)" },
+  { name: "Redis 7", why: "pub/sub fan-out for live dashboard updates; rate-limit buckets" },
+  {
+    name: "WebSocket",
+    why: "sub-second click → dashboard; one socket per browser, fanned out from Redis",
+  },
+  { name: "Recharts", why: "click time-series + per-link breakdown" },
+  { name: "Caddy", why: "Let's Encrypt + reverse proxy at shortlive.pritika.studio" },
+  {
+    name: "GitHub Actions + OIDC",
+    why: "lint / build / deploy on push to main; no long-lived secrets",
+  },
+];
 
 export function AboutPage(): JSX.Element {
   const firstName = PROFILE.fullName.split(" ")[0] ?? PROFILE.fullName;
   return (
     <>
       <TopBar current="about" />
-      <main className="relative min-h-[calc(100vh-72px)] max-w-3xl mx-auto px-6 lg:px-8 py-16">
+      <main className="relative min-h-[calc(100vh-72px)] max-w-screen-2xl mx-auto px-6 lg:px-8 xl:px-12 py-14">
         <div
           aria-hidden
           className="absolute -top-24 left-1/2 -translate-x-1/2 -z-10 h-[300px] w-[600px] rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-500/10"
         />
-        <div className="text-center mb-12">
+
+        <header className="text-center mb-12">
           <span className="inline-flex h-20 w-20 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-500 text-white text-3xl font-bold items-center justify-center shadow-xl shadow-emerald-500/30 mb-5">
             {firstName.charAt(0)}
           </span>
           <h1 className="text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-3">
             Hi, I&apos;m {firstName}.
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
             {PROFILE.intro}
           </p>
-        </div>
+        </header>
 
-        <div className="glass-card divide-y divide-slate-200/60 dark:divide-white/5 overflow-hidden">
-          <Row
-            label="Email"
-            value={PROFILE.email}
-            href={`mailto:${PROFILE.email}`}
-            icon={EmailIcon}
-          />
-          <Row
-            label="Resume"
-            value="Download PDF"
-            href={PROFILE.resumeUrl}
-            external
-            icon={FileIcon}
-          />
-          <Row
-            label="LinkedIn"
-            value={PROFILE.linkedinUrl}
-            href={PROFILE.linkedinUrl}
-            external
-            icon={LinkedinIcon}
-          />
-          <Row
-            label="GitHub"
-            value={PROFILE.githubUrl}
-            href={PROFILE.githubUrl}
-            external
-            icon={GithubIcon}
-          />
-          <Row
-            label="Portfolio"
-            value={PROFILE.portfolioUrl}
-            href={PROFILE.portfolioUrl}
-            external
-            icon={GlobeIcon}
-          />
-          <Row
-            label="Schedule a chat"
-            value="Pick a time on Calendly"
-            href={PROFILE.calendlyUrl}
-            external
-            icon={CalendarIcon}
-          />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Left: story */}
+          <section className="space-y-5">
+            <p className="text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-slate-400">
+              Story
+            </p>
+            <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
+              shortlive is a URL shortener with a sub-second live analytics dashboard. Click a short
+              link, the dashboard updates before the next blink.
+            </p>
+            <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
+              The redirect path stays fast by being deliberately boring: a single indexed lookup, a
+              302, and an asynchronous enqueue of the click event. Nothing else runs in the hot
+              path. A worker drains the queue, writes the row to Postgres, and publishes the click
+              on a Redis channel. A WebSocket hub fans the event out to every dashboard tab watching
+              that link.
+            </p>
+            <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
+              The rule engine on the side runs HMAC-signed webhooks with exponential backoff and a
+              dead-letter queue for terminal failures, so &ldquo;send my click to my CRM&rdquo; is
+              one rule away.
+            </p>
+            <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
+              The whole stack runs on one Azure VM in northcentralus, deployed by GitHub Actions via
+              OIDC. No long-lived secrets in the repo; runtime configuration is materialized from
+              Azure Key Vault at boot.
+            </p>
+          </section>
 
-        <p className="text-xs text-center text-slate-500 mt-6">
-          Some links are placeholder values until I publish the real ones. Email me directly above
-          if anything is missing.
-        </p>
+          {/* Middle: diagram + tech */}
+          <section className="space-y-5">
+            <p className="text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-slate-400">
+              Tech
+            </p>
+            <div className="glass-card p-5">
+              <ArchDiagram />
+            </div>
+            <dl className="space-y-3">
+              {TECH.map((t) => (
+                <div key={t.name}>
+                  <dt className="font-mono text-sm text-slate-900 dark:text-white">{t.name}</dt>
+                  <dd className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">{t.why}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          {/* Right: contact */}
+          <section className="space-y-5">
+            <p className="text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-slate-400">
+              Contact
+            </p>
+            <div className="glass-card divide-y divide-slate-200/60 dark:divide-white/5 overflow-hidden">
+              <Row
+                label="Resume"
+                value="resume.pdf"
+                href={PROFILE.resumeUrl}
+                external
+                icon={FileIcon}
+              />
+              <Row
+                label="Email"
+                value={PROFILE.email}
+                href={`mailto:${PROFILE.email}`}
+                icon={EmailIcon}
+              />
+              <Row
+                label="LinkedIn"
+                value="linkedin.com/in/pritika-priyadarshini"
+                href={PROFILE.linkedinUrl}
+                external
+                icon={LinkedinIcon}
+              />
+              <Row
+                label="GitHub"
+                value="github.com/pritika292"
+                href={PROFILE.githubUrl}
+                external
+                icon={GithubIcon}
+              />
+              <Row
+                label="Portfolio"
+                value="pritika.studio"
+                href={PROFILE.portfolioUrl}
+                external
+                icon={GlobeIcon}
+              />
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              5-YOE backend / distributed-systems engineer. Open to senior IC roles — US-remote
+              preferred, on-site SF / NYC welcome.
+            </p>
+          </section>
+        </div>
       </main>
       <Footer />
     </>
@@ -96,16 +172,18 @@ function Row({
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors group"
+      className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors group"
     >
-      <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-white/[0.06] dark:to-white/[0.02] text-slate-700 dark:text-slate-200 group-hover:from-emerald-500 group-hover:to-cyan-500 group-hover:text-white transition-all">
+      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-white/[0.06] dark:to-white/[0.02] text-slate-700 dark:text-slate-200 group-hover:from-emerald-500 group-hover:to-cyan-500 group-hover:text-white transition-all">
         <Icon />
       </span>
       <div className="flex-1 min-w-0">
-        <div className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
+        <div className="text-[11px] uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
           {label}
         </div>
-        <div className="text-base text-slate-900 dark:text-white truncate font-medium">{value}</div>
+        <div className="text-sm text-slate-900 dark:text-white truncate font-medium font-mono">
+          {value}
+        </div>
       </div>
       <span
         aria-hidden
@@ -217,26 +295,6 @@ function GlobeIcon(): JSX.Element {
       <circle cx="12" cy="12" r="10" />
       <line x1="2" y1="12" x2="22" y2="12" />
       <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-    </svg>
-  );
-}
-function CalendarIcon(): JSX.Element {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5"
-      aria-hidden
-    >
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
     </svg>
   );
 }
