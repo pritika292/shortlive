@@ -116,7 +116,7 @@ export function AboutPage(): JSX.Element {
             <div className="glass-card divide-y divide-slate-200/60 dark:divide-white/5 overflow-hidden">
               <Row
                 label="Resume"
-                value="resume.pdf"
+                value="pritika_resume.pdf"
                 href={PROFILE.resumeUrl}
                 external
                 icon={FileIcon}
