@@ -110,12 +110,7 @@ export function CreatePage(): JSX.Element {
               Share it anywhere, and watch clicks land in real time.
             </p>
 
-            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] p-4 mb-5 flex items-center justify-between gap-3">
-              <code className="text-base font-semibold text-emerald-600 dark:text-emerald-400 break-all">
-                {created.url}
-              </code>
-              <CopyButton text={created.url} />
-            </div>
+            <ShortUrlPanel url={created.url} />
 
             <div className="flex flex-wrap gap-3">
               <a href={created.url} target="_blank" rel="noreferrer" className="btn-secondary">
@@ -284,6 +279,82 @@ function legacyCopy(text: string): boolean {
   }
   document.body.removeChild(ta);
   return ok;
+}
+
+async function copyToClipboard(text: string): Promise<boolean> {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      /* fall through to legacy */
+    }
+  }
+  return legacyCopy(text);
+}
+
+// The whole short URL is the click target: click it, the URL copies and a
+// transient "Copied!" affordance replaces the help text. (#151)
+function ShortUrlPanel({ url }: { url: string }): JSX.Element {
+  const [copied, setCopied] = useState(false);
+  async function handleClick(): Promise<void> {
+    const ok = await copyToClipboard(url);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => void handleClick()}
+      title="Click to copy"
+      aria-label="Click to copy short URL to clipboard"
+      className="w-full mb-5 group rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.04] dark:hover:bg-white/[0.06] transition-colors p-4 flex items-center justify-between gap-3 text-left"
+    >
+      <code className="text-base font-semibold text-emerald-600 dark:text-emerald-400 break-all">
+        {url}
+      </code>
+      <span className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">
+        {copied ? (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4 text-emerald-500"
+              aria-hidden
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Copied
+          </>
+        ) : (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+              aria-hidden
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            Click to copy
+          </>
+        )}
+      </span>
+    </button>
+  );
 }
 
 function CopyButton({ text }: { text: string }): JSX.Element {
