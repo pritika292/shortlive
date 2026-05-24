@@ -20,9 +20,14 @@ function Countdown({ expiresAt }: { expiresAt: string }): JSX.Element {
     const id = setInterval(() => {
       const next = Math.max(0, expiresMs - Date.now());
       setRemaining(next);
-      // When the playground session ends, refresh the page so the server's
-      // session middleware can clear our cookie and we land back on guest UI.
-      if (next === 0) window.location.reload();
+      // When the playground session ends, hard-navigate home so every
+      // dashboard hook and WebSocket subscription unmounts and the user
+      // lands on a guest-appropriate page. Reloading the current page is
+      // not enough — analytics/links would keep tracking against the now-
+      // dead session.
+      if (next === 0 && typeof window !== "undefined") {
+        window.location.assign("/");
+      }
     }, 1_000);
     return () => clearInterval(id);
   }, [expiresMs]);

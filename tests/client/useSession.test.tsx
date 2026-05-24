@@ -28,15 +28,26 @@ describe("useSession", () => {
     expect(result.current.user).toBeNull();
   });
 
-  it("logout POSTs /logout and refreshes to guest", async () => {
+  it("logout POSTs /logout and navigates to /", async () => {
     fetchSpy
       .mockResolvedValueOnce(new Response(JSON.stringify({ username: "alice" }), { status: 200 }))
-      .mockResolvedValueOnce(new Response("", { status: 200 })) // logout
-      .mockResolvedValueOnce(new Response("", { status: 401 })); // refreshed whoami
+      .mockResolvedValueOnce(new Response("", { status: 200 })); // logout
+    const assignSpy = vi.fn();
+    const original = window.location;
+    Object.defineProperty(window, "location", {
+      value: { ...original, assign: assignSpy },
+      writable: true,
+      configurable: true,
+    });
     const { result } = renderHook(() => useSession());
     await waitFor(() => expect(result.current.status).toBe("authed"));
     await result.current.logout();
-    await waitFor(() => expect(result.current.status).toBe("guest"));
     expect(fetchSpy).toHaveBeenCalledWith("/logout", expect.objectContaining({ method: "POST" }));
+    expect(assignSpy).toHaveBeenCalledWith("/");
+    Object.defineProperty(window, "location", {
+      value: original,
+      writable: true,
+      configurable: true,
+    });
   });
 });

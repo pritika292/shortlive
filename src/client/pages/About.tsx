@@ -54,6 +54,16 @@ export function AboutPage(): JSX.Element {
           </p>
         </header>
 
+        {/* Full-width architecture diagram. Used to live inside the
+            middle column and was too small to read. Now spans the page so
+            labels and edges are legible at typical viewport widths. */}
+        <section className="glass-card p-6 lg:p-8 mb-8">
+          <p className="text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-slate-400 mb-4">
+            Architecture
+          </p>
+          <ArchDiagram />
+        </section>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left: story */}
           <section className="space-y-5">
@@ -83,14 +93,11 @@ export function AboutPage(): JSX.Element {
             </p>
           </section>
 
-          {/* Middle: diagram + tech */}
+          {/* Middle: tech list (diagram moved to its own full-width section above). */}
           <section className="space-y-5">
             <p className="text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-slate-400">
               Tech
             </p>
-            <div className="glass-card p-5">
-              <ArchDiagram />
-            </div>
             <dl className="space-y-3">
               {TECH.map((t) => (
                 <div key={t.name}>
