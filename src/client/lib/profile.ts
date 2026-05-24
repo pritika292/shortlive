@@ -16,7 +16,7 @@ export const PROFILE: Profile = {
   intro:
     "Backend / distributed-systems engineer. Five years shipping product-grade services. This and the rest of the projects on pritika.studio are how I show what I build when nobody's watching.",
   email: "pritikaapriyadarshini@gmail.com",
-  resumeUrl: "https://pritika.studio/resume.pdf",
+  resumeUrl: "https://pritika.studio/pritika_resume.pdf",
   linkedinUrl: "https://linkedin.com/in/pritika-priyadarshini",
   githubUrl: "https://github.com/pritika292",
   portfolioUrl: "https://pritika.studio",
