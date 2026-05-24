@@ -4,9 +4,11 @@ import { LogoMark } from "../components/Logo.js";
 import { QuickstartButton } from "../components/QuickstartButton.js";
 import { TechLogos } from "../components/TechLogos.js";
 import { useSession } from "../hooks/useSession.js";
+import { useVisitBeacon } from "../hooks/useVisitBeacon.js";
 
 export function HomePage(): JSX.Element {
   const session = useSession();
+  useVisitBeacon();
 
   return (
     <>
