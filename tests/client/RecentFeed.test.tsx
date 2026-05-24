@@ -13,21 +13,36 @@ describe("<RecentFeed />", () => {
     expect(screen.getByText(/waiting for the first click/i)).toBeInTheDocument();
   });
 
-  it("renders 20 clicks newest-first", () => {
+  it("caps at 10 rows even when given more clicks (stable card height — #141)", () => {
     const now = Date.now();
     const clicks: ClickEvent[] = Array.from({ length: 20 }, (_, i) =>
       makeClick(now - i * 1000, i % 2 === 0 ? "US" : "DE"),
     );
     render(<RecentFeed clicks={clicks} />);
-    expect(screen.getAllByRole("listitem")).toHaveLength(20);
+    // Always exactly 10 slots: 10 real clicks fill them; no placeholders here.
+    expect(screen.getAllByRole("listitem")).toHaveLength(10);
     // Spot-check both country codes appear.
     expect(screen.getAllByText("US").length).toBeGreaterThan(0);
     expect(screen.getAllByText("DE").length).toBeGreaterThan(0);
   });
 
+  it("pads to 10 rows with empty placeholders so layout stays stable (#141)", () => {
+    const now = Date.now();
+    const { container } = render(
+      <RecentFeed clicks={[makeClick(now, "US"), makeClick(now - 1000, "DE")]} />,
+    );
+    // 2 real clicks visible to a11y tree; 8 placeholders are aria-hidden so
+    // getAllByRole excludes them — but the total <li> count is 10 (stable
+    // card height is the invariant).
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(container.querySelectorAll("li")).toHaveLength(10);
+    expect(screen.getByText("US")).toBeInTheDocument();
+    expect(screen.getByText("DE")).toBeInTheDocument();
+  });
+
   it("hides null-country entries so the feed never shows 'Unknown' clutter", () => {
     const now = Date.now();
-    render(
+    const { container } = render(
       <RecentFeed
         clicks={[
           makeClick(now, null),
@@ -37,7 +52,9 @@ describe("<RecentFeed />", () => {
         ]}
       />,
     );
+    // 2 real (after filtering nulls) visible to a11y; total <li> stays at 10.
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(container.querySelectorAll("li")).toHaveLength(10);
     expect(screen.queryByText(/unknown/i)).not.toBeInTheDocument();
     expect(screen.getByText("US")).toBeInTheDocument();
     expect(screen.getByText("DE")).toBeInTheDocument();
