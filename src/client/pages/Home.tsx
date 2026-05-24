@@ -11,22 +11,30 @@ export function HomePage(): JSX.Element {
   return (
     <>
       <TopBar current="home" />
-      <main className="relative">
+      {/* Page-level ambient gradient + radial blobs (#147). Was scoped
+          to the hero section, which left every section below sitting on a
+          flat slab and the seam between hero and feature cards looked
+          like two pages stitched together. Now covers the entire main so
+          all sections share one continuous surface. */}
+      <main className="relative overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-emerald-200/40 via-cyan-100/15 to-fuchsia-200/20 dark:from-emerald-500/12 dark:via-cyan-500/8 dark:to-fuchsia-500/8"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 -left-24 -z-10 h-[500px] w-[500px] rounded-full bg-emerald-400/20 blur-3xl dark:bg-emerald-500/10"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-10 -right-24 -z-10 h-[500px] w-[500px] rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-500/10"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-[900px] left-1/2 -translate-x-1/2 -z-10 h-[500px] w-[700px] rounded-full bg-fuchsia-400/10 blur-3xl dark:bg-fuchsia-500/6"
+        />
         {/* Hero band */}
-        <section className="relative overflow-hidden">
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-gradient-to-br from-emerald-200/40 via-cyan-100/20 to-fuchsia-200/30 dark:from-emerald-500/15 dark:via-cyan-500/10 dark:to-fuchsia-500/10"
-          />
-          <div
-            aria-hidden
-            className="absolute -top-32 -left-24 -z-10 h-[500px] w-[500px] rounded-full bg-emerald-400/20 blur-3xl dark:bg-emerald-500/10"
-          />
-          <div
-            aria-hidden
-            className="absolute top-10 -right-24 -z-10 h-[500px] w-[500px] rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-500/10"
-          />
-
+        <section className="relative">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-20 pb-20">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
@@ -185,7 +193,7 @@ export function HomePage(): JSX.Element {
         </section>
 
         {/* Stack ribbon */}
-        <section className="border-y border-slate-200 dark:border-white/5 bg-slate-50/60 dark:bg-white/[0.02] py-8 overflow-hidden">
+        <section className="border-y border-slate-200/40 dark:border-white/5 py-8 overflow-hidden">
           <div className="text-center text-xs uppercase tracking-[0.2em] font-semibold text-slate-500 mb-6">
             Built with
           </div>
